@@ -227,7 +227,7 @@ static inline lua_Number lauxh_checknumber( lua_State *L, int idx )
 }
 
 
-static inline lua_Integer lauxh_optnumber( lua_State *L, int idx,
+static inline lua_Number lauxh_optnumber( lua_State *L, int idx,
                                            lua_Integer def )
 {
     if( lauxh_isnil( L, idx ) ){
