@@ -311,7 +311,7 @@ static inline lua_CFunction lauxh_checkcfunction( lua_State *L, int idx )
 
 /* lightuserdata argument */
 
-static inline void *lauxh_checkpointer( lua_State *L, int idx )
+static inline const void *lauxh_checkpointer( lua_State *L, int idx )
 {
     luaL_checktype( L, idx, LUA_TLIGHTUSERDATA );
     return lua_topointer( L, idx );
