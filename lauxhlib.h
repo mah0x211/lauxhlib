@@ -290,6 +290,34 @@ static inline void lauxh_checktable( lua_State *L, int idx )
 }
 
 
+static inline const char *lauxh_checklstringof( lua_State *L, const char *k,
+                                                size_t *len )
+{
+    const char *v = NULL;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_checklstring( L, -1, len );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline const char *lauxh_optlstringof( lua_State *L, const char *k,
+                                              const char *def, size_t *len )
+{
+    const char *v = NULL;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_optlstring( L, -1, def, len );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 
 /* thread argument */
 
