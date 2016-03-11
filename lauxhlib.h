@@ -318,6 +318,33 @@ static inline const char *lauxh_optlstringof( lua_State *L, const char *k,
 }
 
 
+static inline const char *lauxh_checkstringof( lua_State *L, const char *k )
+{
+    const char *v = NULL;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_checkstring( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline const char *lauxh_optstringof( lua_State *L, const char *k,
+                                             const char *def )
+{
+    const char *v = NULL;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_optstring( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 
 /* thread argument */
 
