@@ -282,6 +282,15 @@ static inline int lauxh_optboolean( lua_State *L, int idx, int def )
 
 
 
+/* table argument */
+
+static inline void lauxh_checktable( lua_State *L, int idx )
+{
+    luaL_checktype( L, idx, LUA_TTABLE );
+}
+
+
+
 /* thread argument */
 
 static inline lua_State *lauxh_checkthread( lua_State *L, int idx )
