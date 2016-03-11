@@ -372,6 +372,33 @@ static inline lua_Number lauxh_optnumberof( lua_State *L, const char *k,
 }
 
 
+static inline lua_Integer lauxh_checkintegerof( lua_State *L, const char *k )
+{
+    lua_Integer v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_checkinteger( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Integer lauxh_optintegerof( lua_State *L, const char *k,
+                                              lua_Integer def )
+{
+    lua_Integer v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_optinteger( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 
 /* thread argument */
 
