@@ -399,6 +399,32 @@ static inline lua_Integer lauxh_optintegerof( lua_State *L, const char *k,
 }
 
 
+static inline int lauxh_checkbooleanof( lua_State *L, const char *k )
+{
+    int v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_checkboolean( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline int lauxh_optbooleanof( lua_State *L, const char *k, int def )
+{
+    int v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_optboolean( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 
 /* thread argument */
 
