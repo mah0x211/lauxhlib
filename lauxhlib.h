@@ -345,6 +345,33 @@ static inline const char *lauxh_optstringof( lua_State *L, const char *k,
 }
 
 
+static inline lua_Number lauxh_checknumberof( lua_State *L, const char *k )
+{
+    lua_Number v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_checknumber( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Number lauxh_optnumberof( lua_State *L, const char *k,
+                                            lua_Number def )
+{
+    lua_Number v = 0;
+
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    v = lauxh_optnumber( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 
 /* thread argument */
 
