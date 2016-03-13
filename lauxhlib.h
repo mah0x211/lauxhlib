@@ -60,6 +60,13 @@
 
 /* table */
 
+#define lauxh_pushnil2tbl(L, k) do{ \
+    lua_pushstring(L, k); \
+    lua_pushnil(L); \
+    lua_rawset(L, -3); \
+}while(0)
+
+
 #define lauxh_pushfn2tbl(L, k, v) do{ \
     lua_pushstring(L, k); \
     lua_pushcfunction(L, v); \
@@ -103,6 +110,12 @@
 
 
 /* table as array */
+
+#define lauxh_pushnil2arr(L, idx) do{ \
+    lua_pushnil(L); \
+    lua_rawseti(L, -2, idx); \
+}while(0)
+
 
 #define lauxh_pushfn2arr(L, idx, v) do{ \
     lua_pushcfunction(L, v); \
