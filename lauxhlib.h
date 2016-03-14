@@ -125,25 +125,25 @@
 
 #define lauxh_pushstr2arr(L, idx, v) do{ \
     lua_pushstring(L, v); \
-    lua_rawset(L, -2, idx); \
+    lua_rawseti(L, -2, idx); \
 }while(0)
 
 
 #define lauxh_pushlstr2arr(L, idx, v, l) do{ \
     lua_pushlstring(L, v, l); \
-    lua_rawset(L, -2, idx); \
+    lua_rawseti(L, -2, idx); \
 }while(0)
 
 
 #define lauxh_pushnum2arr(L, idx, v) do{ \
     lua_pushnumber(L, v); \
-    lua_rawset(L, -2, idx); \
+    lua_rawseti(L, -2, idx); \
 }while(0)
 
 
 #define lauxh_pushint2arr(L, idx, v) do{ \
     lua_pushinteger(L, v); \
-    lua_rawset(L, -2, idx); \
+    lua_rawseti(L, -2, idx); \
 }while(0)
 
 
