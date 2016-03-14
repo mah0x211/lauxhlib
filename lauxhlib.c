@@ -11,6 +11,65 @@ static int cfunction( lua_State *L ){
 }
 
 
+static int test_array( lua_State *L )
+{
+    size_t len = 0;
+
+    lua_newtable( L );
+
+    // string
+    lauxh_pushstr2arr( L, 2, "string" );
+    assert( lauxh_checkstringat( L, 2 ) );
+    assert( lauxh_checklstringat( L, 2, &len ) );
+    assert( len == 6 );
+    // optstring
+    assert( lauxh_optstringat( L, 2, NULL ) );
+    assert( lauxh_optlstringat( L, 2, NULL, &len ) );
+    assert( len == 6 );
+    lauxh_pushnil2arr( L, 2 );
+    assert( lauxh_optlstringat( L, 2, NULL, &len ) == NULL );
+
+
+    // number
+    lauxh_pushnum2arr( L, 2, 1.1 );
+    assert( lauxh_checknumberat( L, 2 ) == 1.1 );
+    // optnumber
+    assert( lauxh_optnumberat( L, 2, 0 ) == 1.1 );
+    lauxh_pushnil2arr( L, 2 );
+    assert( lauxh_optnumberat( L, 2, 0 ) == 0 );
+
+
+    // integer
+    lauxh_pushint2arr( L, 2, 1 );
+    assert( lauxh_checkintegerat( L, 2 ) == 1 );
+    // optnumber
+    assert( lauxh_optintegerat( L, 2, 0 ) == 1 );
+    lauxh_pushnil2arr( L, 2 );
+    assert( lauxh_optintegerat( L, 2, 0 ) == 0 );
+
+
+    // boolean
+    lauxh_pushbool2arr( L, 2, 1 );
+    assert( lauxh_checkbooleanat( L, 2 ) == 1 );
+    // optboolean
+    lauxh_pushnil2arr( L, 2 );
+    assert( lauxh_optbooleanat( L, 2, 0 ) == 0 );
+
+
+    // push table
+    lua_newtable( L );
+    lauxh_pushbool2arr( L, 1, 1 );
+    lauxh_pushstr2arr( L, 2, "string" );
+    lua_rawseti( L, -2, 2 );
+
+    // table
+    lauxh_checktableat( L, 2 );
+    assert( lauxh_rawlen( L, -1 ) == 2 );
+
+    return 0;
+}
+
+
 static int test_table( lua_State *L )
 {
     size_t len = 0;
@@ -68,6 +127,7 @@ static int test_table( lua_State *L )
 
     return 0;
 }
+
 
 static int test_arguments( lua_State *L )
 {
@@ -275,6 +335,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_reference", test_reference },
         { "test_arguments", test_arguments },
         { "test_table", test_table },
+        { "test_array", test_array },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
