@@ -453,6 +453,140 @@ static inline int lauxh_optbooleanof( lua_State *L, const char *k, int def )
 
 
 
+// table as array
+
+static inline void lauxh_checktableat( lua_State *L, int idx )
+{
+    lua_rawgeti( L, -1, idx );
+    lauxh_checktable( L, -1 );
+}
+
+
+static inline const char *lauxh_checklstringat( lua_State *L, int idx,
+                                                size_t *len )
+{
+    const char *v = NULL;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_checklstring( L, -1, len );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline const char *lauxh_optlstringat( lua_State *L, int idx,
+                                              const char *def, size_t *len )
+{
+    const char *v = NULL;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_optlstring( L, -1, def, len );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline const char *lauxh_checkstringat( lua_State *L, int idx )
+{
+    const char *v = NULL;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_checkstring( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline const char *lauxh_optstringat( lua_State *L, int idx,
+                                             const char *def )
+{
+    const char *v = NULL;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_optstring( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Number lauxh_checknumberat( lua_State *L, int idx )
+{
+    lua_Number v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_checknumber( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Number lauxh_optnumberat( lua_State *L, int idx,
+                                            lua_Number def )
+{
+    lua_Number v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_optnumber( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Integer lauxh_checkintegerat( lua_State *L, int idx )
+{
+    lua_Integer v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_checkinteger( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline lua_Integer lauxh_optintegerat( lua_State *L, int idx,
+                                              lua_Integer def )
+{
+    lua_Integer v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_optinteger( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline int lauxh_checkbooleanat( lua_State *L, int idx )
+{
+    int v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_checkboolean( L, -1 );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
+static inline int lauxh_optbooleanat( lua_State *L, int idx, int def )
+{
+    int v = 0;
+
+    lua_rawgeti( L, -1, idx );
+    v = lauxh_optboolean( L, -1, def );
+    lua_pop( L, 1 );
+
+    return v;
+}
+
+
 /* thread argument */
 
 static inline lua_State *lauxh_checkthread( lua_State *L, int idx )
