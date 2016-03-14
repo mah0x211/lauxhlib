@@ -60,6 +60,12 @@
 
 /* table */
 
+#define lauxh_gettblof(L, k, idx) do{ \
+    lua_pushstring(L, k); \
+    lua_rawget(L, idx); \
+}while(0)
+
+
 #define lauxh_pushnil2tbl(L, k) do{ \
     lua_pushstring(L, k); \
     lua_pushnil(L); \
@@ -110,6 +116,11 @@
 
 
 /* table as array */
+
+#define lauxh_gettblat(L, idx, at) do{ \
+    lua_rawgeti(L, at, idx); \
+}while(0)
+
 
 #define lauxh_pushnil2arr(L, idx) do{ \
     lua_pushnil(L); \
