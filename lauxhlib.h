@@ -320,21 +320,21 @@ static inline void lauxh_checktable( lua_State *L, int idx )
 }
 
 
-static inline void lauxh_checktableof( lua_State *L, const char *k )
+static inline void lauxh_checktableof( lua_State *L, int idx, const char *k )
 {
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     lauxh_checktable( L, -1 );
 }
 
 
-static inline const char *lauxh_checklstringof( lua_State *L, const char *k,
-                                                size_t *len )
+static inline const char *lauxh_checklstringof( lua_State *L, int idx,
+                                                const char *k, size_t *len )
 {
     const char *v = NULL;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_checklstring( L, -1, len );
     lua_pop( L, 1 );
 
@@ -342,13 +342,14 @@ static inline const char *lauxh_checklstringof( lua_State *L, const char *k,
 }
 
 
-static inline const char *lauxh_optlstringof( lua_State *L, const char *k,
-                                              const char *def, size_t *len )
+static inline const char *lauxh_optlstringof( lua_State *L, int idx,
+                                              const char *k, const char *def,
+                                              size_t *len )
 {
     const char *v = NULL;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_optlstring( L, -1, def, len );
     lua_pop( L, 1 );
 
@@ -356,12 +357,13 @@ static inline const char *lauxh_optlstringof( lua_State *L, const char *k,
 }
 
 
-static inline const char *lauxh_checkstringof( lua_State *L, const char *k )
+static inline const char *lauxh_checkstringof( lua_State *L, int idx,
+                                               const char *k )
 {
     const char *v = NULL;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_checkstring( L, -1 );
     lua_pop( L, 1 );
 
@@ -369,13 +371,13 @@ static inline const char *lauxh_checkstringof( lua_State *L, const char *k )
 }
 
 
-static inline const char *lauxh_optstringof( lua_State *L, const char *k,
-                                             const char *def )
+static inline const char *lauxh_optstringof( lua_State *L, int idx,
+                                             const char *k, const char *def )
 {
     const char *v = NULL;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_optstring( L, -1, def );
     lua_pop( L, 1 );
 
@@ -383,12 +385,13 @@ static inline const char *lauxh_optstringof( lua_State *L, const char *k,
 }
 
 
-static inline lua_Number lauxh_checknumberof( lua_State *L, const char *k )
+static inline lua_Number lauxh_checknumberof( lua_State *L, int idx,
+                                              const char *k )
 {
     lua_Number v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_checknumber( L, -1 );
     lua_pop( L, 1 );
 
@@ -396,13 +399,13 @@ static inline lua_Number lauxh_checknumberof( lua_State *L, const char *k )
 }
 
 
-static inline lua_Number lauxh_optnumberof( lua_State *L, const char *k,
-                                            lua_Number def )
+static inline lua_Number lauxh_optnumberof( lua_State *L, int idx,
+                                            const char *k, lua_Number def )
 {
     lua_Number v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_optnumber( L, -1, def );
     lua_pop( L, 1 );
 
@@ -410,12 +413,13 @@ static inline lua_Number lauxh_optnumberof( lua_State *L, const char *k,
 }
 
 
-static inline lua_Integer lauxh_checkintegerof( lua_State *L, const char *k )
+static inline lua_Integer lauxh_checkintegerof( lua_State *L, int idx,
+                                                const char *k )
 {
     lua_Integer v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_checkinteger( L, -1 );
     lua_pop( L, 1 );
 
@@ -423,13 +427,13 @@ static inline lua_Integer lauxh_checkintegerof( lua_State *L, const char *k )
 }
 
 
-static inline lua_Integer lauxh_optintegerof( lua_State *L, const char *k,
-                                              lua_Integer def )
+static inline lua_Integer lauxh_optintegerof( lua_State *L, int idx,
+                                              const char *k, lua_Integer def )
 {
     lua_Integer v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_optinteger( L, -1, def );
     lua_pop( L, 1 );
 
@@ -437,12 +441,12 @@ static inline lua_Integer lauxh_optintegerof( lua_State *L, const char *k,
 }
 
 
-static inline int lauxh_checkbooleanof( lua_State *L, const char *k )
+static inline int lauxh_checkbooleanof( lua_State *L, int idx, const char *k )
 {
     int v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_checkboolean( L, -1 );
     lua_pop( L, 1 );
 
@@ -450,12 +454,12 @@ static inline int lauxh_checkbooleanof( lua_State *L, const char *k )
 }
 
 
-static inline int lauxh_optbooleanof( lua_State *L, const char *k, int def )
+static inline int lauxh_optbooleanof( lua_State *L, int idx, const char *k, int def )
 {
     int v = 0;
 
     lua_pushstring( L, k );
-    lua_rawget( L, -2 );
+    lua_rawget( L, idx );
     v = lauxh_optboolean( L, -1, def );
     lua_pop( L, 1 );
 
@@ -466,19 +470,19 @@ static inline int lauxh_optbooleanof( lua_State *L, const char *k, int def )
 
 // table as array
 
-static inline void lauxh_checktableat( lua_State *L, int idx )
+static inline void lauxh_checktableat( lua_State *L, int idx, int row )
 {
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     lauxh_checktable( L, -1 );
 }
 
 
-static inline const char *lauxh_checklstringat( lua_State *L, int idx,
+static inline const char *lauxh_checklstringat( lua_State *L, int idx, int row,
                                                 size_t *len )
 {
     const char *v = NULL;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_checklstring( L, -1, len );
     lua_pop( L, 1 );
 
@@ -486,12 +490,12 @@ static inline const char *lauxh_checklstringat( lua_State *L, int idx,
 }
 
 
-static inline const char *lauxh_optlstringat( lua_State *L, int idx,
+static inline const char *lauxh_optlstringat( lua_State *L, int idx, int row,
                                               const char *def, size_t *len )
 {
     const char *v = NULL;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_optlstring( L, -1, def, len );
     lua_pop( L, 1 );
 
@@ -499,11 +503,11 @@ static inline const char *lauxh_optlstringat( lua_State *L, int idx,
 }
 
 
-static inline const char *lauxh_checkstringat( lua_State *L, int idx )
+static inline const char *lauxh_checkstringat( lua_State *L, int idx, int row )
 {
     const char *v = NULL;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_checkstring( L, -1 );
     lua_pop( L, 1 );
 
@@ -511,12 +515,12 @@ static inline const char *lauxh_checkstringat( lua_State *L, int idx )
 }
 
 
-static inline const char *lauxh_optstringat( lua_State *L, int idx,
+static inline const char *lauxh_optstringat( lua_State *L, int idx, int row,
                                              const char *def )
 {
     const char *v = NULL;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_optstring( L, -1, def );
     lua_pop( L, 1 );
 
@@ -524,11 +528,11 @@ static inline const char *lauxh_optstringat( lua_State *L, int idx,
 }
 
 
-static inline lua_Number lauxh_checknumberat( lua_State *L, int idx )
+static inline lua_Number lauxh_checknumberat( lua_State *L, int idx, int row )
 {
     lua_Number v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_checknumber( L, -1 );
     lua_pop( L, 1 );
 
@@ -536,12 +540,12 @@ static inline lua_Number lauxh_checknumberat( lua_State *L, int idx )
 }
 
 
-static inline lua_Number lauxh_optnumberat( lua_State *L, int idx,
+static inline lua_Number lauxh_optnumberat( lua_State *L, int idx, int row,
                                             lua_Number def )
 {
     lua_Number v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_optnumber( L, -1, def );
     lua_pop( L, 1 );
 
@@ -549,11 +553,11 @@ static inline lua_Number lauxh_optnumberat( lua_State *L, int idx,
 }
 
 
-static inline lua_Integer lauxh_checkintegerat( lua_State *L, int idx )
+static inline lua_Integer lauxh_checkintegerat( lua_State *L, int idx, int row )
 {
     lua_Integer v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_checkinteger( L, -1 );
     lua_pop( L, 1 );
 
@@ -561,12 +565,12 @@ static inline lua_Integer lauxh_checkintegerat( lua_State *L, int idx )
 }
 
 
-static inline lua_Integer lauxh_optintegerat( lua_State *L, int idx,
+static inline lua_Integer lauxh_optintegerat( lua_State *L, int idx, int row,
                                               lua_Integer def )
 {
     lua_Integer v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_optinteger( L, -1, def );
     lua_pop( L, 1 );
 
@@ -574,11 +578,11 @@ static inline lua_Integer lauxh_optintegerat( lua_State *L, int idx,
 }
 
 
-static inline int lauxh_checkbooleanat( lua_State *L, int idx )
+static inline int lauxh_checkbooleanat( lua_State *L, int idx, int row )
 {
     int v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_checkboolean( L, -1 );
     lua_pop( L, 1 );
 
@@ -586,11 +590,11 @@ static inline int lauxh_checkbooleanat( lua_State *L, int idx )
 }
 
 
-static inline int lauxh_optbooleanat( lua_State *L, int idx, int def )
+static inline int lauxh_optbooleanat( lua_State *L, int idx, int row, int def )
 {
     int v = 0;
 
-    lua_rawgeti( L, -1, idx );
+    lua_rawgeti( L, idx, row );
     v = lauxh_optboolean( L, -1, def );
     lua_pop( L, 1 );
 
