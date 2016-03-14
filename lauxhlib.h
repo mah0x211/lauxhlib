@@ -303,6 +303,14 @@ static inline void lauxh_checktable( lua_State *L, int idx )
 }
 
 
+static inline void lauxh_checktableof( lua_State *L, const char *k )
+{
+    lua_pushstring( L, k );
+    lua_rawget( L, -2 );
+    lauxh_checktable( L, -1 );
+}
+
+
 static inline const char *lauxh_checklstringof( lua_State *L, const char *k,
                                                 size_t *len )
 {
