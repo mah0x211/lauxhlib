@@ -56,6 +56,16 @@ static int test_table( lua_State *L )
     assert( lauxh_optbooleanof( L, "key", 0 ) == 0 );
 
 
+    // push table
+    lua_pushstring( L, "key" );
+    lua_newtable( L );
+    lauxh_pushbool2arr( L, 1, 1 );
+    lua_rawset( L, -3 );
+
+    // table
+    lauxh_checktableof( L, "key" );
+    assert( lauxh_rawlen( L, -1 ) == 1 );
+
     return 0;
 }
 
