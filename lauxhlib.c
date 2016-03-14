@@ -19,41 +19,41 @@ static int test_array( lua_State *L )
 
     // string
     lauxh_pushstr2arr( L, 2, "string" );
-    assert( lauxh_checkstringat( L, 2 ) );
-    assert( lauxh_checklstringat( L, 2, &len ) );
+    assert( lauxh_checkstringat( L, 1, 2 ) );
+    assert( lauxh_checklstringat( L, 1, 2, &len ) );
     assert( len == 6 );
     // optstring
-    assert( lauxh_optstringat( L, 2, NULL ) );
-    assert( lauxh_optlstringat( L, 2, NULL, &len ) );
+    assert( lauxh_optstringat( L, 1, 2, NULL ) );
+    assert( lauxh_optlstringat( L, 1, 2, NULL, &len ) );
     assert( len == 6 );
     lauxh_pushnil2arr( L, 2 );
-    assert( lauxh_optlstringat( L, 2, NULL, &len ) == NULL );
+    assert( lauxh_optlstringat( L, 1, 2, NULL, &len ) == NULL );
 
 
     // number
     lauxh_pushnum2arr( L, 2, 1.1 );
-    assert( lauxh_checknumberat( L, 2 ) == 1.1 );
+    assert( lauxh_checknumberat( L, 1, 2 ) == 1.1 );
     // optnumber
-    assert( lauxh_optnumberat( L, 2, 0 ) == 1.1 );
+    assert( lauxh_optnumberat( L, 1, 2, 0 ) == 1.1 );
     lauxh_pushnil2arr( L, 2 );
-    assert( lauxh_optnumberat( L, 2, 0 ) == 0 );
+    assert( lauxh_optnumberat( L, 1, 2, 0 ) == 0 );
 
 
     // integer
     lauxh_pushint2arr( L, 2, 1 );
-    assert( lauxh_checkintegerat( L, 2 ) == 1 );
+    assert( lauxh_checkintegerat( L, 1, 2 ) == 1 );
     // optnumber
-    assert( lauxh_optintegerat( L, 2, 0 ) == 1 );
+    assert( lauxh_optintegerat( L, 1, 2, 0 ) == 1 );
     lauxh_pushnil2arr( L, 2 );
-    assert( lauxh_optintegerat( L, 2, 0 ) == 0 );
+    assert( lauxh_optintegerat( L, 1, 2, 0 ) == 0 );
 
 
     // boolean
     lauxh_pushbool2arr( L, 2, 1 );
-    assert( lauxh_checkbooleanat( L, 2 ) == 1 );
+    assert( lauxh_checkbooleanat( L, 1, 2 ) == 1 );
     // optboolean
     lauxh_pushnil2arr( L, 2 );
-    assert( lauxh_optbooleanat( L, 2, 0 ) == 0 );
+    assert( lauxh_optbooleanat( L, 1, 2, 0 ) == 0 );
 
 
     // push table
@@ -63,7 +63,7 @@ static int test_array( lua_State *L )
     lua_rawseti( L, -2, 2 );
 
     // table
-    lauxh_checktableat( L, 2 );
+    lauxh_checktableat( L, 1, 2 );
     assert( lauxh_rawlen( L, -1 ) == 2 );
 
     return 0;
@@ -78,41 +78,41 @@ static int test_table( lua_State *L )
 
     // string
     lauxh_pushstr2tbl( L, "key", "string" );
-    assert( lauxh_checkstringof( L, "key" ) );
-    assert( lauxh_checklstringof( L, "key", &len ) );
+    assert( lauxh_checkstringof( L, 1, "key" ) );
+    assert( lauxh_checklstringof( L, 1, "key", &len ) );
     assert( len == 6 );
     // optstring
-    assert( lauxh_optstringof( L, "key", NULL ) );
-    assert( lauxh_optlstringof( L, "key", NULL, &len ) );
+    assert( lauxh_optstringof( L, 1, "key", NULL ) );
+    assert( lauxh_optlstringof( L, 1, "key", NULL, &len ) );
     assert( len == 6 );
     lauxh_pushnil2tbl( L, "key" );
-    assert( lauxh_optlstringof( L, "key", NULL, &len ) == NULL );
+    assert( lauxh_optlstringof( L, 1, "key", NULL, &len ) == NULL );
 
 
     // number
     lauxh_pushnum2tbl( L, "key", 1.1 );
-    assert( lauxh_checknumberof( L, "key" ) == 1.1 );
+    assert( lauxh_checknumberof( L, 1, "key" ) == 1.1 );
     // optnumber
-    assert( lauxh_optnumberof( L, "key", 0 ) == 1.1 );
+    assert( lauxh_optnumberof( L, 1, "key", 0 ) == 1.1 );
     lauxh_pushnil2tbl( L, "key" );
-    assert( lauxh_optnumberof( L, "key", 0 ) == 0 );
+    assert( lauxh_optnumberof( L, 1, "key", 0 ) == 0 );
 
 
     // integer
     lauxh_pushint2tbl( L, "key", 1 );
-    assert( lauxh_checkintegerof( L, "key" ) == 1 );
+    assert( lauxh_checkintegerof( L, 1, "key" ) == 1 );
     // optnumber
-    assert( lauxh_optintegerof( L, "key", 0 ) == 1 );
+    assert( lauxh_optintegerof( L, 1, "key", 0 ) == 1 );
     lauxh_pushnil2tbl( L, "key" );
-    assert( lauxh_optintegerof( L, "key", 0 ) == 0 );
+    assert( lauxh_optintegerof( L, 1, "key", 0 ) == 0 );
 
 
     // boolean
     lauxh_pushbool2tbl( L, "key", 1 );
-    assert( lauxh_checkbooleanof( L, "key" ) == 1 );
+    assert( lauxh_checkbooleanof( L, 1, "key" ) == 1 );
     // optboolean
     lauxh_pushnil2tbl( L, "key" );
-    assert( lauxh_optbooleanof( L, "key", 0 ) == 0 );
+    assert( lauxh_optbooleanof( L, 1, "key", 0 ) == 0 );
 
 
     // push table
@@ -122,7 +122,7 @@ static int test_table( lua_State *L )
     lua_rawset( L, -3 );
 
     // table
-    lauxh_checktableof( L, "key" );
+    lauxh_checktableof( L, 1, "key" );
     assert( lauxh_rawlen( L, -1 ) == 1 );
 
     return 0;
