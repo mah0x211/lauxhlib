@@ -153,6 +153,12 @@
 }while(0)
 
 
+#if LUA_VERSION_NUM >= 502
+    #define lauxh_rawlen(L, idx)    lua_rawlen(L, idx)
+#else
+    #define lauxh_rawlen(L, idx)    lua_objlen(L, idx)
+#endif
+
 
 /* metatable */
 
