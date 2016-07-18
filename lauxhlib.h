@@ -651,6 +651,16 @@ static inline void *lauxh_checkudata( lua_State *L, int idx, const char *tname )
 }
 
 
+static inline void *lauxh_optudata( lua_State *L, int idx, const char *tname,
+                                    void *def )
+{
+    if( lauxh_isnil( L, idx ) ){
+        return def;
+    }
+
+    return lauxh_checkudata( L, idx, tname );
+}
+
 
 /* flag arguments */
 
