@@ -662,6 +662,24 @@ static inline void *lauxh_optudata( lua_State *L, int idx, const char *tname,
 }
 
 
+static inline int lauxh_isuserdataof( lua_State *L, int idx, const char *tname )
+{
+    int rc = 0;
+
+    // there is userdata wrapped by metatable
+    if( lauxh_isuserdata( L, idx ) && lua_getmetatable( L, idx ) ){
+        // get metatable from registry
+        lua_pushstring( L, tname );
+        lua_rawget( L, LUA_REGISTRYINDEX );
+        // compare
+        rc = lua_rawequal( L, -1, -2 );
+
+        lua_pop( L, 2 );
+    }
+
+    return rc;
+}
+
 /* flag arguments */
 
 static inline int lauxh_optflags( lua_State *L, int idx )
