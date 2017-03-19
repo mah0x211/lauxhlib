@@ -328,6 +328,59 @@ static int test_is( lua_State *L )
 }
 
 
+static int test_userdata( lua_State *L )
+{
+    const char *tname = "myuserdata";
+    void *udata = NULL;
+
+    // userdata
+    lua_settop( L, 0 );
+
+    // create metatable
+    luaL_newmetatable( L, tname );
+    lua_pop( L, 1 );
+
+    udata = lua_newuserdata( L, sizeof(1) );
+    assert( lauxh_isuserdata( L, -1 ) );
+    assert( lauxh_isuserdataof( L, -1, tname ) == 0 );
+
+    lauxh_setmetatable( L, tname );
+    assert( lauxh_isuserdataof( L, -1, tname ) );
+
+    return 0;
+}
+
+
+static int test_file( lua_State *L )
+{
+    FILE *tmp = NULL;
+
+    // userdata
+    lua_settop( L, 0 );
+
+    // get io module
+#if defined(LUA_RIDX_GLOBALS)
+    lua_rawgeti( L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS );
+    lua_getfield( L, -1, "io" );
+#else
+    lua_getfield( L, LUA_GLOBALSINDEX, "io" );
+#endif
+
+    assert( lua_istable( L, -1 ) );
+    // get tmpfile function
+    lua_getfield( L, -1, "tmpfile" );
+    assert( lua_isfunction( L, -1 ) );
+    // call
+    lua_call( L, 0, 1 );
+
+    tmp = lauxh_checkfile( L, -1 );
+    assert( tmp != NULL );
+    assert( fileno(tmp) != -1 );
+
+    return 0;
+}
+
+
 LUALIB_API int luaopen_lauxhlib( lua_State *L )
 {
     struct luaL_Reg method[] = {
@@ -336,6 +389,8 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_arguments", test_arguments },
         { "test_table", test_table },
         { "test_array", test_array },
+        { "test_userdata", test_userdata },
+        { "test_file", test_file },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
