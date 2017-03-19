@@ -680,6 +680,22 @@ static inline int lauxh_isuserdataof( lua_State *L, int idx, const char *tname )
     return rc;
 }
 
+
+/* file argument */
+
+static inline FILE *lauxh_checkfile( lua_State *L, int idx )
+{
+#if LUA_VERSION_NUM >= 502
+    luaL_Stream *stream = luaL_checkudata(L, idx, LUA_FILEHANDLE );
+    return stream->f;
+
+#else
+    return *(FILE**)luaL_checkudata(L, idx, LUA_FILEHANDLE );
+#endif
+}
+
+
+
 /* flag arguments */
 
 static inline int lauxh_optflags( lua_State *L, int idx )
