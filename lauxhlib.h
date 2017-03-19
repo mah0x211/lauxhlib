@@ -305,7 +305,7 @@ static inline int lauxh_checkboolean( lua_State *L, int idx )
 static inline int lauxh_optboolean( lua_State *L, int idx, int def )
 {
     if( lauxh_isnil( L, idx ) ){
-        return !!def;
+        return def != 0;
     }
     return lauxh_checkboolean( L, idx );
 }
