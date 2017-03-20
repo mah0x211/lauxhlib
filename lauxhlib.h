@@ -711,4 +711,57 @@ static inline int lauxh_optflags( lua_State *L, int idx )
 }
 
 
+
+/* traceback */
+
+static inline int lauxh_traceback( lua_State *L, lua_State *src,
+                                   const char *msg, int lv )
+{
+#if LUA_VERSION_NUM >= 502
+    // push src stack trace to dst state
+    luaL_traceback( ( L ) ? L : src, src, msg, lv );
+    return 1;
+
+#else
+    // get debug module
+    lua_pushliteral( src, "debug" );
+    lua_rawget( src, LUA_GLOBALSINDEX );
+    if( lauxh_istable( src, -1 ) )
+    {
+        // get traceback function
+        lua_pushliteral( src, "traceback" );
+        lua_rawget( src, -2 );
+        if( lauxh_isfunction( src, -1 ) )
+        {
+            int argc = 0;
+
+            // remove debug module table
+            lua_replace( src, -2 );
+
+            // add msg argument to debug.traceback
+            if( msg ){
+                lua_pushstring( src, msg );
+                argc = 1;
+            }
+
+            // call debug.traceback function
+            if( lua_pcall( src, argc, 1, 0 ) == 0 )
+            {
+                if( L ){
+                    lua_xmove( src, L, 1 );
+                }
+                return 1;
+            }
+
+            // faillure
+            return -1;
+        }
+    }
+
+    return 0;
+#endif
+}
+
+
+
 #endif
