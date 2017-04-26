@@ -698,13 +698,13 @@ static inline FILE *lauxh_checkfile( lua_State *L, int idx )
 
 /* flag arguments */
 
-static inline int lauxh_optflags( lua_State *L, int idx )
+static inline lua_Integer lauxh_optflags( lua_State *L, int idx )
 {
     const int argc = lua_gettop( L );
-    int flg = 0;
+    lua_Integer flg = 0;
 
     for(; idx <= argc; idx++ ){
-        flg |= (int)lauxh_optinteger( L, idx, 0 );
+        flg |= lauxh_optinteger( L, idx, 0 );
     }
 
     return flg;
