@@ -723,6 +723,9 @@ static inline int lauxh_traceback( lua_State *L, lua_State *src,
     return 1;
 
 #else
+    // avoid warnings for unused variables
+    (void)lv;
+
     // get debug module
     lua_pushliteral( src, "debug" );
     lua_rawget( src, LUA_GLOBALSINDEX );
