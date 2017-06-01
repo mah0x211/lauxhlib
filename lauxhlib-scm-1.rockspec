@@ -1,7 +1,7 @@
 package = "lauxhlib"
 version = "scm-1"
 source = {
-    url = "https://github.com/mah0x211/lauxhlib.git"
+    url = "git://github.com/mah0x211/lauxhlib.git"
 }
 description = {
     summary = "lauxhlib test",
