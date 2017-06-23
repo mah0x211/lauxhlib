@@ -37,169 +37,249 @@
 
 /* reference */
 
-#define lauxh_isref(ref) \
-    ((ref) >= 0)
+static inline int lauxh_isref( int ref )
+{
+    return ref >= 0;
+}
 
 
-#define lauxh_ref(L) \
-    luaL_ref(L, LUA_REGISTRYINDEX)
+static inline int lauxh_ref( lua_State *L )
+{
+    return luaL_ref( L, LUA_REGISTRYINDEX );
+}
 
 
-#define lauxh_refat(L, idx) \
-    (lua_pushvalue(L, idx), luaL_ref(L, LUA_REGISTRYINDEX))
+static inline int lauxh_refat( lua_State *L, int idx )
+{
+    lua_pushvalue( L, idx );
+    return luaL_ref( L, LUA_REGISTRYINDEX );
+}
 
 
-#define lauxh_pushref(L, ref) \
-    lua_rawgeti(L, LUA_REGISTRYINDEX, ref)
+static inline void lauxh_pushref( lua_State *L, int ref )
+{
+    lua_rawgeti( L, LUA_REGISTRYINDEX, ref );
+}
 
 
-#define lauxh_unref(L, ref) \
-    (luaL_unref(L, LUA_REGISTRYINDEX, ref), LUA_NOREF)
+static inline int lauxh_unref( lua_State *L, int ref )
+{
+    luaL_unref( L, LUA_REGISTRYINDEX, ref );
+    return LUA_NOREF;
+}
 
 
 
 /* table */
 
-#define lauxh_gettblof(L, k, idx) do{ \
-    lua_pushstring(L, k); \
-    lua_rawget(L, idx); \
-}while(0)
+static inline void lauxh_gettblof( lua_State *L, const char *k, int idx )
+{
+    lua_pushstring( L, k );
+    lua_rawget( L, idx );
+}
 
 
-#define lauxh_pushnil2tbl(L, k) do{ \
-    lua_pushstring(L, k); \
-    lua_pushnil(L); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushnil2tbl( lua_State *L, const char *k)
+{
+    lua_pushstring( L, k );
+    lua_pushnil( L );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushfn2tbl(L, k, v) do{ \
-    lua_pushstring(L, k); \
-    lua_pushcfunction(L, v); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushfn2tbl( lua_State *L, const char *k,
+                                     lua_CFunction v )
+{
+    lua_pushstring( L, k );
+    lua_pushcfunction( L, v );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushstr2tbl(L, k, v) do{ \
-    lua_pushstring(L, k); \
-    lua_pushstring(L, v); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushstr2tbl( lua_State *L, const char *k,
+                                      const char *v )
+{
+    lua_pushstring( L, k );
+    lua_pushstring( L, v );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushlstr2tbl(L, k, v, l) do{ \
-    lua_pushliteral(L, k); \
-    lua_pushlstring(L, v, l); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushlstr2tbl( lua_State *L, const char *k,
+                                       const char *v, size_t l )
+{
+    lua_pushstring( L, k );
+    lua_pushlstring( L, v, l );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushnum2tbl(L, k, v) do{ \
-    lua_pushstring(L, k); \
-    lua_pushnumber(L, v); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushnum2tbl( lua_State *L, const char *k, lua_Number v )
+{
+    lua_pushstring( L, k );
+    lua_pushnumber( L, v );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushint2tbl(L, k, v) do{ \
-    lua_pushstring(L, k); \
-    lua_pushinteger(L, v); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushint2tbl( lua_State *L, const char *k,
+                                      lua_Integer v )
+{
+    lua_pushstring( L, k );
+    lua_pushinteger( L, v );
+    lua_rawset( L, -3 );
+}
 
 
-#define lauxh_pushbool2tbl(L, k, v) do{ \
-    lua_pushstring(L, k); \
-    lua_pushboolean(L, v); \
-    lua_rawset(L, -3); \
-}while(0)
+static inline void lauxh_pushbool2tbl( lua_State *L, const char *k, int v )
+{
+    lua_pushstring( L, k );
+    lua_pushboolean( L, v );
+    lua_rawset( L, -3 );
+}
 
 
 /* table as array */
 
-#define lauxh_gettblat(L, idx, at) do{ \
-    lua_rawgeti(L, at, idx); \
-}while(0)
+static inline void lauxh_gettblat( lua_State *L, int idx, int at )
+{
+    lua_rawgeti( L, at, idx );
+}
 
 
-#define lauxh_pushnil2arr(L, idx) do{ \
-    lua_pushnil(L); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushnil2arr( lua_State *L, int idx )
+{
+    lua_pushnil( L );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushfn2arr(L, idx, v) do{ \
-    lua_pushcfunction(L, v); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushfn2arr( lua_State *L, int idx, lua_CFunction v )
+{
+    lua_pushcfunction( L, v );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushstr2arr(L, idx, v) do{ \
-    lua_pushstring(L, v); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushstr2arr( lua_State *L, int idx, const char *v )
+{
+    lua_pushstring( L, v );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushlstr2arr(L, idx, v, l) do{ \
-    lua_pushlstring(L, v, l); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushlstr2arr( lua_State *L, int idx, const char *v,
+                                       size_t l )
+{
+    lua_pushlstring( L, v, l );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushnum2arr(L, idx, v) do{ \
-    lua_pushnumber(L, v); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushnum2arr( lua_State *L, int idx, lua_Number v )
+{
+    lua_pushnumber( L, v );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushint2arr(L, idx, v) do{ \
-    lua_pushinteger(L, v); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushint2arr( lua_State *L, int idx, lua_Integer v )
+{
+    lua_pushinteger( L, v );
+    lua_rawseti( L, -2, idx );
+}
 
 
-#define lauxh_pushbool2arr(L, idx, v) do{ \
-    lua_pushboolean(L, v); \
-    lua_rawseti(L, -2, idx); \
-}while(0)
+static inline void lauxh_pushbool2arr( lua_State *L, int idx, int v )
+{
+    lua_pushboolean( L, v );
+    lua_rawseti( L, -2, idx );
+}
 
 
+static inline size_t lauxh_rawlen( lua_State *L, int idx )
+{
 #if LUA_VERSION_NUM >= 502
-    #define lauxh_rawlen(L, idx)    lua_rawlen(L, idx)
+    return lua_rawlen( L, idx );
 #else
-    #define lauxh_rawlen(L, idx)    lua_objlen(L, idx)
+    return lua_objlen( L, idx );
 #endif
-
+}
 
 /* metatable */
 
-#define lauxh_setmetatable(L, tname) do { \
-    luaL_getmetatable(L, tname); \
-    lua_setmetatable(L, -2); \
-}while(0)
+static inline void lauxh_setmetatable( lua_State *L, const char *tname )
+{
+    luaL_getmetatable( L, tname );
+    lua_setmetatable( L, -2 );
+}
 
 
 /* type */
 
-#define lauxh_typenameat(L, idx)    lua_typename(L, lua_type(L, idx))
+static inline const char *lauxh_typenameat( lua_State *L, int idx )
+{
+    return lua_typename( L, lua_type( L, idx ) );
+}
 
 
 /* typecheck */
 
-#define lauxh_isnil(L, idx)         (lua_type(L, idx) <= LUA_TNIL)
-#define lauxh_isstring(L, idx)      (lua_type(L, idx) == LUA_TSTRING)
-#define lauxh_isnumber(L, idx)      (lua_type(L, idx) == LUA_TNUMBER)
-#define lauxh_isboolean(L, idx)     (lua_type(L, idx) == LUA_TBOOLEAN)
-#define lauxh_istable(L, idx)       (lua_type(L, idx) == LUA_TTABLE)
-#define lauxh_isfunction(L, idx)    (lua_type(L, idx) == LUA_TFUNCTION)
-#define lauxh_iscfunction(L, idx)   lua_iscfunction(L, idx)
-#define lauxh_isthread(L, idx)      (lua_type(L, idx) == LUA_TTHREAD)
-#define lauxh_isuserdata(L, idx)    (lua_type(L, idx) == LUA_TUSERDATA)
-#define lauxh_ispointer(L, idx)     (lua_type(L, idx) == LUA_TLIGHTUSERDATA)
+static inline int lauxh_isnil( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) <= LUA_TNIL;
+}
 
-#define lauxh_isinteger(L, idx) \
-    (lauxh_isnumber(L, idx) && \
-     (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx))
+static inline int lauxh_isstring( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TSTRING;
+}
+
+static inline int lauxh_isnumber( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TNUMBER;
+}
+
+static inline int lauxh_isboolean( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TBOOLEAN;
+}
+
+static inline int lauxh_istable( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TTABLE;
+}
+
+static inline int lauxh_isfunction( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TFUNCTION;
+}
+
+static inline int lauxh_iscfunction( lua_State *L, int idx )
+{
+    return lua_iscfunction( L, idx );
+}
+
+static inline int lauxh_isthread( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TTHREAD;
+}
+
+static inline int lauxh_isuserdata( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TUSERDATA;
+}
+
+static inline int lauxh_ispointer( lua_State *L, int idx )
+{
+    return lua_type( L, idx ) == LUA_TLIGHTUSERDATA;
+}
+
+static inline int lauxh_isinteger( lua_State *L, int idx )
+{
+    return lauxh_isnumber( L, idx ) &&
+           (lua_Number)lua_tointeger( L, idx ) == lua_tonumber( L, idx );
+}
 
 
 /* check argument */
