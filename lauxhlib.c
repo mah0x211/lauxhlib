@@ -381,6 +381,35 @@ static int test_file( lua_State *L )
 }
 
 
+static int test_traceback( lua_State *L )
+{
+    const char src[] = "\nfunction foo() local a; a = a + 1; end\nfoo();";
+    lua_State *th = NULL;
+    const char *msg = NULL;
+
+    lua_settop( L, 0 );
+    th = lua_newthread( L );
+    assert( th != NULL );
+    assert( luaL_loadbuffer( th, src, sizeof(src) - 1, "test_traceback" ) == 0 );
+
+#if LUA_VERSION_NUM >= 502
+    assert( lua_resume( th, L, 0 ) == LUA_ERRRUN );
+#else
+    assert( lua_resume( th, 0 ) == LUA_ERRRUN );
+#endif
+
+    msg = lua_tostring( th, -1 );
+    if( !lauxh_traceback( L, th, msg, 0 ) ){
+        printf("debug.traceback function does not exists");
+        return 0;
+    }
+
+    assert( lua_type( L, -1 ) == LUA_TSTRING );
+
+    return 0;
+}
+
+
 LUALIB_API int luaopen_lauxhlib( lua_State *L )
 {
     struct luaL_Reg method[] = {
@@ -391,6 +420,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_array", test_array },
         { "test_userdata", test_userdata },
         { "test_file", test_file },
+        { "test_traceback", test_traceback },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
