@@ -767,4 +767,69 @@ static inline int lauxh_traceback( lua_State *L, lua_State *src,
 
 
 
+/* copy a value to different state */
+
+static inline int lauxh_xcopy( lua_State *from, lua_State *to, int idx,
+                               const int allow_nil )
+{
+    switch( lua_type( from, idx ) )
+    {
+        case LUA_TBOOLEAN:
+            lua_pushboolean( to, lua_toboolean( from, idx ) );
+            return LUA_TBOOLEAN;
+
+        case LUA_TLIGHTUSERDATA:
+            lua_pushlightuserdata( to, lua_touserdata( from, idx ) );
+            return LUA_TLIGHTUSERDATA;
+
+        case LUA_TNUMBER:
+            lua_pushnumber( to, lua_tonumber( from, idx ) );
+            return LUA_TNUMBER;
+
+        case LUA_TSTRING: {
+            size_t len = 0;
+            const char *str = lua_tolstring( from, idx, &len );
+            lua_pushlstring( to, str, len );
+            return LUA_TSTRING;
+        }
+
+        case LUA_TTABLE:
+            lua_newtable( to );
+            // to positive number
+            if( idx < 0 ){
+                idx = lua_gettop( from ) + idx + 1;
+            }
+            lua_pushnil( from );
+            while( lua_next( from, idx ) )
+            {
+                if( lauxh_xcopy( from, to, idx + 1, 0 ) != LUA_TNONE )
+                {
+                    if( lauxh_xcopy( from, to, idx + 2, 0 ) != LUA_TNONE ){
+                        lua_rawset( to, -3 );
+                    }
+                    else {
+                        lua_pop( to, 1 );
+                    }
+                }
+                lua_pop( from, 1 );
+            }
+            return LUA_TTABLE;
+
+        case LUA_TNIL:
+            if( allow_nil ){
+                lua_pushnil( to );
+                return LUA_TNIL;
+            }
+
+        // ignore unsupported values
+        // LUA_TNONE
+        // LUA_TFUNCTION
+        // LUA_TUSERDATA
+        // LUA_TTHREAD
+        default:
+            return LUA_TNONE;
+    }
+}
+
+
 #endif
