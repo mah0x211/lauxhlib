@@ -882,9 +882,9 @@ static inline int lauxh_xcopy( lua_State *from, lua_State *to, int idx,
             lua_pushnil( from );
             while( lua_next( from, idx ) )
             {
-                if( lauxh_xcopy( from, to, idx + 1, 0 ) != LUA_TNONE )
+                if( lauxh_xcopy( from, to, -2, 0 ) != LUA_TNONE )
                 {
-                    if( lauxh_xcopy( from, to, idx + 2, 0 ) != LUA_TNONE ){
+                    if( lauxh_xcopy( from, to, -1, 0 ) != LUA_TNONE ){
                         lua_rawset( to, -3 );
                     }
                     else {
