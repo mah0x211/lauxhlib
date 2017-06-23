@@ -410,6 +410,135 @@ static int test_traceback( lua_State *L )
 }
 
 
+static int test_xcopy( lua_State *L )
+{
+    lua_State *dest = luaL_newstate();
+
+    assert( dest != NULL );
+
+    // nil
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushnil( L );
+    lua_pushnil( dest );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNIL &&
+        lua_gettop( dest ) == 2 &&
+        lua_equal( dest, 1, 2 ) == 1
+    );
+
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushnil( L );
+    lua_pushnil( dest );
+    assert(
+        lauxh_xcopy( L, dest, -1, 0 ) == LUA_TNONE &&
+        lua_gettop( dest ) == 1
+    );
+
+    // string
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushstring( L, "string" );
+    lua_pushstring( dest, "string" );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TSTRING &&
+        lua_gettop( dest ) == 2 &&
+        lua_equal( dest, 1, 2 ) == 1
+    );
+
+    // number
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushnumber( L, 1.1 );
+    lua_pushnumber( dest, 1.1 );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNUMBER &&
+        lua_gettop( dest ) == 2 &&
+        lua_equal( dest, 1, 2 ) == 1
+    );
+
+    // boolean true
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushboolean( L, 1 );
+    lua_pushboolean( dest, 1 );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TBOOLEAN &&
+        lua_gettop( dest ) == 2 &&
+        lua_equal( dest, 1, 2 ) == 1
+    );
+
+    // boolean false
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_pushboolean( L, 0 );
+    lua_pushboolean( dest, 0 );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TBOOLEAN &&
+        lua_gettop( dest ) == 2 &&
+        lua_equal( dest, 1, 2 ) == 1
+    );
+
+    // function
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    assert( luaL_loadstring( L, "function fn()end" ) == 0 );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNONE &&
+        lua_gettop( dest ) == 0
+    );
+
+    // thread
+    lua_settop( L, 0 );
+    lua_newthread( L );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNONE &&
+        lua_gettop( dest ) == 0
+    );
+
+    // userdata
+    lua_settop( L, 0 );
+    lua_newuserdata( L, sizeof(1) );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNONE &&
+        lua_gettop( dest ) == 0
+    );
+
+    // lightuserdata
+    lua_settop( L, 0 );
+    {
+        void *ptr = malloc(0);
+        lua_pushlightuserdata( L, ptr );
+        assert(
+            lauxh_xcopy( L, dest, -1, 1 ) == LUA_TLIGHTUSERDATA &&
+            lua_gettop( dest ) == 1 &&
+            lauxh_ispointer( dest, -1 ) == 1
+        );
+        free( ptr );
+    }
+
+    // table
+    lua_settop( L, 0 );
+    lua_settop( dest, 0 );
+    lua_newtable( L );
+    lauxh_pushstr2tbl( L, "hello", "world" );
+    assert(
+        lauxh_xcopy( L, dest, -1, 1 ) == LUA_TTABLE &&
+        lua_gettop( dest ) == 1
+    );
+    lauxh_gettblof( dest, "hello", -2 );
+    lua_pushstring( dest, "world" );
+    assert(
+        lua_equal( dest, -1, -2 ) == 1
+    );
+
+    lua_close( dest );
+
+    return 0;
+}
+
+
 LUALIB_API int luaopen_lauxhlib( lua_State *L )
 {
     struct luaL_Reg method[] = {
@@ -421,6 +550,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_userdata", test_userdata },
         { "test_file", test_file },
         { "test_traceback", test_traceback },
+        { "test_xcopy", test_xcopy },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
