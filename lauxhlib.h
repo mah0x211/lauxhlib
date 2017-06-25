@@ -302,7 +302,8 @@ static inline int lauxh_isinteger( lua_State *L, int idx )
 static inline const char *lauxh_checklstring( lua_State *L, int idx,
                                               size_t *len )
 {
-    return luaL_checklstring( L, idx, len );
+    luaL_checktype( L, idx, LUA_TSTRING );
+    return lua_tolstring( L, idx, len );
 }
 
 
@@ -318,7 +319,8 @@ static inline const char *lauxh_optlstring( lua_State *L, int idx,
 
 static inline const char *lauxh_checkstring( lua_State *L, int idx )
 {
-    return luaL_checkstring( L, idx );
+    luaL_checktype( L, idx, LUA_TSTRING );
+    return lua_tostring( L, idx );
 }
 
 
@@ -337,7 +339,8 @@ static inline const char *lauxh_optstring( lua_State *L, int idx,
 
 static inline lua_Number lauxh_checknumber( lua_State *L, int idx )
 {
-    return luaL_checknumber( L, idx );
+    luaL_checktype( L, idx, LUA_TNUMBER );
+    return lua_tonumber( L, idx );
 }
 
 
