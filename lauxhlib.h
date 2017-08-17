@@ -197,14 +197,11 @@ static inline void lauxh_pushbool2arr( lua_State *L, int idx, int v )
 }
 
 
-static inline size_t lauxh_rawlen( lua_State *L, int idx )
-{
 #if LUA_VERSION_NUM >= 502
-    return lua_rawlen( L, idx );
+#   define lauxh_rawlen( L, idx )   lua_rawlen( L, idx )
 #else
-    return lua_objlen( L, idx );
+#   define lauxh_rawlen( L, idx )   lua_objlen( L, idx )
 #endif
-}
 
 /* metatable */
 
