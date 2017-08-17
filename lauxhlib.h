@@ -31,6 +31,7 @@
 #ifndef lauxhlib_h
 #define lauxhlib_h
 
+#include <errno.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
@@ -950,26 +951,18 @@ static inline void lauxh_pushbuffer( lua_State *L, size_t n )
 
     luaL_buffinitsize( L, &B, (size_t)n );
     luaL_addsize( &B, (size_t)n );
+    luaL_pushresult( &B );
 
 #else
-    luaL_Buffer B;
-    lua_Integer nbuf = n / LUAL_BUFFERSIZE;
-    lua_Integer remain = n % LUAL_BUFFERSIZE;
-    lua_Integer i = 0;
+    const char *buf = malloc( n );
 
-    luaL_buffinit( L, &B );
-    for(; i < nbuf; i++ ){
-        luaL_prepbuffer( &B );
-        luaL_addsize( &B, LUAL_BUFFERSIZE );
+    if( !buf ){
+        luaL_error( L, strerror( errno ) );
     }
+    lua_pushlstring( L, buf, n );
+    free( (void*)buf );
 
-    if( remain ){
-        luaL_prepbuffer( &B );
-        luaL_addsize( &B, remain );
-    }
 #endif
-
-    luaL_pushresult( &B );
 }
 
 
