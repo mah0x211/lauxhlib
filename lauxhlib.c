@@ -7,6 +7,7 @@
 #include "lauxhlib.h"
 
 static int cfunction( lua_State *L ){
+    (void)L;
     return 0;
 }
 
