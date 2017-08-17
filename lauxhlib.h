@@ -215,6 +215,15 @@ static inline void lauxh_setmetatable( lua_State *L, const char *tname )
 }
 
 
+/* value check */
+
+#if LUA_VERSION_NUM >= 502
+#   define lauxh_equal( L, idx1, idx2 ) lua_compare( L, idx1, idx2, LUA_OPEQ )
+#else
+#   define lauxh_equal( L, idx1, idx2 ) lua_equal( L, idx1, idx2 )
+#endif
+
+
 /* type */
 
 static inline const char *lauxh_typenameat( lua_State *L, int idx )
