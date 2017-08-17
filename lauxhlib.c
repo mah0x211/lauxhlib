@@ -424,7 +424,7 @@ static int test_xcopy( lua_State *L )
     assert(
         lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNIL &&
         lua_gettop( dest ) == 2 &&
-        lua_equal( dest, 1, 2 ) == 1
+        lauxh_equal( dest, 1, 2 ) == 1
     );
 
     lua_settop( L, 0 );
@@ -444,7 +444,7 @@ static int test_xcopy( lua_State *L )
     assert(
         lauxh_xcopy( L, dest, -1, 1 ) == LUA_TSTRING &&
         lua_gettop( dest ) == 2 &&
-        lua_equal( dest, 1, 2 ) == 1
+        lauxh_equal( dest, 1, 2 ) == 1
     );
 
     // number
@@ -455,7 +455,7 @@ static int test_xcopy( lua_State *L )
     assert(
         lauxh_xcopy( L, dest, -1, 1 ) == LUA_TNUMBER &&
         lua_gettop( dest ) == 2 &&
-        lua_equal( dest, 1, 2 ) == 1
+        lauxh_equal( dest, 1, 2 ) == 1
     );
 
     // boolean true
@@ -466,7 +466,7 @@ static int test_xcopy( lua_State *L )
     assert(
         lauxh_xcopy( L, dest, -1, 1 ) == LUA_TBOOLEAN &&
         lua_gettop( dest ) == 2 &&
-        lua_equal( dest, 1, 2 ) == 1
+        lauxh_equal( dest, 1, 2 ) == 1
     );
 
     // boolean false
@@ -477,7 +477,7 @@ static int test_xcopy( lua_State *L )
     assert(
         lauxh_xcopy( L, dest, -1, 1 ) == LUA_TBOOLEAN &&
         lua_gettop( dest ) == 2 &&
-        lua_equal( dest, 1, 2 ) == 1
+        lauxh_equal( dest, 1, 2 ) == 1
     );
 
     // function
@@ -530,7 +530,7 @@ static int test_xcopy( lua_State *L )
     lauxh_gettblof( dest, "hello", -2 );
     lua_pushstring( dest, "world" );
     assert(
-        lua_equal( dest, -1, -2 ) == 1
+        lauxh_equal( dest, -1, -2 ) == 1
     );
 
     lua_close( dest );
