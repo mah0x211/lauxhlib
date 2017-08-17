@@ -943,4 +943,34 @@ static inline int lauxh_xcopy( lua_State *from, lua_State *to, int idx,
 #endif
 
 
+static inline void lauxh_pushbuffer( lua_State *L, size_t n )
+{
+#if LUA_VERSION_NUM >= 502
+    luaL_Buffer B;
+
+    luaL_buffinitsize( L, &B, (size_t)n );
+    luaL_addsize( &B, (size_t)n );
+
+#else
+    luaL_Buffer B;
+    lua_Integer nbuf = n / LUAL_BUFFERSIZE;
+    lua_Integer remain = n % LUAL_BUFFERSIZE;
+    lua_Integer i = 0;
+
+    luaL_buffinit( L, &B );
+    for(; i < nbuf; i++ ){
+        luaL_prepbuffer( &B );
+        luaL_addsize( &B, LUAL_BUFFERSIZE );
+    }
+
+    if( remain ){
+        luaL_prepbuffer( &B );
+        luaL_addsize( &B, remain );
+    }
+#endif
+
+    luaL_pushresult( &B );
+}
+
+
 #endif
