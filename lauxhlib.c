@@ -360,13 +360,7 @@ static int test_file( lua_State *L )
     lua_settop( L, 0 );
 
     // get io module
-#if defined(LUA_RIDX_GLOBALS)
-    lua_rawgeti( L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS );
-    lua_getfield( L, -1, "io" );
-#else
-    lua_getfield( L, LUA_GLOBALSINDEX, "io" );
-#endif
-
+    lauxh_getglobal( L, "io" );
     assert( lua_istable( L, -1 ) );
     // get tmpfile function
     lua_getfield( L, -1, "tmpfile" );
