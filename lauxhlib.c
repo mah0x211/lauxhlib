@@ -391,12 +391,7 @@ static int test_traceback( lua_State *L )
     th = lua_newthread( L );
     assert( th != NULL );
     assert( luaL_loadbuffer( th, src, sizeof(src) - 1, "test_traceback" ) == 0 );
-
-#if LUA_VERSION_NUM >= 502
-    assert( lua_resume( th, L, 0 ) == LUA_ERRRUN );
-#else
-    assert( lua_resume( th, 0 ) == LUA_ERRRUN );
-#endif
+    assert( lauxh_resume( th, L, 0 ) == LUA_ERRRUN );
 
     msg = lua_tostring( th, -1 );
     if( !lauxh_traceback( L, th, msg, 0 ) ){
