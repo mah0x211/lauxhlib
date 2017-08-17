@@ -203,6 +203,21 @@ static inline void lauxh_pushbool2arr( lua_State *L, int idx, int v )
 #   define lauxh_rawlen( L, idx )   lua_objlen( L, idx )
 #endif
 
+
+// get global
+static inline void lauxh_getglobal( lua_State *L, const char *k )
+{
+#if defined(LUA_RIDX_GLOBALS)
+    lua_rawgeti( L, LUA_REGISTRYINDEX, LUA_RIDX_GLOBALS );
+    lua_getfield( L, -1, k );
+
+#else
+    lua_getfield( L, LUA_GLOBALSINDEX, k );
+
+#endif
+}
+
+
 /* metatable */
 
 static inline void lauxh_setmetatable( lua_State *L, const char *tname )
