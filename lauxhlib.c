@@ -529,6 +529,26 @@ static int test_xcopy( lua_State *L )
 }
 
 
+static int test_buffer( lua_State *L )
+{
+    size_t len = 0;
+    int i = 0;
+    size_t n = 2;
+
+    for(; i < 15; i++ ){
+        lua_settop( L, 0 );
+        lauxh_pushbuffer( L, n );
+        assert( lua_gettop( L ) == 1 );
+        assert( lua_type( L, -1 ) == LUA_TSTRING );
+        assert( lua_tolstring( L, -1, &len ) != NULL );
+        assert( len == n );
+        n <<= 2;
+    }
+
+    return 0;
+}
+
+
 LUALIB_API int luaopen_lauxhlib( lua_State *L )
 {
     struct luaL_Reg method[] = {
@@ -541,6 +561,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_file", test_file },
         { "test_traceback", test_traceback },
         { "test_xcopy", test_xcopy },
+        { "test_buffer", test_buffer },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
