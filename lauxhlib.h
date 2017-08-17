@@ -921,4 +921,11 @@ static inline int lauxh_xcopy( lua_State *from, lua_State *to, int idx,
 }
 
 
+#if LUA_VERSION_NUM >= 502
+#   define lauxh_resume( L, from, narg )    lua_resume( L, from, narg )
+#else
+#   define lauxh_resume( L, from, narg )    lua_resume( L, narg )
+#endif
+
+
 #endif
