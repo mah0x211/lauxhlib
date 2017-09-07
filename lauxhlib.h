@@ -31,6 +31,7 @@
 #ifndef lauxhlib_h
 #define lauxhlib_h
 
+#include <stdlib.h>
 #include <errno.h>
 #include <lauxlib.h>
 #include <lualib.h>
