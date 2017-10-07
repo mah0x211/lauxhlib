@@ -441,6 +441,27 @@ static inline uint8_t lauxh_optuint8( lua_State *L, int idx, uint8_t def )
 }
 
 
+static inline int16_t lauxh_checkint16( lua_State *L, int idx )
+{
+    lua_Number v = lauxh_checknumber( L, idx );
+
+    lauxh_argcheck( L, v == (lua_Number)lua_tointeger( L, idx ) &&
+                    v >= INT16_MIN && v <= INT16_MAX,
+                    idx, "int16_t expected, got an out of range value" );
+
+    return (int16_t)v;
+}
+
+
+static inline int16_t lauxh_optint16( lua_State *L, int idx, int16_t def )
+{
+    if( lauxh_isnil( L, idx ) ){
+        return def;
+    }
+    return lauxh_checkint16( L, idx );
+}
+
+
 
 /* boolean argument */
 
