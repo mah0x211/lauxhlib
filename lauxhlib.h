@@ -33,6 +33,7 @@
 
 #include <stdlib.h>
 #include <errno.h>
+#include <stdint.h>
 #include <lauxlib.h>
 #include <lualib.h>
 
@@ -395,6 +396,27 @@ static inline lua_Integer lauxh_optinteger( lua_State *L, int idx,
         return def;
     }
     return lauxh_checkinteger( L, idx );
+}
+
+
+static inline int8_t lauxh_checkint8( lua_State *L, int idx )
+{
+    lua_Number v = lauxh_checknumber( L, idx );
+
+    lauxh_argcheck( L, v == (lua_Number)lua_tointeger( L, idx ) &&
+                    v >= INT8_MIN && v <= INT8_MAX,
+                    idx, "int8_t expected, got an out of range value" );
+
+    return (uint8_t)v;
+}
+
+
+static inline int8_t lauxh_optint8( lua_State *L, int idx, int8_t def )
+{
+    if( lauxh_isnil( L, idx ) ){
+        return def;
+    }
+    return lauxh_checkint8( L, idx );
 }
 
 
