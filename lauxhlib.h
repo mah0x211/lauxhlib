@@ -420,6 +420,27 @@ static inline int8_t lauxh_optint8( lua_State *L, int idx, int8_t def )
 }
 
 
+static inline uint8_t lauxh_checkuint8( lua_State *L, int idx )
+{
+    lua_Number v = lauxh_checknumber( L, idx );
+
+    lauxh_argcheck( L, v == (lua_Number)lua_tointeger( L, idx ) &&
+                    v >= 0 && v <= UINT8_MAX,
+                    idx, "uint8_t expected, got an out of range value" );
+
+    return (uint8_t)v;
+}
+
+
+static inline uint8_t lauxh_optuint8( lua_State *L, int idx, uint8_t def )
+{
+    if( lauxh_isnil( L, idx ) ){
+        return def;
+    }
+    return lauxh_checkuint8( L, idx );
+}
+
+
 
 /* boolean argument */
 
