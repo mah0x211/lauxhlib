@@ -131,13 +131,14 @@ static inline void lauxh_pushnum2tblat( lua_State *L, const char *k,
 #define lauxh_pushnum2tbl(L, k, v) lauxh_pushnum2tblat(L, k, v, -3)
 
 
-static inline void lauxh_pushint2tbl( lua_State *L, const char *k,
-                                      lua_Integer v )
+static inline void lauxh_pushint2tblat( lua_State *L, const char *k,
+                                        lua_Integer v, int at )
 {
     lua_pushstring( L, k );
     lua_pushinteger( L, v );
-    lua_rawset( L, -3 );
+    lua_rawset( L, at );
 }
+#define lauxh_pushint2tbl(L, k, v) lauxh_pushint2tblat(L, k, v, -3)
 
 
 static inline void lauxh_pushbool2tbl( lua_State *L, const char *k, int v )
