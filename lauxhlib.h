@@ -121,12 +121,14 @@ static inline void lauxh_pushlstr2tblat( lua_State *L, const char *k,
 #define lauxh_pushlstr2tbl(L, k, v, l) lauxh_pushlstr2tblat(L, k, v, l, -3)
 
 
-static inline void lauxh_pushnum2tbl( lua_State *L, const char *k, lua_Number v )
+static inline void lauxh_pushnum2tblat( lua_State *L, const char *k,
+                                        lua_Number v, int at )
 {
     lua_pushstring( L, k );
     lua_pushnumber( L, v );
-    lua_rawset( L, -3 );
+    lua_rawset( L, at );
 }
+#define lauxh_pushnum2tbl(L, k, v) lauxh_pushnum2tblat(L, k, v, -3)
 
 
 static inline void lauxh_pushint2tbl( lua_State *L, const char *k,
