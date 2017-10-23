@@ -185,12 +185,13 @@ static inline void lauxh_pushstr2arrat( lua_State *L, int idx, const char *v,
 #define lauxh_pushstr2arr(L, idx, v) lauxh_pushstr2arrat(L, idx, v, -2)
 
 
-static inline void lauxh_pushlstr2arr( lua_State *L, int idx, const char *v,
-                                       size_t l )
+static inline void lauxh_pushlstr2arrat( lua_State *L, int idx, const char *v,
+                                         size_t l, int at )
 {
     lua_pushlstring( L, v, l );
-    lua_rawseti( L, -2, idx );
+    lua_rawseti( L, at, idx );
 }
+#define lauxh_pushlstr2arr(L, idx, v, l) lauxh_pushlstr2arrat(L, idx, v, l, -2)
 
 
 static inline void lauxh_pushnum2arr( lua_State *L, int idx, lua_Number v )
