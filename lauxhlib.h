@@ -101,13 +101,14 @@ static inline void lauxh_pushfn2tblat( lua_State *L, const char *k,
 #define lauxh_pushfn2tbl(L, k, v) lauxh_pushfn2tblat(L, k, v, -3)
 
 
-static inline void lauxh_pushstr2tbl( lua_State *L, const char *k,
-                                      const char *v )
+static inline void lauxh_pushstr2tblat( lua_State *L, const char *k,
+                                        const char *v, int at )
 {
     lua_pushstring( L, k );
     lua_pushstring( L, v );
-    lua_rawset( L, -3 );
+    lua_rawset( L, at );
 }
+#define lauxh_pushstr2tbl(L, k, v) lauxh_pushstr2tblat(L, k, v, -3)
 
 
 static inline void lauxh_pushlstr2tbl( lua_State *L, const char *k,
