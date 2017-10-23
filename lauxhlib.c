@@ -130,6 +130,75 @@ static int test_table( lua_State *L )
 }
 
 
+static int test_tableat( lua_State *L )
+{
+    size_t len = 0;
+    int at = 0;
+
+    lua_newtable( L );
+    at = lua_gettop( L );
+    lua_pushnil( L );
+    lua_pushnil( L );
+
+    // string
+    lauxh_pushstr2tblat( L, "key", "string", at );
+    assert( lauxh_checkstringof( L, at, "key" ) );
+    assert( lauxh_checklstringof( L, at, "key", &len ) );
+    assert( len == 6 );
+    // optstring
+    assert( lauxh_optstringof( L, at, "key", NULL ) );
+    assert( lauxh_optlstringof( L, at, "key", NULL, &len ) );
+    assert( len == 6 );
+    lauxh_pushnil2tblat( L, "key", at );
+    assert( lauxh_optlstringof( L, at, "key", NULL, &len ) == NULL );
+
+
+    // number
+    lauxh_pushnum2tblat( L, "key", 1.1, at );
+    assert( lauxh_checknumberof( L, at, "key" ) == 1.1 );
+    // optnumber
+    assert( lauxh_optnumberof( L, at, "key", 0 ) == 1.1 );
+    lauxh_pushnil2tblat( L, "key", at );
+    assert( lauxh_optnumberof( L, at, "key", 0 ) == 0 );
+
+
+    // integer
+    lauxh_pushint2tblat( L, "key", 1, at );
+    assert( lauxh_checkintegerof( L, at, "key" ) == 1 );
+    // optnumber
+    assert( lauxh_optintegerof( L, at, "key", 0 ) == 1 );
+    lauxh_pushnil2tblat( L, "key", at );
+    assert( lauxh_optintegerof( L, at, "key", 0 ) == 0 );
+
+
+    // boolean
+    lauxh_pushbool2tblat( L, "key", 1, at );
+    assert( lauxh_checkbooleanof( L, at, "key" ) == 1 );
+    // optboolean
+    lauxh_pushnil2tblat( L, "key", at );
+    assert( lauxh_optbooleanof( L, at, "key", 0 ) == 0 );
+
+
+    // push table
+    lua_pushstring( L, "key" );
+    lua_newtable( L );
+    lauxh_pushbool2arr( L, 1, 1 );
+    lua_rawset( L, at );
+
+    assert( lua_gettop( L ) == 3 );
+    assert( lua_type( L, 1 ) == LUA_TTABLE );
+    assert( lua_type( L, 2 ) == LUA_TNIL );
+    assert( lua_type( L, 3 ) == LUA_TNIL );
+
+    // table
+    lauxh_checktableof( L, at, "key" );
+    assert( lauxh_rawlen( L, -1 ) == 1 );
+    lauxh_checkbooleanat( L, -1, 1 );
+
+    return 0;
+}
+
+
 static int test_arguments( lua_State *L )
 {
     void *ptr = NULL;
@@ -556,6 +625,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_reference", test_reference },
         { "test_arguments", test_arguments },
         { "test_table", test_table },
+        { "test_tableat", test_tableat },
         { "test_array", test_array },
         { "test_userdata", test_userdata },
         { "test_file", test_file },
