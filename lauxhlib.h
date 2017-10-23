@@ -167,11 +167,13 @@ static inline void lauxh_pushnil2arrat( lua_State *L, int idx, int at )
 #define lauxh_pushnil2arr(L, idx) lauxh_pushnil2arrat(L, idx, -2)
 
 
-static inline void lauxh_pushfn2arr( lua_State *L, int idx, lua_CFunction v )
+static inline void lauxh_pushfn2arrat( lua_State *L, int idx, lua_CFunction v,
+                                       int at )
 {
     lua_pushcfunction( L, v );
-    lua_rawseti( L, -2, idx );
+    lua_rawseti( L, at, idx );
 }
+#define lauxh_pushfn2arr(L, idx, v) lauxh_pushfn2arrat(L, idx, v, -2)
 
 
 static inline void lauxh_pushstr2arr( lua_State *L, int idx, const char *v )
