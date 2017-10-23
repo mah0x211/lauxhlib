@@ -203,11 +203,13 @@ static inline void lauxh_pushnum2arrat( lua_State *L, int idx, lua_Number v,
 #define lauxh_pushnum2arr(L, idx, v) lauxh_pushnum2arrat(L, idx, v, -2)
 
 
-static inline void lauxh_pushint2arr( lua_State *L, int idx, lua_Integer v )
+static inline void lauxh_pushint2arrat( lua_State *L, int idx, lua_Integer v,
+                                        int at )
 {
     lua_pushinteger( L, v );
-    lua_rawseti( L, -2, idx );
+    lua_rawseti( L, at, idx );
 }
+#define lauxh_pushint2arr(L, idx, v) lauxh_pushint2arrat(L, idx, v, -2)
 
 
 static inline void lauxh_pushbool2arr( lua_State *L, int idx, int v )
