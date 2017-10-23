@@ -71,6 +71,75 @@ static int test_array( lua_State *L )
 }
 
 
+static int test_arrayat( lua_State *L )
+{
+    size_t len = 0;
+    int at = 0;
+
+    lua_newtable( L );
+    at = lua_gettop( L );
+    lua_pushnil( L );
+    lua_pushnil( L );
+
+    // string
+    lauxh_pushstr2arrat( L, 2, "string", at );
+    assert( lauxh_checkstringat( L, at, 2 ) );
+    assert( lauxh_checklstringat( L, at, 2, &len ) );
+    assert( len == 6 );
+    // optstring
+    assert( lauxh_optstringat( L, at, 2, NULL ) );
+    assert( lauxh_optlstringat( L, at, 2, NULL, &len ) );
+    assert( len == 6 );
+    lauxh_pushnil2arrat( L, 2, at );
+    assert( lauxh_optlstringat( L, at, 2, NULL, &len ) == NULL );
+
+
+    // number
+    lauxh_pushnum2arrat( L, 2, 1.1, at );
+    assert( lauxh_checknumberat( L, at, 2 ) == 1.1 );
+    // optnumber
+    assert( lauxh_optnumberat( L, at, 2, 0 ) == 1.1 );
+    lauxh_pushnil2arrat( L, 2, at );
+    assert( lauxh_optnumberat( L, at, 2, 0 ) == 0 );
+
+
+    // integer
+    lauxh_pushint2arrat( L, 2, 1, at );
+    assert( lauxh_checkintegerat( L, at, 2 ) == 1 );
+    // optnumber
+    assert( lauxh_optintegerat( L, at, 2, 0 ) == 1 );
+    lauxh_pushnil2arrat( L, 2, at );
+    assert( lauxh_optintegerat( L, at, 2, 0 ) == 0 );
+
+
+    // boolean
+    lauxh_pushbool2arrat( L, 2, 1, at );
+    assert( lauxh_checkbooleanat( L, at, 2 ) == 1 );
+    // optboolean
+    lauxh_pushnil2arrat( L, 2, at );
+    assert( lauxh_optbooleanat( L, at, 2, 0 ) == 0 );
+
+
+    // push table
+    lua_newtable( L );
+    lauxh_pushbool2arr( L, 1, 1 );
+    lauxh_pushstr2arr( L, 2, "string" );
+    lua_rawseti( L, at, 2 );
+
+    assert( lua_gettop( L ) == 3 );
+    assert( lua_type( L, 1 ) == LUA_TTABLE );
+    assert( lua_type( L, 2 ) == LUA_TNIL );
+    assert( lua_type( L, 3 ) == LUA_TNIL );
+
+    // table
+    lauxh_checktableat( L, at, 2 );
+    assert( lauxh_rawlen( L, -1 ) == 2 );
+    assert( lauxh_checkbooleanat( L, -1, 1 ) == 1 );
+    lauxh_checkstringat( L, -1, 2 );
+
+    return 0;
+}
+
 static int test_table( lua_State *L )
 {
     size_t len = 0;
@@ -627,6 +696,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_table", test_table },
         { "test_tableat", test_tableat },
         { "test_array", test_array },
+        { "test_arrayat", test_arrayat },
         { "test_userdata", test_userdata },
         { "test_file", test_file },
         { "test_traceback", test_traceback },
