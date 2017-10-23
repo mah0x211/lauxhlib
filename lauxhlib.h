@@ -212,11 +212,12 @@ static inline void lauxh_pushint2arrat( lua_State *L, int idx, lua_Integer v,
 #define lauxh_pushint2arr(L, idx, v) lauxh_pushint2arrat(L, idx, v, -2)
 
 
-static inline void lauxh_pushbool2arr( lua_State *L, int idx, int v )
+static inline void lauxh_pushbool2arrat( lua_State *L, int idx, int v, int at )
 {
     lua_pushboolean( L, v );
-    lua_rawseti( L, -2, idx );
+    lua_rawseti( L, at, idx );
 }
+#define lauxh_pushbool2arr(L, idx, v) lauxh_pushbool2arrat(L, idx, v, -2)
 
 
 #if LUA_VERSION_NUM >= 502
