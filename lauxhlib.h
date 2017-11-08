@@ -578,7 +578,7 @@ static inline uint64_t lauxh_checkuint64( lua_State *L, int idx )
 }
 
 
-static inline uint64_t lauxh_optulong( lua_State *L, int idx, uint64_t def )
+static inline uint64_t lauxh_optuint64( lua_State *L, int idx, uint64_t def )
 {
     if( lauxh_isnil( L, idx ) ){
         return def;
