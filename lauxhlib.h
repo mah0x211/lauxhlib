@@ -84,71 +84,92 @@ static inline void lauxh_gettblof( lua_State *L, const char *k, int idx )
 
 static inline void lauxh_pushnil2tblat( lua_State *L, const char *k, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushnil( L );
     lua_rawset( L, at );
 }
-#define lauxh_pushnil2tbl(L, k) lauxh_pushnil2tblat(L, k, -3)
+#define lauxh_pushnil2tbl(L, k) lauxh_pushnil2tblat(L, k, -1)
 
 
 static inline void lauxh_pushfn2tblat( lua_State *L, const char *k,
                                        lua_CFunction v, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushcfunction( L, v );
     lua_rawset( L, at );
 }
-#define lauxh_pushfn2tbl(L, k, v) lauxh_pushfn2tblat(L, k, v, -3)
+#define lauxh_pushfn2tbl(L, k, v) lauxh_pushfn2tblat(L, k, v, -1)
 
 
 static inline void lauxh_pushstr2tblat( lua_State *L, const char *k,
                                         const char *v, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushstring( L, v );
     lua_rawset( L, at );
 }
-#define lauxh_pushstr2tbl(L, k, v) lauxh_pushstr2tblat(L, k, v, -3)
+#define lauxh_pushstr2tbl(L, k, v) lauxh_pushstr2tblat(L, k, v, -1)
 
 
 static inline void lauxh_pushlstr2tblat( lua_State *L, const char *k,
                                          const char *v, size_t l, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushlstring( L, v, l );
     lua_rawset( L, at );
 }
-#define lauxh_pushlstr2tbl(L, k, v, l) lauxh_pushlstr2tblat(L, k, v, l, -3)
+#define lauxh_pushlstr2tbl(L, k, v, l) lauxh_pushlstr2tblat(L, k, v, l, -1)
 
 
 static inline void lauxh_pushnum2tblat( lua_State *L, const char *k,
                                         lua_Number v, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushnumber( L, v );
     lua_rawset( L, at );
 }
-#define lauxh_pushnum2tbl(L, k, v) lauxh_pushnum2tblat(L, k, v, -3)
+#define lauxh_pushnum2tbl(L, k, v) lauxh_pushnum2tblat(L, k, v, -1)
 
 
 static inline void lauxh_pushint2tblat( lua_State *L, const char *k,
                                         lua_Integer v, int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushinteger( L, v );
     lua_rawset( L, at );
 }
-#define lauxh_pushint2tbl(L, k, v) lauxh_pushint2tblat(L, k, v, -3)
+#define lauxh_pushint2tbl(L, k, v) lauxh_pushint2tblat(L, k, v, -1)
 
 
 static inline void lauxh_pushbool2tblat( lua_State *L, const char *k, int v,
                                          int at )
 {
+    if( at < 0 ){
+        at -= 2;
+    }
     lua_pushstring( L, k );
     lua_pushboolean( L, v );
     lua_rawset( L, at );
 }
-#define lauxh_pushbool2tbl(L, k, v) lauxh_pushbool2tblat(L, k, v, -3)
+#define lauxh_pushbool2tbl(L, k, v) lauxh_pushbool2tblat(L, k, v, -1)
 
 
 /* table as array */
@@ -161,63 +182,84 @@ static inline void lauxh_gettblat( lua_State *L, int idx, int at )
 
 static inline void lauxh_pushnil2arrat( lua_State *L, int idx, int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushnil( L );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushnil2arr(L, idx) lauxh_pushnil2arrat(L, idx, -2)
+#define lauxh_pushnil2arr(L, idx) lauxh_pushnil2arrat(L, idx, -1)
 
 
 static inline void lauxh_pushfn2arrat( lua_State *L, int idx, lua_CFunction v,
                                        int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushcfunction( L, v );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushfn2arr(L, idx, v) lauxh_pushfn2arrat(L, idx, v, -2)
+#define lauxh_pushfn2arr(L, idx, v) lauxh_pushfn2arrat(L, idx, v, -1)
 
 
 static inline void lauxh_pushstr2arrat( lua_State *L, int idx, const char *v,
                                         int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushstring( L, v );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushstr2arr(L, idx, v) lauxh_pushstr2arrat(L, idx, v, -2)
+#define lauxh_pushstr2arr(L, idx, v) lauxh_pushstr2arrat(L, idx, v, -1)
 
 
 static inline void lauxh_pushlstr2arrat( lua_State *L, int idx, const char *v,
                                          size_t l, int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushlstring( L, v, l );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushlstr2arr(L, idx, v, l) lauxh_pushlstr2arrat(L, idx, v, l, -2)
+#define lauxh_pushlstr2arr(L, idx, v, l) lauxh_pushlstr2arrat(L, idx, v, l, -1)
 
 
 static inline void lauxh_pushnum2arrat( lua_State *L, int idx, lua_Number v,
                                         int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushnumber( L, v );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushnum2arr(L, idx, v) lauxh_pushnum2arrat(L, idx, v, -2)
+#define lauxh_pushnum2arr(L, idx, v) lauxh_pushnum2arrat(L, idx, v, -1)
 
 
 static inline void lauxh_pushint2arrat( lua_State *L, int idx, lua_Integer v,
                                         int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushinteger( L, v );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushint2arr(L, idx, v) lauxh_pushint2arrat(L, idx, v, -2)
+#define lauxh_pushint2arr(L, idx, v) lauxh_pushint2arrat(L, idx, v, -1)
 
 
 static inline void lauxh_pushbool2arrat( lua_State *L, int idx, int v, int at )
 {
+    if( at < 0 ){
+        at--;
+    }
     lua_pushboolean( L, v );
     lua_rawseti( L, at, idx );
 }
-#define lauxh_pushbool2arr(L, idx, v) lauxh_pushbool2arrat(L, idx, v, -2)
+#define lauxh_pushbool2arr(L, idx, v) lauxh_pushbool2arrat(L, idx, v, -1)
 
 
 #if LUA_VERSION_NUM >= 502
