@@ -463,6 +463,19 @@ static int test_is( lua_State *L )
     assert( luaL_loadstring( L, "function fn()end" ) == 0 );
     assert( lauxh_isfunction( L, -1 ) );
 
+    // metatable
+    luaL_newmetatable( L, "LAUXHLIB_A_MT" );
+    luaL_newmetatable( L, "LAUXHLIB_B_MT" );
+    lua_settop( L, 0 );
+    lua_newtable( L );
+    lauxh_setmetatable( L, "LAUXHLIB_A_MT" );
+    assert( lauxh_ismetatableof( L, -1, "LAUXHLIB_A_MT" ) == 1 );
+    assert( lauxh_ismetatableof( L, -1, "LAUXHLIB_B_MT" ) == 0 );
+
+    lauxh_setmetatable( L, "LAUXHLIB_B_MT" );
+    assert( lauxh_ismetatableof( L, -1, "LAUXHLIB_A_MT" ) == 0 );
+    assert( lauxh_ismetatableof( L, -1, "LAUXHLIB_B_MT" ) == 1 );
+
     return 0;
 }
 
