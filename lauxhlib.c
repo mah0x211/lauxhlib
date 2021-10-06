@@ -680,6 +680,26 @@ static int test_xcopy( lua_State *L )
 }
 
 
+static int test_resume( lua_State *L )
+{
+    const char src[] = "\nfunction foo() return 1, 'a', {}; end\nreturn foo();";
+    lua_State *th = NULL;
+    const char *msg = NULL;
+
+    lua_settop( L, 0 );
+    th = lua_newthread( L );
+    assert( th != NULL );
+    assert( luaL_loadbuffer( th, src, sizeof(src) - 1, "test_resume" ) == 0 );
+    assert( lauxh_resume( th, L, 0 ) == 0 );
+    assert( lua_gettop( th ) == 3 );
+    assert( lua_type( th, -1 ) == LUA_TTABLE );
+    assert( lua_type( th, -2 ) == LUA_TSTRING );
+    assert( lua_type( th, -3 ) == LUA_TNUMBER );
+
+    return 0;
+}
+
+
 static int test_buffer( lua_State *L )
 {
     size_t len = 0;
@@ -687,6 +707,7 @@ static int test_buffer( lua_State *L )
     size_t n = 2;
 
     for(; i < 15; i++ ){
+        n -= i;
         lua_settop( L, 0 );
         lauxh_pushbuffer( L, n );
         assert( lua_gettop( L ) == 1 );
@@ -714,6 +735,7 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_file", test_file },
         { "test_traceback", test_traceback },
         { "test_xcopy", test_xcopy },
+        { "test_resume", test_resume },
         { "test_buffer", test_buffer },
         { NULL, NULL }
     };
