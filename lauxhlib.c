@@ -684,7 +684,6 @@ static int test_resume( lua_State *L )
 {
     const char src[] = "\nfunction foo() return 1, 'a', {}; end\nreturn foo();";
     lua_State *th = NULL;
-    const char *msg = NULL;
 
     lua_settop( L, 0 );
     th = lua_newthread( L );
@@ -699,26 +698,6 @@ static int test_resume( lua_State *L )
     return 0;
 }
 
-
-static int test_buffer( lua_State *L )
-{
-    size_t len = 0;
-    int i = 0;
-    size_t n = 2;
-
-    for(; i < 15; i++ ){
-        n -= i;
-        lua_settop( L, 0 );
-        lauxh_pushbuffer( L, n );
-        assert( lua_gettop( L ) == 1 );
-        assert( lua_type( L, -1 ) == LUA_TSTRING );
-        assert( lua_tolstring( L, -1, &len ) != NULL );
-        assert( len == n );
-        n <<= 2;
-    }
-
-    return 0;
-}
 
 
 LUALIB_API int luaopen_lauxhlib( lua_State *L )
@@ -736,7 +715,6 @@ LUALIB_API int luaopen_lauxhlib( lua_State *L )
         { "test_traceback", test_traceback },
         { "test_xcopy", test_xcopy },
         { "test_resume", test_resume },
-        { "test_buffer", test_buffer },
         { NULL, NULL }
     };
     struct luaL_Reg *ptr = method;
