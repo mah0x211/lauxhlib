@@ -1187,29 +1187,4 @@ static inline int lauxh_resume( lua_State *L, lua_State *from, int narg ) {
 #endif
 
 
-static inline void lauxh_pushbuffer( lua_State *L, size_t n )
-{
-    luaL_Buffer B;
-
-#if LUA_VERSION_NUM >= 502
-    luaL_buffinitsize( L, &B, (size_t)n );
-    luaL_addsize( &B, (size_t)n );
-    luaL_pushresult( &B );
-
-#else
-    const char buf[LUAL_BUFFERSIZE] = { 0 };
-    size_t step = n / LUAL_BUFFERSIZE;
-
-    luaL_buffinit( L, &B );
-    // add N-byte empty string to the thread state
-    luaL_addlstring( &B, buf, n % LUAL_BUFFERSIZE );
-    for( size_t i = 1; i <= step; i++ ){
-        luaL_addlstring( &B, buf, LUAL_BUFFERSIZE );
-    }
-    luaL_pushresult( &B );
-
-#endif
-}
-
-
 #endif
