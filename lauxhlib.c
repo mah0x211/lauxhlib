@@ -645,6 +645,36 @@ static int test_resume(lua_State *L)
     return 0;
 }
 
+static int test_argerror_func(lua_State *L)
+{
+    return lauxh_argerror(L, 1, "error from test_argerror_func");
+}
+
+static int test_argcheck_func(lua_State *L)
+{
+    lauxh_argcheck(L, 0, 1, "error from test_argcheck_func");
+    return 0;
+}
+
+static int test_argerror(lua_State *L)
+{
+    // argerror
+    lua_settop(L, 0);
+    lua_pushcfunction(L, test_argerror_func);
+    assert(lua_pcall(L, 0, 0, 0) == LUA_ERRRUN);
+    assert(strstr(lua_tostring(L, -1), "error from test_argerror_func") !=
+           NULL);
+
+    // argcheck
+    lua_settop(L, 0);
+    lua_pushcfunction(L, test_argcheck_func);
+    assert(lua_pcall(L, 0, 0, 0) == LUA_ERRRUN);
+    assert(strstr(lua_tostring(L, -1), "error from test_argcheck_func") !=
+           NULL);
+
+    return 0;
+}
+
 LUALIB_API int luaopen_lauxhlib(lua_State *L)
 {
     struct luaL_Reg method[] = {
@@ -660,6 +690,7 @@ LUALIB_API int luaopen_lauxhlib(lua_State *L)
         {"test_traceback", test_traceback},
         {"test_xcopy",     test_xcopy    },
         {"test_resume",    test_resume   },
+        {"test_argerror",  test_argerror },
         {NULL,             NULL          }
     };
     struct luaL_Reg *ptr = method;
