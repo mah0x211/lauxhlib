@@ -339,12 +339,17 @@ static inline int lauxh_isinteger(lua_State *L, int idx)
 }
 
 /* check argument */
-#define lauxh_argerror(L, idx, fmt, ...)                                       \
- do {                                                                          \
-  char _errstr[255];                                                           \
-  snprintf(_errstr, 255, (fmt), ##__VA_ARGS__);                                \
-  luaL_argerror((L), (idx), _errstr);                                          \
- } while (0)
+static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
+{
+    char buf[255];
+    va_list ap;
+
+    va_start(ap, fmt);
+    vsnprintf(buf, 255, fmt, ap);
+    va_end(ap);
+
+    return luaL_argerror(L, idx, buf);
+}
 
 #define lauxh_argcheck(L, cond, idx, fmt, ...)                                 \
  do {                                                                          \
