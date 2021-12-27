@@ -966,51 +966,61 @@ static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
 
 /* traceback */
 
-static inline int lauxh_traceback(lua_State *L, lua_State *src, const char *msg,
-                                  int lv)
+static inline void lauxh_traceback(lua_State *L, lua_State *src,
+                                   const char *msg, int lv)
 {
 #if LUA_VERSION_NUM >= 502
     // push src stack trace to dst state
     luaL_traceback((L) ? L : src, src, msg, lv);
-    return 1;
 
 #else
-    // avoid warnings for unused variables
-    (void)lv;
+    lua_Debug ar;
+    luaL_Buffer b;
 
-    // get debug module
-    lua_pushliteral(src, "debug");
-    lua_rawget(src, LUA_GLOBALSINDEX);
-    if (lauxh_istable(src, -1)) {
-        // get traceback function
-        lua_pushliteral(src, "traceback");
-        lua_rawget(src, -2);
-        if (lauxh_isfunction(src, -1)) {
-            int argc = 0;
+    luaL_buffinit(src, &b);
+    if (msg) {
+        luaL_addstring(&b, msg);
+        luaL_addchar(&b, '\n');
+    }
 
-            // remove debug module table
-            lua_replace(src, -2);
+    // get stackinfo
+    luaL_addstring(&b, "stack traceback:");
+    while (lua_getstack(src, lv++, &ar)) {
+        lua_getinfo(src, "Sln", &ar);
+        if (ar.currentline <= 0) {
+            lua_pushfstring(src, "\n\t%s: in ", ar.short_src);
+        } else {
+            lua_pushfstring(src, "\n\t%s:%d: in ", ar.short_src,
+                            ar.currentline);
+        }
+        luaL_addvalue(&b);
 
-            // add msg argument to debug.traceback
-            if (msg) {
-                lua_pushstring(src, msg);
-                argc = 1;
-            }
+        // is there a name from code?
+        if (*ar.namewhat != '\0') {
+            lua_pushfstring(src, "%s '%s'", ar.namewhat, ar.name);
+        }
+        // main
+        else if (*ar.what == 'm') {
+            lua_pushliteral(src, "main chunk");
+        }
+        // not C function, use <file:line>
+        else if (*ar.what == 'C') {
+            lua_pushliteral(src, "?");
+        } else {
+            lua_pushfstring(src, "function <%s:%d>", ar.short_src,
+                            ar.linedefined);
+        }
+        luaL_addvalue(&b);
 
-            // call debug.traceback function
-            if (lua_pcall(src, argc, 1, 0) == 0) {
-                if (L) {
-                    lua_xmove(src, L, 1);
-                }
-                return 1;
-            }
-
-            // faillure
-            return -1;
+        if (*ar.what == 't') {
+            luaL_addstring(&b, "\n\t(...tail calls...)");
         }
     }
 
-    return 0;
+    luaL_pushresult(&b);
+    if (L) {
+        lua_xmove(src, L, 1);
+    }
 #endif
 }
 

@@ -524,11 +524,7 @@ static int test_traceback(lua_State *L)
     assert(lauxh_resume(th, L, 0) == LUA_ERRRUN);
 
     msg = lua_tostring(th, -1);
-    if (!lauxh_traceback(L, th, msg, 0)) {
-        printf("debug.traceback function does not exists");
-        return 0;
-    }
-
+    lauxh_traceback(L, th, msg, 0);
     assert(lua_type(L, -1) == LUA_TSTRING);
 
     return 0;
