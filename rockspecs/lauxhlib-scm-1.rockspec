@@ -4,7 +4,7 @@ source = {
     url = "git+https://github.com/mah0x211/lauxhlib.git"
 }
 description = {
-    summary = "lua auxiliary header library",
+    summary = "A helper module for developing Lua modules in C language.",
     homepage = "https://github.com/mah0x211/lauxhlib",
     license = "MIT/X11",
     maintainer = "Masatoshi Fukunaga"
