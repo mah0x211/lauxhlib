@@ -273,13 +273,6 @@ static inline void lauxh_setmetatable(lua_State *L, const char *tname)
 # define lauxh_equal(L, idx1, idx2) lua_equal(L, idx1, idx2)
 #endif
 
-/* type */
-
-static inline const char *lauxh_typenameat(lua_State *L, int idx)
-{
-    return lua_typename(L, lua_type(L, idx));
-}
-
 /* typecheck */
 
 static inline int lauxh_isnil(lua_State *L, int idx)
@@ -884,7 +877,7 @@ static inline void lauxh_checkfunction(lua_State *L, int idx)
 static inline lua_CFunction lauxh_checkcfunction(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lua_iscfunction(L, idx), idx,
-                   "cfunction expected, got %s", lauxh_typenameat(L, idx));
+                   "cfunction expected, got %s", luaL_typename(L, idx));
 
     return lua_tocfunction(L, idx);
 }
