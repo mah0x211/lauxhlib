@@ -1,7 +1,7 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
-
+INSTALL?=install
 
 all: $(TARGET)
 
@@ -14,3 +14,6 @@ $(TARGET): $(OBJ)
 install:
 	lua ./test/test.lua
 	rm -f $(OBJ) $(TARGET)
+	$(INSTALL) lauxhlib.h $(CONFDIR)
+	rm -f $(LUA_INCDIR)/lauxhlib.h
+	ln -s $(CONFDIR)/lauxhlib.h $(LUA_INCDIR)

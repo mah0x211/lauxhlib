@@ -1,13 +1,13 @@
 package = "lauxhlib"
 version = "scm-1"
 source = {
-    url = "git://github.com/mah0x211/lauxhlib.git"
+    url = "git+https://github.com/mah0x211/lauxhlib.git"
 }
 description = {
-    summary = "lauxhlib test",
+    summary = "lua auxiliary header library",
     homepage = "https://github.com/mah0x211/lauxhlib",
     license = "MIT/X11",
-    maintainer = "Masatoshi Teruya"
+    maintainer = "Masatoshi Fukunaga"
 }
 dependencies = {
     "lua >= 5.1"
@@ -24,6 +24,8 @@ build = {
     },
     install_variables = {
         PACKAGE         = "lauxhlib",
-        LIB_EXTENSION   = "$(LIB_EXTENSION)"
+        LIB_EXTENSION   = "$(LIB_EXTENSION)",
+        CONFDIR         = '$(CONFDIR)',
+        LUA_INCDIR      = '$(LUA_INCDIR)',
     }
 }
