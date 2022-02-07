@@ -3,6 +3,12 @@ SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 INSTALL?=install
 
+.EXPORT_ALL_VARIABLES:
+
+LUA_CPATH:=./?.so;$(LUA_CPATH)
+
+.PHONY: all install
+
 all: $(TARGET)
 
 %.o: %.c
