@@ -398,8 +398,12 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
 
 static inline int lauxh_isinteger(lua_State *L, int idx)
 {
+#if LUA_VERSION_NUM >= 503
+    return lua_isinteger(L, idx);
+#else
     return lauxh_isnumber(L, idx) &&
            (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx);
+#endif
 }
 
 static inline int lauxh_isfile(lua_State *L, int idx)
@@ -480,12 +484,9 @@ static inline lua_Number lauxh_optnumber(lua_State *L, int idx, lua_Number def)
 
 static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
-
-    lauxh_argcheck(L, v == (lua_Number)lua_tointeger(L, idx), idx,
-                   "integer expected, got number");
-
-    return (lua_Integer)v;
+    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "integer expected, got %s",
+                   luaL_typename(L, idx));
+    return lua_tointeger(L, idx);
 }
 
 static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
@@ -499,12 +500,10 @@ static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
 
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(L,
-                   v == (lua_Number)lua_tointeger(L, idx) && v >= INT8_MIN &&
-                       v <= INT8_MAX,
-                   idx, "int8_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= INT8_MIN && v <= INT8_MAX, idx,
+                   "int8_t expected, got an out of range value");
 
     return (uint8_t)v;
 }
@@ -519,11 +518,10 @@ static inline int8_t lauxh_optint8(lua_State *L, int idx, int8_t def)
 
 static inline uint8_t lauxh_checkuint8(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(
-        L, v == (lua_Number)lua_tointeger(L, idx) && v >= 0 && v <= UINT8_MAX,
-        idx, "uint8_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= 0 && v <= UINT8_MAX, idx,
+                   "uint8_t expected, got an out of range value");
 
     return (uint8_t)v;
 }
@@ -538,12 +536,10 @@ static inline uint8_t lauxh_optuint8(lua_State *L, int idx, uint8_t def)
 
 static inline int16_t lauxh_checkint16(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(L,
-                   v == (lua_Number)lua_tointeger(L, idx) && v >= INT16_MIN &&
-                       v <= INT16_MAX,
-                   idx, "int16_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= INT16_MIN && v <= INT16_MAX, idx,
+                   "int16_t expected, got an out of range value");
 
     return (int16_t)v;
 }
@@ -558,11 +554,10 @@ static inline int16_t lauxh_optint16(lua_State *L, int idx, int16_t def)
 
 static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(
-        L, v == (lua_Number)lua_tointeger(L, idx) && v >= 0 && v <= UINT16_MAX,
-        idx, "uint16_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= 0 && v <= UINT16_MAX, idx,
+                   "uint16_t expected, got an out of range value");
 
     return (uint16_t)v;
 }
@@ -577,12 +572,10 @@ static inline uint16_t lauxh_optuint16(lua_State *L, int idx, uint16_t def)
 
 static inline int32_t lauxh_checkint32(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(L,
-                   v == (lua_Number)lua_tointeger(L, idx) && v >= INT32_MIN &&
-                       v <= INT32_MAX,
-                   idx, "int32_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= INT32_MIN && v <= INT32_MAX, idx,
+                   "int32_t expected, got an out of range value");
 
     return (int32_t)v;
 }
@@ -597,11 +590,10 @@ static inline int32_t lauxh_optint32(lua_State *L, int idx, int32_t def)
 
 static inline uint32_t lauxh_checkuint32(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(
-        L, v == (lua_Number)lua_tointeger(L, idx) && v >= 0 && v <= UINT32_MAX,
-        idx, "uint32_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= 0 && v <= UINT32_MAX, idx,
+                   "uint32_t expected, got an out of range value");
 
     return (uint32_t)v;
 }
@@ -616,12 +608,10 @@ static inline uint32_t lauxh_optuint32(lua_State *L, int idx, uint32_t def)
 
 static inline int64_t lauxh_checkint64(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(L,
-                   v == (lua_Number)lua_tointeger(L, idx) && v >= INT64_MIN &&
-                       v <= INT64_MAX,
-                   idx, "int64_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= INT64_MIN && v <= INT64_MAX, idx,
+                   "int64_t expected, got an out of range value");
 
     return (int64_t)v;
 }
@@ -636,11 +626,10 @@ static inline int64_t lauxh_optint64(lua_State *L, int idx, int64_t def)
 
 static inline uint64_t lauxh_checkuint64(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Integer v = lauxh_checkinteger(L, idx);
 
-    lauxh_argcheck(
-        L, v == (lua_Number)lua_tointeger(L, idx) && v >= 0 && v <= UINT64_MAX,
-        idx, "uint64_t expected, got an out of range value");
+    lauxh_argcheck(L, v >= 0 && (uint64_t)v <= UINT64_MAX, idx,
+                   "uint64_t expected, got an out of range value");
 
     return (uint64_t)v;
 }

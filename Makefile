@@ -12,10 +12,10 @@ LUA_CPATH:=./?.so;$(LUA_CPATH)
 all: $(TARGET)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(WARNINGS) $(CPPFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(WARNINGS) $(COVERAGE) $(CPPFLAGS) -o $@ -c $<
 
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS)
+	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS) $(COVERAGE)
 
 install:
 	rm -f $(OBJ)
