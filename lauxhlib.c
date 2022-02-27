@@ -514,22 +514,20 @@ static int test_userdata(lua_State *L)
 static int test_file(lua_State *L)
 {
     FILE *tmp = NULL;
+    int fd    = -1;
 
-    // userdata
     lua_settop(L, 0);
 
-    // get io module
-    lauxh_getglobal(L, "io");
-    assert(lua_istable(L, -1));
-    // get tmpfile function
-    lua_getfield(L, -1, "tmpfile");
-    assert(lua_isfunction(L, -1));
-    // call
-    lua_call(L, 0, 1);
-
+    // checkfile
+    assert(luaL_loadstring(L, "return io.tmpfile()") == 0);
+    assert(lua_pcall(L, 0, 1, 0) == 0);
     tmp = lauxh_checkfile(L, -1);
     assert(tmp != NULL);
-    assert(fileno(tmp) != -1);
+    fd = fileno(tmp);
+    assert(fd != -1);
+
+    // fileno
+    assert(lauxh_fileno(L, -1) == fd);
 
     return 0;
 }

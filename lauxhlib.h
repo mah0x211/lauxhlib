@@ -1003,6 +1003,15 @@ static inline FILE *lauxh_checkfile(lua_State *L, int idx)
 #endif
 }
 
+static inline int lauxh_fileno(lua_State *L, int idx)
+{
+    FILE *f = lauxh_checkfile(L, idx);
+    if (f) {
+        return fileno(f);
+    }
+    return -1;
+}
+
 /* flag arguments */
 
 static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
