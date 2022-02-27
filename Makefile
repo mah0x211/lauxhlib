@@ -18,8 +18,9 @@ $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS)
 
 install:
+	rm -f $(OBJ)
 	lua ./test/test.lua
-	rm -f $(OBJ) $(TARGET)
+	rm -f $(TARGET)
 	$(INSTALL) lauxhlib.h $(CONFDIR)
 	rm -f $(LUA_INCDIR)/lauxhlib.h
 	ln -s $(CONFDIR)/lauxhlib.h $(LUA_INCDIR)

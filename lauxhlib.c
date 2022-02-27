@@ -671,6 +671,84 @@ static int test_argerror(lua_State *L)
     return 0;
 }
 
+static int test_tolstring(lua_State *L)
+{
+    lua_settop(L, 0);
+
+#define assert_tostring(s)                                                     \
+ do {                                                                          \
+  const char *str = lauxh_tostring(L, 1);                                      \
+  assert(strcmp(str, (s)) == 0);                                               \
+  assert(lua_gettop(L) == 2);                                                  \
+  lua_settop(L, 0);                                                            \
+ } while (0)
+
+    // nil
+    lua_pushnil(L);
+    assert_tostring("nil");
+
+    // string
+    lua_pushstring(L, "hello");
+    assert_tostring("hello");
+
+    // number
+    lua_pushnumber(L, 1.1);
+    assert_tostring("1.1");
+
+    // integer
+    lua_pushinteger(L, 9876);
+    assert_tostring("9876");
+
+    // boolean true
+    lua_pushboolean(L, 1);
+    assert_tostring("true");
+
+    // boolean false
+    lua_pushboolean(L, 0);
+    assert_tostring("false");
+
+#define assert_pointer_tolstring(fmt)                                          \
+ do {                                                                          \
+  char buf[BUFSIZ] = {0};                                                      \
+  size_t blen      = 0;                                                        \
+  blen             = snprintf(buf, BUFSIZ, fmt, lua_topointer(L, -1));         \
+  buf[blen]        = 0;                                                        \
+  assert_tostring(buf);                                                        \
+ } while (0)
+
+    // table
+    lua_newtable(L);
+    assert_pointer_tolstring("table: %p");
+
+    // function
+    assert(luaL_loadstring(L, "function fn()end") == 0);
+    assert_pointer_tolstring("function: %p");
+
+    // thread
+    lua_newthread(L);
+    assert_pointer_tolstring("thread: %p");
+
+    // userdata
+    lua_newuserdata(L, sizeof(1));
+    assert_pointer_tolstring("userdata: %p");
+
+    // lightuserdata
+    lua_pushlightuserdata(L, L);
+    assert_pointer_tolstring("userdata: %p");
+
+    // __tostring metatable
+    assert(luaL_loadstring(L,
+                           "return setmetatable({}, { __tostring = function() "
+                           "return 'tostring_metamethod' end })") == 0);
+    assert(lua_pcall(L, 0, 1, 0) == 0);
+    assert_tostring("tostring_metamethod");
+
+#undef assert_pointer_tolstring
+#undef assert_tostring
+
+    return 0;
+}
+
 LUALIB_API int luaopen_lauxhlib(lua_State *L)
 {
     struct luaL_Reg method[] = {
@@ -687,6 +765,7 @@ LUALIB_API int luaopen_lauxhlib(lua_State *L)
         {"test_xcopy",     test_xcopy    },
         {"test_resume",    test_resume   },
         {"test_argerror",  test_argerror },
+        {"test_tolstring", test_tolstring},
         {NULL,             NULL          }
     };
     struct luaL_Reg *ptr = method;
