@@ -31,11 +31,13 @@
 #define lauxhlib_h
 
 #include <errno.h>
+#include <fcntl.h>
 #include <lauxlib.h>
 #include <lualib.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 /* stringify */
 
@@ -1015,6 +1017,68 @@ static inline int lauxh_fileno(lua_State *L, int idx)
         return fileno(f);
     }
     return -1;
+}
+
+static inline FILE *lauxh_tofile(lua_State *L, int fd, const char *mode,
+                                 const char *fname)
+{
+    int top    = lua_gettop(L);
+    FILE *fp   = NULL;
+    FILE **lfp = NULL;
+    int narg   = 0;
+
+    // push a function to create a file handle
+    if (fname) {
+        static int tofile_open_ref = LUA_NOREF;
+
+        if (tofile_open_ref == LUA_NOREF) {
+            luaL_loadstring(L, "return io.open(...)");
+            tofile_open_ref = lauxh_ref(L);
+        }
+        lauxh_pushref(L, tofile_open_ref);
+        lua_pushstring(L, fname);
+        lua_pushstring(L, mode);
+        narg = 2;
+    } else {
+        static int tofile_tmpfile_ref = LUA_NOREF;
+
+        if (tofile_tmpfile_ref == LUA_NOREF) {
+            luaL_loadstring(L, "return io.tmpfile()");
+            tofile_tmpfile_ref = lauxh_ref(L);
+        }
+        lauxh_pushref(L, tofile_tmpfile_ref);
+    }
+
+    // call function
+    if (lua_pcall(L, narg, LUA_MULTRET, 0) != 0) {
+        // runtime error
+        lua_pushnil(L);
+        lua_insert(L, top + 1);
+        return NULL;
+    } else if (lua_gettop(L) - top != 1) {
+        // got error
+        return NULL;
+    }
+
+    // create a new stream associated with the existing file descriptor
+    if ((fp = fdopen(fd, mode)) == NULL) {
+        lua_settop(L, top);
+        lua_pushnil(L);
+        if (fname) {
+            lua_pushfstring(L, "%s: %s", fname, strerror(errno));
+        } else {
+            lua_pushstring(L, strerror(errno));
+        }
+        lua_pushinteger(L, errno);
+        return NULL;
+    }
+
+    // replace a stream of a file handle with a new stream
+    lfp = lauxh_checkfilep(L, -1);
+    fclose(*lfp);
+    *lfp = fp;
+
+    return fp;
 }
 
 /* flag arguments */

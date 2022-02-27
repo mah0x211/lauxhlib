@@ -513,8 +513,10 @@ static int test_userdata(lua_State *L)
 
 static int test_file(lua_State *L)
 {
-    FILE *tmp = NULL;
-    int fd    = -1;
+    FILE *tmp       = NULL;
+    FILE *fp        = NULL;
+    int fd          = -1;
+    const char *str = NULL;
 
     lua_settop(L, 0);
 
@@ -525,9 +527,24 @@ static int test_file(lua_State *L)
     assert(tmp != NULL);
     fd = fileno(tmp);
     assert(fd != -1);
+    write(fd, "hello", 5);
 
     // fileno
     assert(lauxh_fileno(L, -1) == fd);
+
+    // tofile
+    fp = lauxh_tofile(L, fd, "r+", NULL);
+    assert(fp != NULL);
+    assert(lauxh_isfile(L, -1) == 1);
+    assert(fileno(fp) == fd);
+    // confirm it can be read file contents
+    assert(luaL_loadstring(L, "local f = ...; assert(f:seek('set', 0)); return "
+                              "assert(f:read('*a'))") == 0);
+    lua_pushvalue(L, -2);
+    assert(lua_pcall(L, 1, LUA_MULTRET, 0) == 0);
+    str = lauxh_checkstring(L, -1);
+    assert(str != NULL);
+    assert(strcmp(str, "hello") == 0);
 
     return 0;
 }
