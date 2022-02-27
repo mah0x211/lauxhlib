@@ -36,6 +36,57 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/* stringify */
+
+static inline const char *lauxh_tolstring(lua_State *L, int idx, size_t *len)
+{
+    int type = 0;
+
+    if (luaL_callmeta(L, idx, "__tostring")) {
+        lua_replace(L, idx);
+    }
+
+    type = lua_type(L, idx);
+    switch (type) {
+    case LUA_TNUMBER:
+    case LUA_TSTRING:
+        lua_pushvalue(L, idx);
+        break;
+
+    case LUA_TNONE:
+        lua_pushliteral(L, "");
+        break;
+
+    case LUA_TNIL:
+        lua_pushliteral(L, "nil");
+        break;
+
+    case LUA_TBOOLEAN:
+        if (lua_toboolean(L, idx)) {
+            lua_pushliteral(L, "true");
+        } else {
+            lua_pushliteral(L, "false");
+        }
+        break;
+
+    // case LUA_TTABLE:
+    // case LUA_TFUNCTION:
+    // case LUA_TTHREAD:
+    // case LUA_TUSERDATA:
+    // case LUA_TLIGHTUSERDATA:
+    default: {
+        char b[BUFSIZ];
+        size_t n = snprintf(b, BUFSIZ, "%s: %p", lua_typename(L, type),
+                            lua_topointer(L, idx));
+        lua_pushlstring(L, b, n);
+    } break;
+    }
+
+    return lua_tolstring(L, -1, len);
+}
+
+#define lauxh_tostring(L, idx) lauxh_tolstring(L, (idx), NULL)
+
 /* reference */
 
 static inline int lauxh_isref(int ref)
