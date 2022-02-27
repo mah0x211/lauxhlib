@@ -467,6 +467,12 @@ static int test_is(lua_State *L)
     assert(luaL_loadstring(L, "function fn()end") == 0);
     assert(lauxh_isfunction(L, -1));
 
+    // file
+    lua_settop(L, 0);
+    assert(luaL_loadstring(L, "return io.tmpfile()") == 0);
+    assert(lua_pcall(L, 0, 1, 0) == 0);
+    assert(lauxh_isfile(L, -1));
+
     // metatable
     luaL_newmetatable(L, "LAUXHLIB_A_MT");
     luaL_newmetatable(L, "LAUXHLIB_B_MT");

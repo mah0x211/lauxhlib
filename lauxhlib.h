@@ -317,6 +317,23 @@ static inline void lauxh_setmetatable(lua_State *L, const char *tname)
     lua_setmetatable(L, -2);
 }
 
+static inline int lauxh_ismetatableof(lua_State *L, int idx, const char *tname)
+{
+    int rc = 0;
+
+    // idx value is wrapped by metatable
+    if (lua_getmetatable(L, idx)) {
+        // get metatable from registry
+        lua_pushstring(L, tname);
+        lua_rawget(L, LUA_REGISTRYINDEX);
+        // compare
+        rc = lua_rawequal(L, -1, -2);
+        lua_pop(L, 2);
+    }
+
+    return rc;
+}
+
 /* value check */
 
 #if LUA_VERSION_NUM >= 502
@@ -381,6 +398,11 @@ static inline int lauxh_isinteger(lua_State *L, int idx)
 {
     return lauxh_isnumber(L, idx) &&
            (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx);
+}
+
+static inline int lauxh_isfile(lua_State *L, int idx)
+{
+    return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
 }
 
 /* check argument */
@@ -960,23 +982,6 @@ static inline void *lauxh_optudata(lua_State *L, int idx, const char *tname,
     }
 
     return lauxh_checkudata(L, idx, tname);
-}
-
-static inline int lauxh_ismetatableof(lua_State *L, int idx, const char *tname)
-{
-    int rc = 0;
-
-    // idx value is wrapped by metatable
-    if (lua_getmetatable(L, idx)) {
-        // get metatable from registry
-        lua_pushstring(L, tname);
-        lua_rawget(L, LUA_REGISTRYINDEX);
-        // compare
-        rc = lua_rawequal(L, -1, -2);
-        lua_pop(L, 2);
-    }
-
-    return rc;
 }
 
 static inline int lauxh_isuserdataof(lua_State *L, int idx, const char *tname)
