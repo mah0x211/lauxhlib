@@ -992,15 +992,20 @@ static inline int lauxh_isuserdataof(lua_State *L, int idx, const char *tname)
 
 /* file argument */
 
-static inline FILE *lauxh_checkfile(lua_State *L, int idx)
+static inline FILE **lauxh_checkfilep(lua_State *L, int idx)
 {
 #if LUA_VERSION_NUM >= 502
     luaL_Stream *stream = luaL_checkudata(L, idx, LUA_FILEHANDLE);
-    return stream->f;
+    return &stream->f;
 
 #else
-    return *(FILE **)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    return (FILE **)luaL_checkudata(L, idx, LUA_FILEHANDLE);
 #endif
+}
+
+static inline FILE *lauxh_checkfile(lua_State *L, int idx)
+{
+    return *lauxh_checkfilep(L, idx);
 }
 
 static inline int lauxh_fileno(lua_State *L, int idx)
