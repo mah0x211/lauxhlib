@@ -24,11 +24,14 @@ static int test_array(lua_State *L)
     assert(lauxh_checklstringat(L, 1, 2, &len));
     assert(len == 6);
     // optstring
+    len = 0;
     assert(lauxh_optstringat(L, 1, 2, NULL));
     assert(lauxh_optlstringat(L, 1, 2, NULL, &len));
     assert(len == 6);
+    len = 0;
     lauxh_pushnil2arr(L, 2);
     assert(lauxh_optlstringat(L, 1, 2, NULL, &len) == NULL);
+    assert(len == 0);
 
     // number
     lauxh_pushnum2arr(L, 2, 1.1);
@@ -77,16 +80,20 @@ static int test_arrayat(lua_State *L)
     lua_pushnil(L);
 
     // string
+    len = 0;
     lauxh_pushstr2arrat(L, 2, "string", at);
     assert(lauxh_checkstringat(L, at, 2));
     assert(lauxh_checklstringat(L, at, 2, &len));
     assert(len == 6);
     // optstring
+    len = 0;
     assert(lauxh_optstringat(L, at, 2, NULL));
     assert(lauxh_optlstringat(L, at, 2, NULL, &len));
     assert(len == 6);
+    len = 0;
     lauxh_pushnil2arrat(L, 2, at);
     assert(lauxh_optlstringat(L, at, 2, NULL, &len) == NULL);
+    assert(len == 0);
 
     // number
     lauxh_pushnum2arrat(L, 2, 1.1, at);
@@ -143,11 +150,14 @@ static int test_table(lua_State *L)
     assert(lauxh_checklstringof(L, 1, "key", &len));
     assert(len == 6);
     // optstring
+    len = 0;
     assert(lauxh_optstringof(L, 1, "key", NULL));
     assert(lauxh_optlstringof(L, 1, "key", NULL, &len));
     assert(len == 6);
+    len = 0;
     lauxh_pushnil2tbl(L, "key");
     assert(lauxh_optlstringof(L, 1, "key", NULL, &len) == NULL);
+    assert(len == 0);
 
     // number
     lauxh_pushnum2tbl(L, "key", 1.1);
@@ -201,11 +211,14 @@ static int test_tableat(lua_State *L)
     assert(lauxh_checklstringof(L, at, "key", &len));
     assert(len == 6);
     // optstring
+    len = 0;
     assert(lauxh_optstringof(L, at, "key", NULL));
     assert(lauxh_optlstringof(L, at, "key", NULL, &len));
     assert(len == 6);
+    len = 0;
     lauxh_pushnil2tblat(L, "key", at);
     assert(lauxh_optlstringof(L, at, "key", NULL, &len) == NULL);
+    assert(len == 0);
 
     // number
     lauxh_pushnum2tblat(L, "key", 1.1, at);
@@ -255,18 +268,22 @@ static int test_arguments(lua_State *L)
     size_t len = 0;
 
     // string
+    len = 0;
     lua_pushstring(L, "string");
     assert(lauxh_checkstring(L, -1));
     assert(lauxh_optstring(L, -1, NULL));
     assert(lauxh_checklstring(L, -1, &len));
     assert(len == 6);
+    len = 0;
     assert(lauxh_optlstring(L, -1, NULL, &len));
     assert(len == 6);
     // optstring
+    len = 0;
     lua_settop(L, 0);
     lua_pushnil(L);
     assert(lauxh_optstring(L, -1, NULL) == NULL);
     assert(lauxh_optlstring(L, -1, NULL, &len) == NULL);
+    assert(len == 0);
 
     // number
     lua_settop(L, 0);

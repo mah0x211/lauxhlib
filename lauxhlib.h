@@ -35,6 +35,7 @@
 #include <lualib.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 /* stringify */
 
@@ -414,6 +415,9 @@ static inline const char *lauxh_optlstring(lua_State *L, int idx,
                                            const char *def, size_t *len)
 {
     if (lauxh_isnil(L, idx)) {
+        if (len && def) {
+            *len = strlen(def);
+        }
         return def;
     }
     return lauxh_checklstring(L, idx, len);
