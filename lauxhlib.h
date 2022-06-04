@@ -421,6 +421,10 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
     vsnprintf(buf, 255, fmt, ap);
     va_end(ap);
 
+    if (idx < 0) {
+        idx = lua_gettop(L) + idx + 1;
+    }
+
     return luaL_argerror(L, idx, buf);
 }
 
