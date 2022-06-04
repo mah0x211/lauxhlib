@@ -492,6 +492,15 @@ static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
     return v;
 }
 
+static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
+                                           lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkunsigned(L, idx);
+}
+
 static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "integer expected, got %s",

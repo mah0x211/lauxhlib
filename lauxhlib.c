@@ -300,6 +300,13 @@ static int test_arguments(lua_State *L)
     lua_settop(L, 0);
     lua_pushnumber(L, 1.1);
     assert(lauxh_checkunsigned(L, -1) == 1.1);
+    // optunsigned
+    lua_settop(L, 0);
+    lua_pushnumber(L, 123);
+    assert(lauxh_optunsigned(L, -1, 0) == 123);
+    lua_pushnil(L);
+    assert(lauxh_optunsigned(L, -1, 0) == 0);
+
     // integer
     lua_settop(L, 0);
     lua_pushinteger(L, 1);
