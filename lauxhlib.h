@@ -421,6 +421,10 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
     vsnprintf(buf, 255, fmt, ap);
     va_end(ap);
 
+    if (idx < 0) {
+        idx = lua_gettop(L) + idx + 1;
+    }
+
     return luaL_argerror(L, idx, buf);
 }
 
@@ -482,6 +486,25 @@ static inline lua_Number lauxh_optnumber(lua_State *L, int idx, lua_Number def)
     return lauxh_checknumber(L, idx);
 }
 
+static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
+{
+    lua_Number v = lauxh_checknumber(L, idx);
+
+    lauxh_argcheck(L, v >= 0, idx,
+                   "unsigned expected, got an out of range value");
+
+    return v;
+}
+
+static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
+                                           lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkunsigned(L, idx);
+}
+
 static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "integer expected, got %s",
@@ -496,6 +519,25 @@ static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
         return def;
     }
     return lauxh_checkinteger(L, idx);
+}
+
+static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
+{
+    lua_Integer v = lauxh_checkinteger(L, idx);
+
+    lauxh_argcheck(L, v >= 0, idx,
+                   "unsigned integer expected, got an out of range value");
+
+    return v;
+}
+
+static inline lua_Integer lauxh_optuinteger(lua_State *L, int idx,
+                                            lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkuinteger(L, idx);
 }
 
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)

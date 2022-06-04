@@ -296,6 +296,17 @@ static int test_arguments(lua_State *L)
     lua_pushnil(L);
     assert(lauxh_optnumber(L, -1, 0) == 0);
 
+    // unsigned
+    lua_settop(L, 0);
+    lua_pushnumber(L, 1.1);
+    assert(lauxh_checkunsigned(L, -1) == 1.1);
+    // optunsigned
+    lua_settop(L, 0);
+    lua_pushnumber(L, 123);
+    assert(lauxh_optunsigned(L, -1, 0) == 123);
+    lua_pushnil(L);
+    assert(lauxh_optunsigned(L, -1, 0) == 0);
+
     // integer
     lua_settop(L, 0);
     lua_pushinteger(L, 1);
@@ -306,6 +317,17 @@ static int test_arguments(lua_State *L)
     assert(lauxh_optinteger(L, -1, 2) == 1);
     lua_pushnil(L);
     assert(lauxh_optinteger(L, -1, 2) == 2);
+
+    // uinteger
+    lua_settop(L, 0);
+    lua_pushinteger(L, 12);
+    assert(lauxh_checkuinteger(L, -1) == 12);
+    // optuinteger
+    lua_settop(L, 0);
+    lua_pushinteger(L, 12);
+    assert(lauxh_optuinteger(L, -1, 0) == 12);
+    lua_pushnil(L);
+    assert(lauxh_optuinteger(L, -1, 0) == 0);
 
     // // 64 bit integer
     // lua_settop( L, 0 );
