@@ -517,6 +517,16 @@ static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
     return lauxh_checkinteger(L, idx);
 }
 
+static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
+{
+    lua_Integer v = lauxh_checkinteger(L, idx);
+
+    lauxh_argcheck(L, v >= 0, idx,
+                   "unsigned integer expected, got an out of range value");
+
+    return v;
+}
+
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
     lua_Integer v = lauxh_checkinteger(L, idx);

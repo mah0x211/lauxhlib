@@ -318,6 +318,10 @@ static int test_arguments(lua_State *L)
     lua_pushnil(L);
     assert(lauxh_optinteger(L, -1, 2) == 2);
 
+    // uinteger
+    lua_settop(L, 0);
+    lua_pushinteger(L, 12);
+    assert(lauxh_checkuinteger(L, -1) == 12);
     // // 64 bit integer
     // lua_settop( L, 0 );
     // lua_pushnumber( L, 96946020001494 );
