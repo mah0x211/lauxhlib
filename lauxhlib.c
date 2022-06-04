@@ -296,6 +296,10 @@ static int test_arguments(lua_State *L)
     lua_pushnil(L);
     assert(lauxh_optnumber(L, -1, 0) == 0);
 
+    // unsigned
+    lua_settop(L, 0);
+    lua_pushnumber(L, 1.1);
+    assert(lauxh_checkunsigned(L, -1) == 1.1);
     // integer
     lua_settop(L, 0);
     lua_pushinteger(L, 1);
