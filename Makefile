@@ -3,6 +3,10 @@ SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
 INSTALL?=install
 
+ifdef LAUXHLIB_COVERAGE
+COVFRAGS="--coverage"
+endif
+
 .EXPORT_ALL_VARIABLES:
 
 LUA_CPATH:=./?.so;$(LUA_CPATH)
@@ -12,10 +16,10 @@ LUA_CPATH:=./?.so;$(LUA_CPATH)
 all: $(TARGET)
 
 %.o: %.c
-	$(CC) $(CFLAGS) $(WARNINGS) $(COVERAGE) $(CPPFLAGS) -o $@ -c $<
+	$(CC) $(CFLAGS) $(WARNINGS) $(COVFRAGS) $(CPPFLAGS) -o $@ -c $<
 
 $(TARGET): $(OBJ)
-	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS) $(COVERAGE)
+	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS) $(COVFRAGS)
 
 install:
 	rm -f $(OBJ)

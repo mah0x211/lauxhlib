@@ -12,6 +12,7 @@ jobs:
           - "5.2"
           - "5.3"
           - "5.4"
+          - "luajit-2.0.5"
           - "luajit-openresty"
     steps:
     -
@@ -26,7 +27,7 @@ jobs:
         luaVersion: ${{ matrix.lua-version }}
     -
       name: Setup Luarocks
-      uses: leafo/gh-actions-luarocks@v4.0.0
+      uses: leafo/gh-actions-luarocks@v4
     -
       name: Install Tools
       run: |
@@ -34,7 +35,7 @@ jobs:
     -
       name: Install
       run: |
-        luarocks make COVERAGE='--coverage'
+        luarocks make LAUXHLIB_COVERAGE=1
     -
       name: Generate coverage reports
       run: |
