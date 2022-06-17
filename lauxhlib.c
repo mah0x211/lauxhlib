@@ -364,7 +364,8 @@ static int test_arguments(lua_State *L)
     assert(lauxh_checkboolean(L, -1) == 1);
     // optboolean
     lua_pushnil(L);
-    assert(lauxh_optboolean(L, -1, 0) == 0);
+    assert(lauxh_optboolean(L, -1, -10) == -10);
+    assert(lauxh_optboolean(L, -1, 5) == 5);
 
     // table
     lua_settop(L, 0);
