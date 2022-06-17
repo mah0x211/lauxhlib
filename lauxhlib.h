@@ -540,6 +540,17 @@ static inline lua_Integer lauxh_optuinteger(lua_State *L, int idx,
     return lauxh_checkuinteger(L, idx);
 }
 
+static inline lua_Integer lauxh_checkpinteger(lua_State *L, int idx)
+{
+    lua_Integer v = 0;
+
+    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx,
+                   "positive integer expected, got %s", luaL_typename(L, idx));
+    v = lua_tointeger(L, idx);
+    lauxh_argcheck(L, v > 0, idx, "positive integer expected, got %d", v);
+    return v;
+}
+
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
     lua_Integer v = lauxh_checkinteger(L, idx);
