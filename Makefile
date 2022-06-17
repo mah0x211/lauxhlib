@@ -1,6 +1,7 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
 SRC=$(wildcard *.c)
 OBJ=$(SRC:.c=.o)
+GCDAS=$(OBJ:.o=.gcda)
 INSTALL?=install
 
 ifdef LAUXHLIB_COVERAGE
@@ -22,7 +23,7 @@ $(TARGET): $(OBJ)
 	$(CC) -o $@ $^ $(LDFLAGS) $(LIBS) $(PLATFORM_LDFLAGS) $(COVFRAGS)
 
 install:
-	rm -f $(OBJ)
+	rm -f $(OBJ) $(GCDAS)
 	lua ./test/test.lua
 	rm -f $(TARGET)
 	$(INSTALL) lauxhlib.h $(CONFDIR)

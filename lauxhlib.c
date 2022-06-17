@@ -318,6 +318,17 @@ static int test_arguments(lua_State *L)
     lua_pushnil(L);
     assert(lauxh_optinteger(L, -1, 2) == 2);
 
+    // pinteger
+    lua_settop(L, 0);
+    lua_pushinteger(L, 1);
+    assert(lauxh_checkpinteger(L, -1) == 1);
+    // optpinteger
+    lua_settop(L, 0);
+    lua_pushinteger(L, 1);
+    assert(lauxh_optpinteger(L, -1, 2) == 1);
+    lua_pushnil(L);
+    assert(lauxh_optpinteger(L, -1, 2) == 2);
+
     // uinteger
     lua_settop(L, 0);
     lua_pushinteger(L, 12);
