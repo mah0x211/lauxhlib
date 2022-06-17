@@ -551,6 +551,15 @@ static inline lua_Integer lauxh_checkpinteger(lua_State *L, int idx)
     return v;
 }
 
+static inline lua_Integer lauxh_optpinteger(lua_State *L, int idx,
+                                            lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkpinteger(L, idx);
+}
+
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
     lua_Integer v = lauxh_checkinteger(L, idx);
