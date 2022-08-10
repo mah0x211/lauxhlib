@@ -41,7 +41,7 @@
 
 /* stringify */
 
-static inline const char *lauxh_tolstring(lua_State *L, int idx, size_t *len)
+static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 {
     int type = 0;
 
@@ -88,7 +88,9 @@ static inline const char *lauxh_tolstring(lua_State *L, int idx, size_t *len)
     return lua_tolstring(L, -1, len);
 }
 
-#define lauxh_tostring(L, idx) lauxh_tolstring(L, (idx), NULL)
+#define lauxh_tostr(L, idx)          lauxh_tolstr((L), (idx), NULL)
+#define lauxh_tolstring(L, idx, len) lauxh_tolstr((L), (idx), (len))
+#define lauxh_tostring(L, idx)       lauxh_tolstr((L), (idx), NULL)
 
 /* reference */
 
