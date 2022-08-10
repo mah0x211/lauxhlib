@@ -408,7 +408,7 @@ static inline int lauxh_isinteger(lua_State *L, int idx)
 #if LUA_VERSION_NUM >= 503
     return lua_isinteger(L, idx);
 #else
-    return lauxh_isnumber(L, idx) &&
+    return lauxh_isnum(L, idx) &&
            (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx);
 #endif
 }
@@ -497,7 +497,7 @@ static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
     lua_Number v = 0;
 
-    lauxh_argcheck(L, lauxh_isnumber(L, idx), idx, "unsigned expected, got %s",
+    lauxh_argcheck(L, lauxh_isnum(L, idx), idx, "unsigned expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tonumber(L, idx);
