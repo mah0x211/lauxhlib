@@ -632,8 +632,12 @@ static inline int16_t lauxh_optint16(lua_State *L, int idx, int16_t def)
 
 static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 {
-    lua_Integer v = lauxh_checkinteger(L, idx);
+    lua_Integer v = 0;
 
+    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint16_t expected, got %s",
+                   luaL_typename(L, idx));
+
+    v = lua_tointeger(L, idx);
     lauxh_argcheck(L, v >= 0 && v <= UINT16_MAX, idx,
                    "uint16_t expected, got an out of range value");
 
