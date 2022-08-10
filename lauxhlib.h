@@ -763,18 +763,19 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
 
 /* boolean argument */
 
-static inline int lauxh_checkboolean(lua_State *L, int idx)
+static inline int lauxh_checkbool(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TBOOLEAN);
     return lua_toboolean(L, idx);
 }
+#define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
 
 static inline int lauxh_optboolean(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkboolean(L, idx);
+    return lauxh_checkbool(L, idx);
 }
 
 /* table argument */
@@ -902,7 +903,7 @@ static inline int lauxh_checkbooleanof(lua_State *L, int idx, const char *k)
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checkboolean(L, -1);
+    v = lauxh_checkbool(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -1027,7 +1028,7 @@ static inline int lauxh_checkbooleanat(lua_State *L, int idx, int row)
     int v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checkboolean(L, -1);
+    v = lauxh_checkbool(L, -1);
     lua_pop(L, 1);
 
     return v;
