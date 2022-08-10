@@ -488,8 +488,12 @@ static inline lua_Number lauxh_optnumber(lua_State *L, int idx, lua_Number def)
 
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
-    lua_Number v = lauxh_checknumber(L, idx);
+    lua_Number v = 0;
 
+    lauxh_argcheck(L, lauxh_isnumber(L, idx), idx, "unsigned expected, got %s",
+                   luaL_typename(L, idx));
+
+    v = lua_tonumber(L, idx);
     lauxh_argcheck(L, v >= 0, idx,
                    "unsigned expected, got an out of range value");
 
