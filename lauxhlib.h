@@ -570,8 +570,12 @@ static inline lua_Integer lauxh_optpinteger(lua_State *L, int idx,
 
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
-    lua_Integer v = lauxh_checkinteger(L, idx);
+    lua_Integer v = 0;
 
+    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int8_t expected, got %s",
+                   luaL_typename(L, idx));
+
+    v = lua_tointeger(L, idx);
     lauxh_argcheck(L, v >= INT8_MIN && v <= INT8_MAX, idx,
                    "int8_t expected, got an out of range value");
 
