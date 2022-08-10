@@ -359,10 +359,11 @@ static inline int lauxh_isstr(lua_State *L, int idx)
 }
 #define lauxh_isstring(L, idx) lauxh_isstr((L), (idx))
 
-static inline int lauxh_isnumber(lua_State *L, int idx)
+static inline int lauxh_isnum(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TNUMBER;
 }
+#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
 
 static inline int lauxh_isboolean(lua_State *L, int idx)
 {
