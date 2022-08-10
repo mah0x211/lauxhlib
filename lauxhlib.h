@@ -445,11 +445,12 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 
 /* string argument */
 
-static inline const char *lauxh_checklstring(lua_State *L, int idx, size_t *len)
+static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
 {
     luaL_checktype(L, idx, LUA_TSTRING);
     return lua_tolstring(L, idx, len);
 }
+#define lauxh_checklstring(L, idx, len) lauxh_checklstr((L), (idx), (len))
 
 static inline const char *lauxh_optlstring(lua_State *L, int idx,
                                            const char *def, size_t *len)
@@ -789,7 +790,7 @@ static inline const char *lauxh_checklstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checklstring(L, -1, len);
+    v = lauxh_checklstr(L, -1, len);
     lua_pop(L, 1);
 
     return v;
@@ -926,7 +927,7 @@ static inline const char *lauxh_checklstringat(lua_State *L, int idx, int row,
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checklstring(L, -1, len);
+    v = lauxh_checklstr(L, -1, len);
     lua_pop(L, 1);
 
     return v;
