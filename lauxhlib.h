@@ -1064,13 +1064,14 @@ static inline void lauxh_checkfunc(lua_State *L, int idx)
 
 /* cfunction argument */
 
-static inline lua_CFunction lauxh_checkcfunction(lua_State *L, int idx)
+static inline lua_CFunction lauxh_checkcfunc(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lua_iscfunction(L, idx), idx,
                    "cfunction expected, got %s", luaL_typename(L, idx));
 
     return lua_tocfunction(L, idx);
 }
+#define lauxh_checkcfunction(L, idx) lauxh_checkcfunc((L), (idx))
 
 /* lightuserdata argument */
 
