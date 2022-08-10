@@ -473,14 +473,14 @@ static inline const char *lauxh_checkstr(lua_State *L, int idx)
 }
 #define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
 
-static inline const char *lauxh_optstring(lua_State *L, int idx,
-                                          const char *def)
+static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
     return lauxh_checkstr(L, idx);
 }
+#define lauxh_optstring(L, idx, def) lauxh_optstr((L), (idx), (def))
 
 /* number/integer argument */
 
@@ -833,7 +833,7 @@ static inline const char *lauxh_optstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optstring(L, -1, def);
+    v = lauxh_optstr(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -965,7 +965,7 @@ static inline const char *lauxh_optstringat(lua_State *L, int idx, int row,
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optstring(L, -1, def);
+    v = lauxh_optstr(L, -1, def);
     lua_pop(L, 1);
 
     return v;
