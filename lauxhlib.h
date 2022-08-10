@@ -484,18 +484,19 @@ static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 
 /* number/integer argument */
 
-static inline lua_Number lauxh_checknumber(lua_State *L, int idx)
+static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TNUMBER);
     return lua_tonumber(L, idx);
 }
+#define lauxh_checknumber(L, idx) lauxh_checknum((L), (idx))
 
 static inline lua_Number lauxh_optnumber(lua_State *L, int idx, lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checknumber(L, idx);
+    return lauxh_checknum(L, idx);
 }
 
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
@@ -846,7 +847,7 @@ static inline lua_Number lauxh_checknumberof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checknumber(L, -1);
+    v = lauxh_checknum(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -976,7 +977,7 @@ static inline lua_Number lauxh_checknumberat(lua_State *L, int idx, int row)
     lua_Number v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checknumber(L, -1);
+    v = lauxh_checknum(L, -1);
     lua_pop(L, 1);
 
     return v;
