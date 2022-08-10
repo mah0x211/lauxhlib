@@ -531,14 +531,14 @@ static inline lua_Integer lauxh_checkint(lua_State *L, int idx)
 }
 #define lauxh_checkinteger(L, idx) lauxh_checkint((L), (idx))
 
-static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
-                                           lua_Integer def)
+static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
     return lauxh_checkint(L, idx);
 }
+#define lauxh_optinteger(L, idx, def) lauxh_optint((L), (idx), (def))
 
 static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
 {
@@ -888,7 +888,7 @@ static inline lua_Integer lauxh_optintegerof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optinteger(L, -1, def);
+    v = lauxh_optint(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -1014,7 +1014,7 @@ static inline lua_Integer lauxh_optintegerat(lua_State *L, int idx, int row,
     lua_Integer v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optinteger(L, -1, def);
+    v = lauxh_optint(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -1195,7 +1195,7 @@ static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
     lua_Integer flg = 0;
 
     for (; idx <= argc; idx++) {
-        flg |= lauxh_optinteger(L, idx, 0);
+        flg |= lauxh_optint(L, idx, 0);
     }
 
     return flg;
