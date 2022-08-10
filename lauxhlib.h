@@ -770,13 +770,14 @@ static inline int lauxh_checkbool(lua_State *L, int idx)
 }
 #define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
 
-static inline int lauxh_optboolean(lua_State *L, int idx, int def)
+static inline int lauxh_optbool(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
     return lauxh_checkbool(L, idx);
 }
+#define lauxh_optboolean(L, idx, def) lauxh_optbool((L), (idx), (def))
 
 /* table argument */
 
@@ -916,7 +917,7 @@ static inline int lauxh_optbooleanof(lua_State *L, int idx, const char *k,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optboolean(L, -1, def);
+    v = lauxh_optbool(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -1039,7 +1040,7 @@ static inline int lauxh_optbooleanat(lua_State *L, int idx, int row, int def)
     int v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optboolean(L, -1, def);
+    v = lauxh_optbool(L, -1, def);
     lua_pop(L, 1);
 
     return v;
