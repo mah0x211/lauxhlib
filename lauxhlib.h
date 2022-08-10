@@ -523,12 +523,13 @@ static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
     return lauxh_checkunsigned(L, idx);
 }
 
-static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
+static inline lua_Integer lauxh_checkint(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lauxh_isint(L, idx), idx, "integer expected, got %s",
                    luaL_typename(L, idx));
     return lua_tointeger(L, idx);
 }
+#define lauxh_checkinteger(L, idx) lauxh_checkint((L), (idx))
 
 static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
                                            lua_Integer def)
@@ -536,7 +537,7 @@ static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkinteger(L, idx);
+    return lauxh_checkint(L, idx);
 }
 
 static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
@@ -874,7 +875,7 @@ static inline lua_Integer lauxh_checkintegerof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checkinteger(L, -1);
+    v = lauxh_checkint(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -1001,7 +1002,7 @@ static inline lua_Integer lauxh_checkintegerat(lua_State *L, int idx, int row)
     lua_Integer v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checkinteger(L, -1);
+    v = lauxh_checkint(L, -1);
     lua_pop(L, 1);
 
     return v;
