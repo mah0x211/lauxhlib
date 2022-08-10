@@ -403,7 +403,7 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 }
 
-static inline int lauxh_isinteger(lua_State *L, int idx)
+static inline int lauxh_isint(lua_State *L, int idx)
 {
 #if LUA_VERSION_NUM >= 503
     return lua_isinteger(L, idx);
@@ -412,6 +412,7 @@ static inline int lauxh_isinteger(lua_State *L, int idx)
            (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx);
 #endif
 }
+#define lauxh_isinteger(L, idx) lauxh_isint((L), (idx))
 
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
@@ -518,7 +519,7 @@ static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
 
 static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
 {
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "integer expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "integer expected, got %s",
                    luaL_typename(L, idx));
     return lua_tointeger(L, idx);
 }
@@ -536,7 +537,7 @@ static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx,
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx,
                    "unsigned integer expected, got %s", luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -559,7 +560,7 @@ static inline lua_Integer lauxh_checkpinteger(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx,
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx,
                    "positive integer expected, got %s", luaL_typename(L, idx));
     v = lua_tointeger(L, idx);
     lauxh_argcheck(L, v > 0, idx, "positive integer expected, got %d", v);
@@ -579,7 +580,7 @@ static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int8_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int8_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -601,7 +602,7 @@ static inline uint8_t lauxh_checkuint8(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint8_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint8_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -623,7 +624,7 @@ static inline int16_t lauxh_checkint16(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int16_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int16_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -645,7 +646,7 @@ static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint16_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint16_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -667,7 +668,7 @@ static inline int32_t lauxh_checkint32(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int32_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int32_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -689,7 +690,7 @@ static inline uint32_t lauxh_checkuint32(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint32_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint32_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -711,7 +712,7 @@ static inline int64_t lauxh_checkint64(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int64_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int64_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -733,7 +734,7 @@ static inline uint64_t lauxh_checkuint64(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint64_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint64_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
