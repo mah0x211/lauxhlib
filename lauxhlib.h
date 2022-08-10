@@ -540,7 +540,7 @@ static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 }
 #define lauxh_optinteger(L, idx, def) lauxh_optint((L), (idx), (def))
 
-static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
+static inline lua_Integer lauxh_checkuint(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
@@ -553,6 +553,7 @@ static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
 
     return v;
 }
+#define lauxh_checkuinteger(L, idx) lauxh_checkuint((L), (idx))
 
 static inline lua_Integer lauxh_optuinteger(lua_State *L, int idx,
                                             lua_Integer def)
@@ -560,7 +561,7 @@ static inline lua_Integer lauxh_optuinteger(lua_State *L, int idx,
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkuinteger(L, idx);
+    return lauxh_checkuint(L, idx);
 }
 
 static inline lua_Integer lauxh_checkpinteger(lua_State *L, int idx)
