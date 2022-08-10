@@ -365,10 +365,11 @@ static inline int lauxh_isnum(lua_State *L, int idx)
 }
 #define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
 
-static inline int lauxh_isboolean(lua_State *L, int idx)
+static inline int lauxh_isbool(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TBOOLEAN;
 }
+#define lauxh_isboolean(L, idx) lauxh_isbool((L), (idx))
 
 static inline int lauxh_istable(lua_State *L, int idx)
 {
