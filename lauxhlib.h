@@ -353,10 +353,11 @@ static inline int lauxh_isnil(lua_State *L, int idx)
     return lua_type(L, idx) <= LUA_TNIL;
 }
 
-static inline int lauxh_isstring(lua_State *L, int idx)
+static inline int lauxh_isstr(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TSTRING;
 }
+#define lauxh_isstring(L, idx) lauxh_isstr((L), (idx))
 
 static inline int lauxh_isnumber(lua_State *L, int idx)
 {
