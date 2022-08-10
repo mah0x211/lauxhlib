@@ -382,10 +382,11 @@ static inline int lauxh_isfunc(lua_State *L, int idx)
 }
 #define lauxh_isfunction(L, idx) lauxh_isfunc((L), (idx))
 
-static inline int lauxh_iscfunction(lua_State *L, int idx)
+static inline int lauxh_iscfunc(lua_State *L, int idx)
 {
     return lua_iscfunction(L, idx);
 }
+#define lauxh_iscfunction(L, idx) lauxh_iscfunc((L), (idx))
 
 static inline int lauxh_isthread(lua_State *L, int idx)
 {
