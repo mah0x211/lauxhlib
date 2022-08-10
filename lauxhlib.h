@@ -1056,10 +1056,11 @@ static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
 
 /* function argument */
 
-static inline void lauxh_checkfunction(lua_State *L, int idx)
+static inline void lauxh_checkfunc(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TFUNCTION);
 }
+#define lauxh_checkfunction(L, idx) lauxh_checkfunc((L), (idx))
 
 /* cfunction argument */
 
