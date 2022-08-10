@@ -376,10 +376,11 @@ static inline int lauxh_istable(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TTABLE;
 }
 
-static inline int lauxh_isfunction(lua_State *L, int idx)
+static inline int lauxh_isfunc(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TFUNCTION;
 }
+#define lauxh_isfunction(L, idx) lauxh_isfunc((L), (idx))
 
 static inline int lauxh_iscfunction(lua_State *L, int idx)
 {
