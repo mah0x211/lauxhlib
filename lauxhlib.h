@@ -41,7 +41,7 @@
 
 /* stringify */
 
-static inline const char *lauxh_tolstring(lua_State *L, int idx, size_t *len)
+static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 {
     int type = 0;
 
@@ -88,7 +88,9 @@ static inline const char *lauxh_tolstring(lua_State *L, int idx, size_t *len)
     return lua_tolstring(L, -1, len);
 }
 
-#define lauxh_tostring(L, idx) lauxh_tolstring(L, (idx), NULL)
+#define lauxh_tostr(L, idx)          lauxh_tolstr((L), (idx), NULL)
+#define lauxh_tolstring(L, idx, len) lauxh_tolstr((L), (idx), (len))
+#define lauxh_tostring(L, idx)       lauxh_tolstr((L), (idx), NULL)
 
 /* reference */
 
@@ -351,35 +353,40 @@ static inline int lauxh_isnil(lua_State *L, int idx)
     return lua_type(L, idx) <= LUA_TNIL;
 }
 
-static inline int lauxh_isstring(lua_State *L, int idx)
+static inline int lauxh_isstr(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TSTRING;
 }
+#define lauxh_isstring(L, idx) lauxh_isstr((L), (idx))
 
-static inline int lauxh_isnumber(lua_State *L, int idx)
+static inline int lauxh_isnum(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TNUMBER;
 }
+#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
 
-static inline int lauxh_isboolean(lua_State *L, int idx)
+static inline int lauxh_isbool(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TBOOLEAN;
 }
+#define lauxh_isboolean(L, idx) lauxh_isbool((L), (idx))
 
 static inline int lauxh_istable(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TTABLE;
 }
 
-static inline int lauxh_isfunction(lua_State *L, int idx)
+static inline int lauxh_isfunc(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TFUNCTION;
 }
+#define lauxh_isfunction(L, idx) lauxh_isfunc((L), (idx))
 
-static inline int lauxh_iscfunction(lua_State *L, int idx)
+static inline int lauxh_iscfunc(lua_State *L, int idx)
 {
     return lua_iscfunction(L, idx);
 }
+#define lauxh_iscfunction(L, idx) lauxh_iscfunc((L), (idx))
 
 static inline int lauxh_isthread(lua_State *L, int idx)
 {
@@ -396,15 +403,16 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 }
 
-static inline int lauxh_isinteger(lua_State *L, int idx)
+static inline int lauxh_isint(lua_State *L, int idx)
 {
 #if LUA_VERSION_NUM >= 503
     return lua_isinteger(L, idx);
 #else
-    return lauxh_isnumber(L, idx) &&
+    return lauxh_isnum(L, idx) &&
            (lua_Number)lua_tointeger(L, idx) == lua_tonumber(L, idx);
 #endif
 }
+#define lauxh_isinteger(L, idx) lauxh_isint((L), (idx))
 
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
@@ -437,14 +445,15 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 
 /* string argument */
 
-static inline const char *lauxh_checklstring(lua_State *L, int idx, size_t *len)
+static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
 {
     luaL_checktype(L, idx, LUA_TSTRING);
     return lua_tolstring(L, idx, len);
 }
+#define lauxh_checklstring(L, idx, len) lauxh_checklstr((L), (idx), (len))
 
-static inline const char *lauxh_optlstring(lua_State *L, int idx,
-                                           const char *def, size_t *len)
+static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
+                                        size_t *len)
 {
     if (lauxh_isnil(L, idx)) {
         if (len && def) {
@@ -452,45 +461,50 @@ static inline const char *lauxh_optlstring(lua_State *L, int idx,
         }
         return def;
     }
-    return lauxh_checklstring(L, idx, len);
+    return lauxh_checklstr(L, idx, len);
 }
+#define lauxh_optlstring(L, idx, def, len)                                     \
+ lauxh_optlstr((L), (idx), (def), (len))
 
-static inline const char *lauxh_checkstring(lua_State *L, int idx)
+static inline const char *lauxh_checkstr(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TSTRING);
     return lua_tostring(L, idx);
 }
+#define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
 
-static inline const char *lauxh_optstring(lua_State *L, int idx,
-                                          const char *def)
+static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkstring(L, idx);
+    return lauxh_checkstr(L, idx);
 }
+#define lauxh_optstring(L, idx, def) lauxh_optstr((L), (idx), (def))
 
 /* number/integer argument */
 
-static inline lua_Number lauxh_checknumber(lua_State *L, int idx)
+static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TNUMBER);
     return lua_tonumber(L, idx);
 }
+#define lauxh_checknumber(L, idx) lauxh_checknum((L), (idx))
 
-static inline lua_Number lauxh_optnumber(lua_State *L, int idx, lua_Number def)
+static inline lua_Number lauxh_optnum(lua_State *L, int idx, lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checknumber(L, idx);
+    return lauxh_checknum(L, idx);
 }
+#define lauxh_optnumber(L, idx, def) lauxh_optnum((L), (idx), (def))
 
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
     lua_Number v = 0;
 
-    lauxh_argcheck(L, lauxh_isnumber(L, idx), idx, "unsigned expected, got %s",
+    lauxh_argcheck(L, lauxh_isnum(L, idx), idx, "unsigned expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tonumber(L, idx);
@@ -509,27 +523,28 @@ static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
     return lauxh_checkunsigned(L, idx);
 }
 
-static inline lua_Integer lauxh_checkinteger(lua_State *L, int idx)
+static inline lua_Integer lauxh_checkint(lua_State *L, int idx)
 {
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "integer expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "integer expected, got %s",
                    luaL_typename(L, idx));
     return lua_tointeger(L, idx);
 }
+#define lauxh_checkinteger(L, idx) lauxh_checkint((L), (idx))
 
-static inline lua_Integer lauxh_optinteger(lua_State *L, int idx,
-                                           lua_Integer def)
+static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkinteger(L, idx);
+    return lauxh_checkint(L, idx);
 }
+#define lauxh_optinteger(L, idx, def) lauxh_optint((L), (idx), (def))
 
-static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
+static inline lua_Integer lauxh_checkuint(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx,
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx,
                    "unsigned integer expected, got %s", luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -538,41 +553,43 @@ static inline lua_Integer lauxh_checkuinteger(lua_State *L, int idx)
 
     return v;
 }
+#define lauxh_checkuinteger(L, idx) lauxh_checkuint((L), (idx))
 
-static inline lua_Integer lauxh_optuinteger(lua_State *L, int idx,
-                                            lua_Integer def)
+static inline lua_Integer lauxh_optuint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkuinteger(L, idx);
+    return lauxh_checkuint(L, idx);
 }
+#define lauxh_optuinteger(L, idx, def) lauxh_optuint((L), (idx), (def))
 
-static inline lua_Integer lauxh_checkpinteger(lua_State *L, int idx)
+static inline lua_Integer lauxh_checkpint(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx,
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx,
                    "positive integer expected, got %s", luaL_typename(L, idx));
     v = lua_tointeger(L, idx);
     lauxh_argcheck(L, v > 0, idx, "positive integer expected, got %d", v);
     return v;
 }
+#define lauxh_checkpinteger(L, idx) lauxh_checkpint((L), (idx))
 
-static inline lua_Integer lauxh_optpinteger(lua_State *L, int idx,
-                                            lua_Integer def)
+static inline lua_Integer lauxh_optpint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkpinteger(L, idx);
+    return lauxh_checkpint(L, idx);
 }
+#define lauxh_optpinteger(L, idx, def) lauxh_optpint((L), (idx), (def))
 
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int8_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int8_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -594,7 +611,7 @@ static inline uint8_t lauxh_checkuint8(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint8_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint8_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -616,7 +633,7 @@ static inline int16_t lauxh_checkint16(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int16_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int16_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -638,7 +655,7 @@ static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint16_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint16_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -660,7 +677,7 @@ static inline int32_t lauxh_checkint32(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int32_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int32_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -682,7 +699,7 @@ static inline uint32_t lauxh_checkuint32(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint32_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint32_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -704,7 +721,7 @@ static inline int64_t lauxh_checkint64(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "int64_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "int64_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -726,7 +743,7 @@ static inline uint64_t lauxh_checkuint64(lua_State *L, int idx)
 {
     lua_Integer v = 0;
 
-    lauxh_argcheck(L, lauxh_isinteger(L, idx), idx, "uint64_t expected, got %s",
+    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "uint64_t expected, got %s",
                    luaL_typename(L, idx));
 
     v = lua_tointeger(L, idx);
@@ -746,19 +763,21 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
 
 /* boolean argument */
 
-static inline int lauxh_checkboolean(lua_State *L, int idx)
+static inline int lauxh_checkbool(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TBOOLEAN);
     return lua_toboolean(L, idx);
 }
+#define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
 
-static inline int lauxh_optboolean(lua_State *L, int idx, int def)
+static inline int lauxh_optbool(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    return lauxh_checkboolean(L, idx);
+    return lauxh_checkbool(L, idx);
 }
+#define lauxh_optboolean(L, idx, def) lauxh_optbool((L), (idx), (def))
 
 /* table argument */
 
@@ -781,7 +800,7 @@ static inline const char *lauxh_checklstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checklstring(L, -1, len);
+    v = lauxh_checklstr(L, -1, len);
     lua_pop(L, 1);
 
     return v;
@@ -795,7 +814,7 @@ static inline const char *lauxh_optlstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optlstring(L, -1, def, len);
+    v = lauxh_optlstr(L, -1, def, len);
     lua_pop(L, 1);
 
     return v;
@@ -808,7 +827,7 @@ static inline const char *lauxh_checkstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checkstring(L, -1);
+    v = lauxh_checkstr(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -821,7 +840,7 @@ static inline const char *lauxh_optstringof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optstring(L, -1, def);
+    v = lauxh_optstr(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -834,7 +853,7 @@ static inline lua_Number lauxh_checknumberof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checknumber(L, -1);
+    v = lauxh_checknum(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -847,7 +866,7 @@ static inline lua_Number lauxh_optnumberof(lua_State *L, int idx, const char *k,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optnumber(L, -1, def);
+    v = lauxh_optnum(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -860,7 +879,7 @@ static inline lua_Integer lauxh_checkintegerof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checkinteger(L, -1);
+    v = lauxh_checkint(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -873,7 +892,7 @@ static inline lua_Integer lauxh_optintegerof(lua_State *L, int idx,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optinteger(L, -1, def);
+    v = lauxh_optint(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -885,7 +904,7 @@ static inline int lauxh_checkbooleanof(lua_State *L, int idx, const char *k)
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_checkboolean(L, -1);
+    v = lauxh_checkbool(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -898,7 +917,7 @@ static inline int lauxh_optbooleanof(lua_State *L, int idx, const char *k,
 
     lua_pushstring(L, k);
     lua_rawget(L, idx);
-    v = lauxh_optboolean(L, -1, def);
+    v = lauxh_optbool(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -918,7 +937,7 @@ static inline const char *lauxh_checklstringat(lua_State *L, int idx, int row,
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checklstring(L, -1, len);
+    v = lauxh_checklstr(L, -1, len);
     lua_pop(L, 1);
 
     return v;
@@ -930,7 +949,7 @@ static inline const char *lauxh_optlstringat(lua_State *L, int idx, int row,
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optlstring(L, -1, def, len);
+    v = lauxh_optlstr(L, -1, def, len);
     lua_pop(L, 1);
 
     return v;
@@ -941,7 +960,7 @@ static inline const char *lauxh_checkstringat(lua_State *L, int idx, int row)
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checkstring(L, -1);
+    v = lauxh_checkstr(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -953,7 +972,7 @@ static inline const char *lauxh_optstringat(lua_State *L, int idx, int row,
     const char *v = NULL;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optstring(L, -1, def);
+    v = lauxh_optstr(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -964,7 +983,7 @@ static inline lua_Number lauxh_checknumberat(lua_State *L, int idx, int row)
     lua_Number v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checknumber(L, -1);
+    v = lauxh_checknum(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -976,7 +995,7 @@ static inline lua_Number lauxh_optnumberat(lua_State *L, int idx, int row,
     lua_Number v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optnumber(L, -1, def);
+    v = lauxh_optnum(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -987,7 +1006,7 @@ static inline lua_Integer lauxh_checkintegerat(lua_State *L, int idx, int row)
     lua_Integer v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checkinteger(L, -1);
+    v = lauxh_checkint(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -999,7 +1018,7 @@ static inline lua_Integer lauxh_optintegerat(lua_State *L, int idx, int row,
     lua_Integer v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optinteger(L, -1, def);
+    v = lauxh_optint(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -1010,7 +1029,7 @@ static inline int lauxh_checkbooleanat(lua_State *L, int idx, int row)
     int v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_checkboolean(L, -1);
+    v = lauxh_checkbool(L, -1);
     lua_pop(L, 1);
 
     return v;
@@ -1021,7 +1040,7 @@ static inline int lauxh_optbooleanat(lua_State *L, int idx, int row, int def)
     int v = 0;
 
     lua_rawgeti(L, idx, row);
-    v = lauxh_optboolean(L, -1, def);
+    v = lauxh_optbool(L, -1, def);
     lua_pop(L, 1);
 
     return v;
@@ -1037,20 +1056,22 @@ static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
 
 /* function argument */
 
-static inline void lauxh_checkfunction(lua_State *L, int idx)
+static inline void lauxh_checkfunc(lua_State *L, int idx)
 {
     luaL_checktype(L, idx, LUA_TFUNCTION);
 }
+#define lauxh_checkfunction(L, idx) lauxh_checkfunc((L), (idx))
 
 /* cfunction argument */
 
-static inline lua_CFunction lauxh_checkcfunction(lua_State *L, int idx)
+static inline lua_CFunction lauxh_checkcfunc(lua_State *L, int idx)
 {
     lauxh_argcheck(L, lua_iscfunction(L, idx), idx,
                    "cfunction expected, got %s", luaL_typename(L, idx));
 
     return lua_tocfunction(L, idx);
 }
+#define lauxh_checkcfunction(L, idx) lauxh_checkcfunc((L), (idx))
 
 /* lightuserdata argument */
 
@@ -1180,7 +1201,7 @@ static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
     lua_Integer flg = 0;
 
     for (; idx <= argc; idx++) {
-        flg |= lauxh_optinteger(L, idx, 0);
+        flg |= lauxh_optint(L, idx, 0);
     }
 
     return flg;
