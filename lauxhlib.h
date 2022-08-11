@@ -457,6 +457,22 @@ static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
 #define lauxh_isint64(L, idx)                                                  \
  lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
 
+static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
+                                        uint64_t max)
+{
+    lua_Integer lv = 0;
+    if (lauxh_isint(L, idx) && (lv = lua_tointeger(L, idx)) >= 0) {
+        uint64_t v = (uint64_t)lv;
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
+#define lauxh_isuint8(L, idx)  lauxh_isuint_in_range((L), (idx), 0, UINT8_MAX)
+#define lauxh_isuint16(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT16_MAX)
+#define lauxh_isuint32(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT32_MAX)
+#define lauxh_isuint64(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT64_MAX)
+
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
     return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
