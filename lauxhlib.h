@@ -438,6 +438,25 @@ static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
     return 0;
 }
 
+static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
+                                       int64_t max)
+{
+    if (lauxh_isint(L, idx)) {
+        int64_t v = (int64_t)lua_tointeger(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
+#define lauxh_isint8(L, idx)                                                   \
+ lauxh_isint_in_range((L), (idx), INT8_MIN, INT8_MAX)
+#define lauxh_isint16(L, idx)                                                  \
+ lauxh_isint_in_range((L), (idx), INT16_MIN, INT16_MAX)
+#define lauxh_isint32(L, idx)                                                  \
+ lauxh_isint_in_range((L), (idx), INT32_MIN, INT32_MAX)
+#define lauxh_isint64(L, idx)                                                  \
+ lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
+
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
     return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
