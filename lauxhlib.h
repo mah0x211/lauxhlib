@@ -430,6 +430,14 @@ static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
     return 0;
 }
 
+static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
+{
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) > 0;
+    }
+    return 0;
+}
+
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
     return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
@@ -582,13 +590,16 @@ static inline lua_Integer lauxh_optuint(lua_State *L, int idx, lua_Integer def)
 
 static inline lua_Integer lauxh_checkpint(lua_State *L, int idx)
 {
-    lua_Integer v = 0;
-
-    lauxh_argcheck(L, lauxh_isint(L, idx), idx,
-                   "positive integer expected, got %s", luaL_typename(L, idx));
-    v = lua_tointeger(L, idx);
-    lauxh_argcheck(L, v > 0, idx, "positive integer expected, got %d", v);
-    return v;
+    if (!lauxh_ispint(L, idx)) {
+        int t = lua_type(L, idx);
+        if (t != LUA_TNUMBER) {
+            lauxh_argerror(L, idx, "positive integer expected, got %s",
+                           lua_typename(L, t));
+        }
+        lauxh_argerror(L, idx,
+                       "positive integer expected, got an out of range value");
+    }
+    return lua_tointeger(L, idx);
 }
 #define lauxh_checkpinteger(L, idx) lauxh_checkpint((L), (idx))
 
