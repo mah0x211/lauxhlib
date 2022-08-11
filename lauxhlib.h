@@ -403,6 +403,14 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 }
 
+static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
+{
+    if (lauxh_isnum(L, idx)) {
+        return lua_tonumber(L, idx) >= 0;
+    }
+    return 0;
+}
+
 static inline int lauxh_isint(lua_State *L, int idx)
 {
 #if LUA_VERSION_NUM >= 503
@@ -502,16 +510,16 @@ static inline lua_Number lauxh_optnum(lua_State *L, int idx, lua_Number def)
 
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
-    lua_Number v = 0;
+    if (!lauxh_isunsigned(L, idx)) {
+        int t = lua_type(L, idx);
+        if (t != LUA_TNUMBER) {
+            lauxh_argerror(L, idx, "unsigned expected, got %s",
+                           lua_typename(L, t));
+        }
+        lauxh_argerror(L, idx, "unsigned expected, got an out of range value");
+    }
 
-    lauxh_argcheck(L, lauxh_isnum(L, idx), idx, "unsigned expected, got %s",
-                   luaL_typename(L, idx));
-
-    v = lua_tonumber(L, idx);
-    lauxh_argcheck(L, v >= 0, idx,
-                   "unsigned expected, got an out of range value");
-
-    return v;
+    return lua_tonumber(L, idx);
 }
 
 static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
