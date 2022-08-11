@@ -1083,6 +1083,12 @@ static inline const void *lauxh_checkpointer(lua_State *L, int idx)
 
 /* userdata argument */
 
+static inline const void *lauxh_checkuserdata(lua_State *L, int idx)
+{
+    luaL_checktype(L, idx, LUA_TUSERDATA);
+    return lua_topointer(L, idx);
+}
+
 static inline void *lauxh_checkudata(lua_State *L, int idx, const char *tname)
 {
     return luaL_checkudata(L, idx, tname);
