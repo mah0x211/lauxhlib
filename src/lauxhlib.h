@@ -1097,6 +1097,14 @@ static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
     return lua_tothread(L, idx);
 }
 
+static inline lua_State *lauxh_optthread(lua_State *L, int idx, lua_State *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkthread(L, idx);
+}
+
 /* function argument */
 
 static inline void lauxh_checkfunc(lua_State *L, int idx)
