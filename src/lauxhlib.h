@@ -1115,6 +1115,15 @@ static inline const void *lauxh_checkpointer(lua_State *L, int idx)
     return lua_topointer(L, idx);
 }
 
+static inline const void *lauxh_optpointer(lua_State *L, int idx,
+                                           const void *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkpointer(L, idx);
+}
+
 /* userdata argument */
 
 static inline const void *lauxh_checkuserdata(lua_State *L, int idx)
