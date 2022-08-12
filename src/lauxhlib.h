@@ -534,6 +534,15 @@ static inline void lauxh_checkcallable(lua_State *L, int idx)
                    "callable object expected, got %s", luaL_typename(L, idx));
 }
 
+static inline int lauxh_optcallable(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checkcallable(L, idx);
+    return idx;
+}
+
 /* string argument */
 
 static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
