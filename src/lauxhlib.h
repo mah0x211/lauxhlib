@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -401,6 +402,14 @@ static inline int lauxh_isuserdata(lua_State *L, int idx)
 static inline int lauxh_ispointer(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
+}
+
+static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
+{
+    if (lauxh_isnum(L, idx)) {
+        return isfinite(lua_tonumber(L, idx));
+    }
+    return 0;
 }
 
 static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
