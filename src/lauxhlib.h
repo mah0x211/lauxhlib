@@ -1105,6 +1105,15 @@ static inline void lauxh_checkfunc(lua_State *L, int idx)
 }
 #define lauxh_checkfunction(L, idx) lauxh_checkfunc((L), (idx))
 
+static inline int lauxh_optfunc(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checkfunc(L, idx);
+    return idx;
+}
+
 /* cfunction argument */
 
 static inline lua_CFunction lauxh_checkcfunc(lua_State *L, int idx)
