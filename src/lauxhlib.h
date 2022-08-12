@@ -1224,6 +1224,14 @@ static inline FILE *lauxh_checkfile(lua_State *L, int idx)
     return *lauxh_checkfilep(L, idx);
 }
 
+static inline FILE *lauxh_optfile(lua_State *L, int idx, FILE *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfile(L, idx);
+}
+
 static inline int lauxh_fileno(lua_State *L, int idx)
 {
     FILE *f = lauxh_checkfile(L, idx);
