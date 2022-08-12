@@ -487,6 +487,21 @@ static inline int lauxh_isfile(lua_State *L, int idx)
     return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
 }
 
+static inline int lauxh_iscallable(lua_State *L, int idx)
+{
+    int t = LUA_TNIL;
+
+    if (lauxh_isfunc(L, idx)) {
+        return 1;
+    } else if (lua_getmetatable(L, idx)) {
+        lua_pushliteral(L, "__call");
+        lua_rawget(L, -2);
+        t = lua_type(L, -1);
+        lua_pop(L, 2);
+    }
+    return t == LUA_TFUNCTION;
+}
+
 /* check argument */
 static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 {
