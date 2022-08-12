@@ -829,6 +829,15 @@ static inline void lauxh_checktable(lua_State *L, int idx)
     luaL_checktype(L, idx, LUA_TTABLE);
 }
 
+static inline int lauxh_opttable(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checktable(L, idx);
+    return idx;
+}
+
 static inline void lauxh_checktableof(lua_State *L, int idx, const char *k)
 {
     lua_pushstring(L, k);
