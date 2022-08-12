@@ -626,6 +626,14 @@ static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
     return lua_tonumber(L, idx);
 }
 
+static inline lua_Number lauxh_optfinite(lua_State *L, int idx, lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite(L, idx);
+}
+
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
     CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned number");
