@@ -1,5 +1,5 @@
 TARGET=$(PACKAGE).$(LIB_EXTENSION)
-SRC=$(wildcard *.c)
+SRC=$(wildcard src/*.c)
 OBJ=$(SRC:.c=.o)
 GCDAS=$(OBJ:.o=.gcda)
 INSTALL?=install
@@ -26,6 +26,6 @@ install:
 	rm -f $(OBJ) $(GCDAS)
 	lua ./test/test.lua
 	rm -f $(TARGET)
-	$(INSTALL) lauxhlib.h $(CONFDIR)
+	$(INSTALL) src/lauxhlib.h $(CONFDIR)
 	rm -f $(LUA_INCDIR)/lauxhlib.h
 	ln -s $(CONFDIR)/lauxhlib.h $(LUA_INCDIR)
