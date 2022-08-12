@@ -620,9 +620,15 @@ static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
   }                                                                            \
  } while (0)
 
+static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
+{
+    CHECK_NUMRANGE(L, idx, lauxh_isfinite, "finite number");
+    return lua_tonumber(L, idx);
+}
+
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned");
+    CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned number");
     return lua_tonumber(L, idx);
 }
 
