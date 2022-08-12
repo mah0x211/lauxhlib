@@ -350,7 +350,7 @@ static inline int lauxh_ismetatableof(lua_State *L, int idx, const char *tname)
 
 static inline int lauxh_isnil(lua_State *L, int idx)
 {
-    return lua_type(L, idx) <= LUA_TNIL;
+    return lua_isnoneornil(L, idx);
 }
 
 static inline int lauxh_isstr(lua_State *L, int idx)
