@@ -32,6 +32,7 @@ jobs:
       name: Install Tools
       run: |
         sudo apt install lcov -y
+        luarocks install assert
     -
       name: Install
       run: |
