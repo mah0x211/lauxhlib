@@ -5,6 +5,7 @@ _G.package.cpath = '.libs/?.so;' .. _G.package.cpath
 local errors = {}
 for _, pathname in ipairs({
     'test/unittest.lua',
+    'test/file_test.lua',
     'test/is_test.lua',
 }) do
     print(string.rep('-', 70))
