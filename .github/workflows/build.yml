@@ -37,6 +37,10 @@ jobs:
       run: |
         luarocks make LAUXHLIB_COVERAGE=1
     -
+      name: Test
+      run: |
+        lua test/testall.lua
+    -
       name: Generate coverage reports
       run: |
         sh ./covergen.sh

@@ -1,4 +1,5 @@
 coverage/
+.libs/
 *.gcda
 *.gcno
 *.profraw
