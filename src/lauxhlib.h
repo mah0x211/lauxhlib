@@ -503,6 +503,70 @@ static inline int lauxh_iscallable(lua_State *L, int idx)
 }
 
 /* check argument */
+#if defined(LAUXHLIB_USED_IN_LUA)
+
+static const char *LAUXH_ARGERR_NAME = NULL;
+static int LAUXH_ARGERR_STACK        = 1;
+
+static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
+{
+    (void)arg;
+    //
+    // NOTE: porting from lua source code
+    // https://github.com/lua/lua/blob/master/lauxlib.c
+    //
+    lua_Debug ar     = {0};
+    int stack        = LAUXH_ARGERR_STACK;
+    const char *name = NULL;
+
+    LAUXH_ARGERR_STACK = 1;
+    if (LAUXH_ARGERR_NAME) {
+        name              = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
+        LAUXH_ARGERR_NAME = NULL;
+    } else {
+        name = lua_pushfstring(L, "#%d", arg);
+    }
+
+    if (!lua_getstack(L, stack, &ar)) { // no stack frame?
+        return luaL_error(L, "bad argument %s (%s)", name, extra);
+    }
+
+    lua_getinfo(L, "n", &ar);
+    return luaL_error(L, "bad argument %s to '%s' (%s)", name,
+                      (ar.name == NULL) ? "?" : ar.name, extra);
+}
+
+static inline void lauxh_checktype(lua_State *L, int arg, int t)
+{
+    //
+    // NOTE: porting from lua source code
+    // https://github.com/lua/lua/blob/master/lauxlib.c
+    //
+    if (lua_type(L, arg) != t) {
+        const char *tname    = lua_typename(L, t);
+        const char *extramsg = NULL;
+        const char *typearg; // name for the type of the actual argument
+
+        if (luaL_getmetafield(L, arg, "__name") == LUA_TSTRING) {
+            typearg = lua_tostring(L, -1); // use the given type name
+        } else if (lua_type(L, arg) == LUA_TLIGHTUSERDATA) {
+            typearg = "light userdata"; // special name for messages
+        } else {
+            typearg = luaL_typename(L, arg); // standard name
+        }
+
+        extramsg = lua_pushfstring(L, "%s expected, got %s", tname, typearg);
+        lauxh_push_argerror(L, arg, extramsg);
+    }
+}
+
+#else
+
+# define lauxh_push_argerror luaL_argerror
+# define lauxh_checktype     luaL_checktype
+
+#endif
+
 static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 {
     char buf[255];
@@ -516,7 +580,7 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
         idx = lua_gettop(L) + idx + 1;
     }
 
-    return luaL_argerror(L, idx, buf);
+    return lauxh_push_argerror(L, idx, buf);
 }
 
 #define lauxh_argcheck(L, cond, idx, fmt, ...)                                 \
@@ -547,7 +611,7 @@ static inline int lauxh_optcallable(lua_State *L, int idx, int def)
 
 static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
 {
-    luaL_checktype(L, idx, LUA_TSTRING);
+    lauxh_checktype(L, idx, LUA_TSTRING);
     return lua_tolstring(L, idx, len);
 }
 #define lauxh_checklstring(L, idx, len) lauxh_checklstr((L), (idx), (len))
@@ -568,7 +632,7 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
 
 static inline const char *lauxh_checkstr(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TSTRING);
+    lauxh_checktype(L, idx, LUA_TSTRING);
     return lua_tostring(L, idx);
 }
 #define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
@@ -586,7 +650,7 @@ static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 
 static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TNUMBER);
+    lauxh_checktype(L, idx, LUA_TNUMBER);
     return lua_tonumber(L, idx);
 }
 #define lauxh_checknumber(L, idx) lauxh_checknum((L), (idx))
@@ -802,13 +866,27 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
     return lauxh_checkuint64(L, idx);
 }
 
+/* treat integer arguments as bit flags  */
+
+static inline uint64_t lauxh_optflags(lua_State *L, int idx)
+{
+    const int argc = lua_gettop(L);
+    uint64_t flg   = 0;
+
+    for (; idx <= argc; idx++) {
+        flg |= lauxh_optuint64(L, idx, 0);
+    }
+
+    return flg;
+}
+
 #undef CHECK_NUMRANGE
 
 /* boolean argument */
 
 static inline int lauxh_checkbool(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TBOOLEAN);
+    lauxh_checktype(L, idx, LUA_TBOOLEAN);
     return lua_toboolean(L, idx);
 }
 #define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
@@ -826,7 +904,7 @@ static inline int lauxh_optbool(lua_State *L, int idx, int def)
 
 static inline void lauxh_checktable(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TTABLE);
+    lauxh_checktype(L, idx, LUA_TTABLE);
 }
 
 static inline int lauxh_opttable(lua_State *L, int idx, int def)
@@ -1102,7 +1180,7 @@ static inline int lauxh_optbooleanat(lua_State *L, int idx, int row, int def)
 
 static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TTHREAD);
+    lauxh_checktype(L, idx, LUA_TTHREAD);
     return lua_tothread(L, idx);
 }
 
@@ -1118,7 +1196,7 @@ static inline lua_State *lauxh_optthread(lua_State *L, int idx, lua_State *def)
 
 static inline void lauxh_checkfunc(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TFUNCTION);
+    lauxh_checktype(L, idx, LUA_TFUNCTION);
 }
 #define lauxh_checkfunction(L, idx) lauxh_checkfunc((L), (idx))
 
@@ -1155,7 +1233,7 @@ static inline int lauxh_optcfunc(lua_State *L, int idx, int def)
 
 static inline const void *lauxh_checkpointer(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TLIGHTUSERDATA);
+    lauxh_checktype(L, idx, LUA_TLIGHTUSERDATA);
     return lua_topointer(L, idx);
 }
 
@@ -1172,7 +1250,7 @@ static inline const void *lauxh_optpointer(lua_State *L, int idx,
 
 static inline const void *lauxh_checkuserdata(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TUSERDATA);
+    lauxh_checktype(L, idx, LUA_TUSERDATA);
     return lua_topointer(L, idx);
 }
 
@@ -1301,20 +1379,6 @@ static inline FILE *lauxh_tofile(lua_State *L, int fd, const char *mode,
     *lfp = fp;
 
     return fp;
-}
-
-/* flag arguments */
-
-static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
-{
-    const int argc  = lua_gettop(L);
-    lua_Integer flg = 0;
-
-    for (; idx <= argc; idx++) {
-        flg |= lauxh_optint(L, idx, 0);
-    }
-
-    return flg;
 }
 
 /* traceback */

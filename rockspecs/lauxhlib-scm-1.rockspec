@@ -24,8 +24,8 @@ build = {
     },
     install_variables = {
         LIB_EXTENSION = "$(LIB_EXTENSION)",
-        CONFDIR = '$(CONFDIR)',
-        LUA_INCDIR = '$(LUA_INCDIR)',
+        CONFDIR = "$(CONFDIR)",
+        LUA_INCDIR = "$(LUA_INCDIR)",
         INST_LIBDIR = "$(LIBDIR)/lauxhlib",
     },
 }
