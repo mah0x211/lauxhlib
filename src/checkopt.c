@@ -25,165 +25,165 @@
 
 #define CHECKARGS()                                                            \
  do {                                                                          \
-  const char *name   = lauxh_optstr(L, 2, NULL);                               \
-  int stack          = lauxh_optuint(L, 3, 1);                                 \
+  const char *name   = lauxh_optstr(L, 3, NULL);                               \
+  int stack          = lauxh_optuint(L, 4, 1);                                 \
   LAUXH_ARGERR_NAME  = name;                                                   \
   LAUXH_ARGERR_STACK = stack;                                                  \
  } while (0)
 
-#define CHECK(checkfn)                                                         \
+#define CHECKOPT(checkfn)                                                      \
  do {                                                                          \
+  int top = lua_gettop(L);                                                     \
+  if (top == 0 || (top == 1 && lauxh_isnil(L, 1))) {                           \
+   /* return nil if no argument */                                             \
+   lua_pushnil(L);                                                             \
+   return 1;                                                                   \
+  } else if (top == 1) {                                                       \
+   /* check value if default value is not specified */                         \
+   checkfn(L, 1);                                                              \
+   lua_settop(L, 1);                                                           \
+   return 1;                                                                   \
+  } else if (!lauxh_isnil(L, 2)) {                                             \
+   /* check default value */                                                   \
+   checkfn(L, 2);                                                              \
+  }                                                                            \
+                                                                               \
   CHECKARGS();                                                                 \
-  checkfn(L, 1);                                                               \
-  lua_settop(L, 1);                                                            \
+  if (lauxh_isnil(L, 1)) {                                                     \
+   /* use second argument as default value */                                  \
+   lua_settop(L, 2);                                                           \
+  } else {                                                                     \
+   checkfn(L, 1);                                                              \
+   lua_settop(L, 1);                                                           \
+  }                                                                            \
   return 1;                                                                    \
  } while (0)
 
-static int none_lua(lua_State *L)
-{
-    CHECKARGS();
-    if (!lua_isnoneornil(L, 1)) {
-        lauxh_checktype(L, 1, LUA_TNIL);
-    }
-    lua_settop(L, 0);
-    lua_pushnil(L);
-    return 1;
-}
-
-static int flags_lua(lua_State *L)
-{
-    uint64_t flags = lauxh_optflags(L, 1);
-    lua_settop(L, 0);
-    lua_pushinteger(L, flags);
-    return 1;
-}
-
 static int callable_lua(lua_State *L)
 {
-    CHECK(lauxh_checkcallable);
+    CHECKOPT(lauxh_checkcallable);
 }
 
 static int file_lua(lua_State *L)
 {
-    CHECK(lauxh_checkfile);
+    CHECKOPT(lauxh_checkfile);
 }
 
 static int uint64_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint64);
+    CHECKOPT(lauxh_checkuint64);
 }
 
 static int uint32_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint32);
+    CHECKOPT(lauxh_checkuint32);
 }
 
 static int uint16_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint16);
+    CHECKOPT(lauxh_checkuint16);
 }
 
 static int uint8_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint8);
+    CHECKOPT(lauxh_checkuint8);
 }
 
 static int int64_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint64);
+    CHECKOPT(lauxh_checkint64);
 }
 
 static int int32_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint32);
+    CHECKOPT(lauxh_checkint32);
 }
 
 static int int16_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint16);
+    CHECKOPT(lauxh_checkint16);
 }
 
 static int int8_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint8);
+    CHECKOPT(lauxh_checkint8);
 }
 
 static int pint_lua(lua_State *L)
 {
-    CHECK(lauxh_checkpint);
+    CHECKOPT(lauxh_checkpint);
 }
 
 static int uint_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint);
+    CHECKOPT(lauxh_checkuint);
 }
 
 static int int_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint);
+    CHECKOPT(lauxh_checkint);
 }
 
 static int unsigned_lua(lua_State *L)
 {
-    CHECK(lauxh_checkunsigned);
+    CHECKOPT(lauxh_checkunsigned);
 }
 
 static int finite_lua(lua_State *L)
 {
-    CHECK(lauxh_checkfinite);
+    CHECKOPT(lauxh_checkfinite);
 }
 
 static int thread_lua(lua_State *L)
 {
-    CHECK(lauxh_checkthread);
+    CHECKOPT(lauxh_checkthread);
 }
 
 static int userdata_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuserdata);
+    CHECKOPT(lauxh_checkuserdata);
 }
 
 static int cfunc_lua(lua_State *L)
 {
-    CHECK(lauxh_checkcfunc);
+    CHECKOPT(lauxh_checkcfunc);
 }
 
 static int func_lua(lua_State *L)
 {
-    CHECK(lauxh_checkfunc);
+    CHECKOPT(lauxh_checkfunc);
 }
 
 static int table_lua(lua_State *L)
 {
-    CHECK(lauxh_checktable);
+    CHECKOPT(lauxh_checktable);
 }
 
 static int str_lua(lua_State *L)
 {
-    CHECK(lauxh_checkstr);
+    CHECKOPT(lauxh_checkstr);
 }
 
 static int num_lua(lua_State *L)
 {
-    CHECK(lauxh_checknum);
+    CHECKOPT(lauxh_checknum);
 }
 
 static int pointer_lua(lua_State *L)
 {
-    CHECK(lauxh_checkpointer);
+    CHECKOPT(lauxh_checkpointer);
 }
 
 static int bool_lua(lua_State *L)
 {
-    CHECK(lauxh_checkbool);
+    CHECKOPT(lauxh_checkbool);
 }
 
-#undef CHECK
+#undef CHECKOPT
 
-LUALIB_API int luaopen_lauxhlib_check(lua_State *L)
+LUALIB_API int luaopen_lauxhlib_checkopt(lua_State *L)
 {
     struct luaL_Reg method[] = {
-        {"none",     none_lua    },
         {"bool",     bool_lua    },
         {"pointer",  pointer_lua },
         {"num",      num_lua     },
@@ -208,7 +208,6 @@ LUALIB_API int luaopen_lauxhlib_check(lua_State *L)
         {"uint64",   uint64_lua  },
         {"file",     file_lua    },
         {"callable", callable_lua},
-        {"flags",    flags_lua   },
         {NULL,       NULL        }
     };
 

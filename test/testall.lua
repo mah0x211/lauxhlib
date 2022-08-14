@@ -6,6 +6,7 @@ local errors = {}
 for _, pathname in ipairs({
     'test/unittest.lua',
     'test/check_test.lua',
+    'test/checkopt_test.lua',
     'test/file_test.lua',
     'test/is_test.lua',
     'test/ref_test.lua',
