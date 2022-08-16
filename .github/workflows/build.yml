@@ -32,10 +32,15 @@ jobs:
       name: Install Tools
       run: |
         sudo apt install lcov -y
+        luarocks install assert
     -
       name: Install
       run: |
         luarocks make LAUXHLIB_COVERAGE=1
+    -
+      name: Test
+      run: |
+        lua test/testall.lua
     -
       name: Generate coverage reports
       run: |

@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -43,46 +44,44 @@
 
 static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 {
-    int type = 0;
+    int type = lua_type(L, idx);
 
     if (luaL_callmeta(L, idx, "__tostring")) {
-        lua_replace(L, idx);
-    }
-
-    type = lua_type(L, idx);
-    switch (type) {
-    case LUA_TNUMBER:
-    case LUA_TSTRING:
-        lua_pushvalue(L, idx);
-        break;
-
-    case LUA_TNONE:
-        lua_pushliteral(L, "");
-        break;
-
-    case LUA_TNIL:
-        lua_pushliteral(L, "nil");
-        break;
-
-    case LUA_TBOOLEAN:
-        if (lua_toboolean(L, idx)) {
-            lua_pushliteral(L, "true");
-        } else {
-            lua_pushliteral(L, "false");
+        if (!lua_isstring(L, -1)) {
+            luaL_error(L, "\"__tostring\" metamethod must return a string");
         }
-        break;
+    } else {
+        switch (type) {
+        case LUA_TNUMBER:
+        case LUA_TSTRING:
+            lua_pushvalue(L, idx);
+            break;
 
-    // case LUA_TTABLE:
-    // case LUA_TFUNCTION:
-    // case LUA_TTHREAD:
-    // case LUA_TUSERDATA:
-    // case LUA_TLIGHTUSERDATA:
-    default: {
-        char b[BUFSIZ];
-        size_t n = snprintf(b, BUFSIZ, "%s: %p", lua_typename(L, type),
+        case LUA_TNONE:
+            lua_pushliteral(L, "");
+            break;
+
+        case LUA_TNIL:
+            lua_pushliteral(L, "nil");
+            break;
+
+        case LUA_TBOOLEAN:
+            if (lua_toboolean(L, idx)) {
+                lua_pushliteral(L, "true");
+            } else {
+                lua_pushliteral(L, "false");
+            }
+            break;
+
+        // case LUA_TTABLE:
+        // case LUA_TFUNCTION:
+        // case LUA_TTHREAD:
+        // case LUA_TUSERDATA:
+        // case LUA_TLIGHTUSERDATA:
+        default:
+            lua_pushfstring(L, "%s: %p", lua_typename(L, type),
                             lua_topointer(L, idx));
-        lua_pushlstring(L, b, n);
-    } break;
+        }
     }
 
     return lua_tolstring(L, -1, len);
@@ -350,7 +349,7 @@ static inline int lauxh_ismetatableof(lua_State *L, int idx, const char *tname)
 
 static inline int lauxh_isnil(lua_State *L, int idx)
 {
-    return lua_type(L, idx) <= LUA_TNIL;
+    return lua_isnoneornil(L, idx);
 }
 
 static inline int lauxh_isstr(lua_State *L, int idx)
@@ -401,6 +400,14 @@ static inline int lauxh_isuserdata(lua_State *L, int idx)
 static inline int lauxh_ispointer(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
+}
+
+static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
+{
+    if (lauxh_isnum(L, idx)) {
+        return isfinite(lua_tonumber(L, idx));
+    }
+    return 0;
 }
 
 static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
@@ -478,7 +485,86 @@ static inline int lauxh_isfile(lua_State *L, int idx)
     return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
 }
 
+static inline int lauxh_iscallable(lua_State *L, int idx)
+{
+    int t = LUA_TNIL;
+
+    if (lauxh_isfunc(L, idx)) {
+        return 1;
+    } else if (lua_getmetatable(L, idx)) {
+        lua_pushliteral(L, "__call");
+        lua_rawget(L, -2);
+        t = lua_type(L, -1);
+        lua_pop(L, 2);
+    }
+    return t == LUA_TFUNCTION;
+}
+
 /* check argument */
+#if defined(LAUXHLIB_USED_IN_LUA)
+
+static const char *LAUXH_ARGERR_NAME = NULL;
+static int LAUXH_ARGERR_STACK        = 1;
+
+static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
+{
+    (void)arg;
+    //
+    // NOTE: porting from lua source code
+    // https://github.com/lua/lua/blob/master/lauxlib.c
+    //
+    lua_Debug ar     = {0};
+    int stack        = LAUXH_ARGERR_STACK;
+    const char *name = NULL;
+
+    LAUXH_ARGERR_STACK = 1;
+    if (LAUXH_ARGERR_NAME) {
+        name              = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
+        LAUXH_ARGERR_NAME = NULL;
+    } else {
+        name = lua_pushfstring(L, "#%d", arg);
+    }
+
+    if (!lua_getstack(L, stack, &ar)) { // no stack frame?
+        return luaL_error(L, "bad argument %s (%s)", name, extra);
+    }
+
+    lua_getinfo(L, "n", &ar);
+    return luaL_error(L, "bad argument %s to '%s' (%s)", name,
+                      (ar.name == NULL) ? "?" : ar.name, extra);
+}
+
+static inline void lauxh_checktype(lua_State *L, int arg, int t)
+{
+    //
+    // NOTE: porting from lua source code
+    // https://github.com/lua/lua/blob/master/lauxlib.c
+    //
+    if (lua_type(L, arg) != t) {
+        const char *tname    = lua_typename(L, t);
+        const char *extramsg = NULL;
+        const char *typearg; // name for the type of the actual argument
+
+        if (luaL_getmetafield(L, arg, "__name") == LUA_TSTRING) {
+            typearg = lua_tostring(L, -1); // use the given type name
+        } else if (lua_type(L, arg) == LUA_TLIGHTUSERDATA) {
+            typearg = "light userdata"; // special name for messages
+        } else {
+            typearg = luaL_typename(L, arg); // standard name
+        }
+
+        extramsg = lua_pushfstring(L, "%s expected, got %s", tname, typearg);
+        lauxh_push_argerror(L, arg, extramsg);
+    }
+}
+
+#else
+
+# define lauxh_push_argerror luaL_argerror
+# define lauxh_checktype     luaL_checktype
+
+#endif
+
 static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 {
     char buf[255];
@@ -492,7 +578,7 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
         idx = lua_gettop(L) + idx + 1;
     }
 
-    return luaL_argerror(L, idx, buf);
+    return lauxh_push_argerror(L, idx, buf);
 }
 
 #define lauxh_argcheck(L, cond, idx, fmt, ...)                                 \
@@ -502,11 +588,28 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
   }                                                                            \
  } while (0)
 
+/* any argument */
+
+static inline void lauxh_checkcallable(lua_State *L, int idx)
+{
+    lauxh_argcheck(L, lauxh_iscallable(L, idx), idx,
+                   "callable object expected, got %s", luaL_typename(L, idx));
+}
+
+static inline int lauxh_optcallable(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checkcallable(L, idx);
+    return idx;
+}
+
 /* string argument */
 
 static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
 {
-    luaL_checktype(L, idx, LUA_TSTRING);
+    lauxh_checktype(L, idx, LUA_TSTRING);
     return lua_tolstring(L, idx, len);
 }
 #define lauxh_checklstring(L, idx, len) lauxh_checklstr((L), (idx), (len))
@@ -527,7 +630,7 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
 
 static inline const char *lauxh_checkstr(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TSTRING);
+    lauxh_checktype(L, idx, LUA_TSTRING);
     return lua_tostring(L, idx);
 }
 #define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
@@ -545,7 +648,7 @@ static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 
 static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TNUMBER);
+    lauxh_checktype(L, idx, LUA_TNUMBER);
     return lua_tonumber(L, idx);
 }
 #define lauxh_checknumber(L, idx) lauxh_checknum((L), (idx))
@@ -588,9 +691,23 @@ static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
   }                                                                            \
  } while (0)
 
+static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
+{
+    CHECK_NUMRANGE(L, idx, lauxh_isfinite, "finite number");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_optfinite(lua_State *L, int idx, lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite(L, idx);
+}
+
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned");
+    CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned number");
     return lua_tonumber(L, idx);
 }
 
@@ -747,13 +864,27 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
     return lauxh_checkuint64(L, idx);
 }
 
+/* treat integer arguments as bit flags  */
+
+static inline uint64_t lauxh_optflags(lua_State *L, int idx)
+{
+    const int argc = lua_gettop(L);
+    uint64_t flg   = 0;
+
+    for (; idx <= argc; idx++) {
+        flg |= lauxh_optuint64(L, idx, 0);
+    }
+
+    return flg;
+}
+
 #undef CHECK_NUMRANGE
 
 /* boolean argument */
 
 static inline int lauxh_checkbool(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TBOOLEAN);
+    lauxh_checktype(L, idx, LUA_TBOOLEAN);
     return lua_toboolean(L, idx);
 }
 #define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
@@ -771,7 +902,16 @@ static inline int lauxh_optbool(lua_State *L, int idx, int def)
 
 static inline void lauxh_checktable(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TTABLE);
+    lauxh_checktype(L, idx, LUA_TTABLE);
+}
+
+static inline int lauxh_opttable(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checktable(L, idx);
+    return idx;
 }
 
 static inline void lauxh_checktableof(lua_State *L, int idx, const char *k)
@@ -1038,17 +1178,34 @@ static inline int lauxh_optbooleanat(lua_State *L, int idx, int row, int def)
 
 static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TTHREAD);
+    lauxh_checktype(L, idx, LUA_TTHREAD);
     return lua_tothread(L, idx);
+}
+
+static inline lua_State *lauxh_optthread(lua_State *L, int idx, lua_State *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkthread(L, idx);
 }
 
 /* function argument */
 
 static inline void lauxh_checkfunc(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TFUNCTION);
+    lauxh_checktype(L, idx, LUA_TFUNCTION);
 }
 #define lauxh_checkfunction(L, idx) lauxh_checkfunc((L), (idx))
+
+static inline int lauxh_optfunc(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checkfunc(L, idx);
+    return idx;
+}
 
 /* cfunction argument */
 
@@ -1061,20 +1218,47 @@ static inline lua_CFunction lauxh_checkcfunc(lua_State *L, int idx)
 }
 #define lauxh_checkcfunction(L, idx) lauxh_checkcfunc((L), (idx))
 
+static inline int lauxh_optcfunc(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    lauxh_checkcfunc(L, idx);
+    return idx;
+}
+
 /* lightuserdata argument */
 
 static inline const void *lauxh_checkpointer(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TLIGHTUSERDATA);
+    lauxh_checktype(L, idx, LUA_TLIGHTUSERDATA);
     return lua_topointer(L, idx);
+}
+
+static inline const void *lauxh_optpointer(lua_State *L, int idx,
+                                           const void *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkpointer(L, idx);
 }
 
 /* userdata argument */
 
 static inline const void *lauxh_checkuserdata(lua_State *L, int idx)
 {
-    luaL_checktype(L, idx, LUA_TUSERDATA);
+    lauxh_checktype(L, idx, LUA_TUSERDATA);
     return lua_topointer(L, idx);
+}
+
+static inline const void *lauxh_optuserdata(lua_State *L, int idx,
+                                            const void *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkuserdata(L, idx);
 }
 
 static inline void *lauxh_checkudata(lua_State *L, int idx, const char *tname)
@@ -1114,6 +1298,14 @@ static inline FILE **lauxh_checkfilep(lua_State *L, int idx)
 static inline FILE *lauxh_checkfile(lua_State *L, int idx)
 {
     return *lauxh_checkfilep(L, idx);
+}
+
+static inline FILE *lauxh_optfile(lua_State *L, int idx, FILE *def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfile(L, idx);
 }
 
 static inline int lauxh_fileno(lua_State *L, int idx)
@@ -1185,20 +1377,6 @@ static inline FILE *lauxh_tofile(lua_State *L, int fd, const char *mode,
     *lfp = fp;
 
     return fp;
-}
-
-/* flag arguments */
-
-static inline lua_Integer lauxh_optflags(lua_State *L, int idx)
-{
-    const int argc  = lua_gettop(L);
-    lua_Integer flg = 0;
-
-    for (; idx <= argc; idx++) {
-        flg |= lauxh_optint(L, idx, 0);
-    }
-
-    return flg;
 }
 
 /* traceback */

@@ -821,7 +821,7 @@ static int test_tolstring(lua_State *L)
     return 0;
 }
 
-LUALIB_API int luaopen_lauxhlib(lua_State *L)
+LUALIB_API int luaopen_lauxhlib_unittest(lua_State *L)
 {
     struct luaL_Reg method[] = {
         {"test_is",        test_is       },
