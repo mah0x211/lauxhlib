@@ -358,12 +358,6 @@ static inline int lauxh_isstr(lua_State *L, int idx)
 }
 #define lauxh_isstring(L, idx) lauxh_isstr((L), (idx))
 
-static inline int lauxh_isnum(lua_State *L, int idx)
-{
-    return lua_type(L, idx) == LUA_TNUMBER;
-}
-#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
-
 static inline int lauxh_isbool(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TBOOLEAN;
@@ -400,6 +394,22 @@ static inline int lauxh_isuserdata(lua_State *L, int idx)
 static inline int lauxh_ispointer(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
+}
+
+static inline int lauxh_isnum(lua_State *L, int idx)
+{
+    return lua_type(L, idx) == LUA_TNUMBER;
+}
+#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
+
+static inline int lauxh_isnum_in_range(lua_State *L, int idx, lua_Number min,
+                                       lua_Number max)
+{
+    if (lauxh_isnum(L, idx)) {
+        lua_Number v = lua_tonumber(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
 }
 
 static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
