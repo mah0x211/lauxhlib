@@ -396,6 +396,26 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 }
 
+static inline int lauxh_isfile(lua_State *L, int idx)
+{
+    return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
+}
+
+static inline int lauxh_iscallable(lua_State *L, int idx)
+{
+    int t = LUA_TNIL;
+
+    if (lauxh_isfunc(L, idx)) {
+        return 1;
+    } else if (lua_getmetatable(L, idx)) {
+        lua_pushliteral(L, "__call");
+        lua_rawget(L, -2);
+        t = lua_type(L, -1);
+        lua_pop(L, 2);
+    }
+    return t == LUA_TFUNCTION;
+}
+
 static inline int lauxh_isnum(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TNUMBER;
@@ -519,25 +539,10 @@ static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
     return 0;
 }
 
-static inline int lauxh_isfile(lua_State *L, int idx)
-{
-    return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
-}
-
-static inline int lauxh_iscallable(lua_State *L, int idx)
-{
-    int t = LUA_TNIL;
-
-    if (lauxh_isfunc(L, idx)) {
-        return 1;
-    } else if (lua_getmetatable(L, idx)) {
-        lua_pushliteral(L, "__call");
-        lua_rawget(L, -2);
-        t = lua_type(L, -1);
-        lua_pop(L, 2);
-    }
-    return t == LUA_TFUNCTION;
-}
+#define lauxh_ispint8(L, idx)  lauxh_ispint_in_range((L), (idx), 0, UINT8_MAX)
+#define lauxh_ispint16(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT16_MAX)
+#define lauxh_ispint32(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT32_MAX)
+#define lauxh_ispint64(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT64_MAX)
 
 /* check argument */
 #if defined(LAUXHLIB_USED_IN_LUA)
