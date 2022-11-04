@@ -45,6 +45,26 @@ static int file_lua(lua_State *L)
     RET_BOOLEAN(lauxh_isfile);
 }
 
+static int pint64_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_ispint64);
+}
+
+static int pint32_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_ispint32);
+}
+
+static int pint16_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_ispint16);
+}
+
+static int pint8_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_ispint8);
+}
+
 static int uint64_lua(lua_State *L)
 {
     RET_BOOLEAN(lauxh_isuint64);
@@ -188,6 +208,10 @@ LUALIB_API int luaopen_lauxhlib_is(lua_State *L)
         {"uint16",   uint16_lua  },
         {"uint32",   uint32_lua  },
         {"uint64",   uint64_lua  },
+        {"pint8",    pint8_lua   },
+        {"pint16",   pint16_lua  },
+        {"pint32",   pint32_lua  },
+        {"pint64",   pint64_lua  },
         {"file",     file_lua    },
         {"callable", callable_lua},
         {NULL,       NULL        }

@@ -435,6 +435,27 @@ function testcase.is_uint8()
     end
 end
 
+function testcase.is_pint8()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFF,
+    }) do
+        assert.is_true(is.pint8(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x100,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint8(v))
+    end
+end
+
 function testcase.is_int16()
     -- test that return true
     for _, v in ipairs({
@@ -473,6 +494,27 @@ function testcase.is_uint16()
         NAN,
     }) do
         assert.is_false(is.uint16(v))
+    end
+end
+
+function testcase.is_pint16()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFFFF,
+    }) do
+        assert.is_true(is.pint16(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x10000,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint16(v))
     end
 end
 
@@ -517,6 +559,27 @@ function testcase.is_uint32()
     end
 end
 
+function testcase.is_pint32()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFFFFFFFF,
+    }) do
+        assert.is_true(is.pint32(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x1FFFFFFFF,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint32(v))
+    end
+end
+
 function testcase.is_int64()
     -- test that return true
     for _, v in ipairs({
@@ -552,6 +615,26 @@ function testcase.is_uint64()
         NAN,
     }) do
         assert.is_false(is.uint64(v))
+    end
+end
+
+function testcase.is_pint64()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0x7FFFFFFFFFFFFC00,
+    }) do
+        assert.is_true(is.pint64(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint64(v))
     end
 end
 
