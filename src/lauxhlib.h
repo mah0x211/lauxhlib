@@ -410,6 +410,16 @@ static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
     return 0;
 }
 
+static inline int lauxh_isfinite_in_range(lua_State *L, int idx, lua_Number min,
+                                          lua_Number max)
+{
+    if (lauxh_isfinite(L, idx)) {
+        lua_Number v = lua_tonumber(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
 static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
 {
     if (lauxh_isnum(L, idx)) {
