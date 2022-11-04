@@ -459,14 +459,6 @@ static inline int lauxh_isint(lua_State *L, int idx)
 }
 #define lauxh_isinteger(L, idx) lauxh_isint((L), (idx))
 
-static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
-{
-    if (lauxh_isint(L, idx)) {
-        return lua_tointeger(L, idx) > 0;
-    }
-    return 0;
-}
-
 static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
                                        int64_t max)
 {
@@ -508,6 +500,24 @@ static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
 #define lauxh_isuint16(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT16_MAX)
 #define lauxh_isuint32(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT32_MAX)
 #define lauxh_isuint64(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT64_MAX)
+
+static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
+{
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) > 0;
+    }
+    return 0;
+}
+
+static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
+                                        uint64_t max)
+{
+    if (lauxh_ispint(L, idx)) {
+        uint64_t v = (uint64_t)lua_tointeger(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
 
 static inline int lauxh_isfile(lua_State *L, int idx)
 {
