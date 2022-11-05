@@ -29,21 +29,11 @@
 #define LAUXHLIB_USED_IN_LUA
 #include "lauxhlib.h"
 
-#define RET_BOOLEAN(fn)                                                        \
+#define RET_BOOLEAN(fn, ...)                                                   \
  do {                                                                          \
-  lua_pushboolean(L, fn(L, 1));                                                \
+  lua_pushboolean(L, fn(L, 1, ##__VA_ARGS__));                                 \
   return 1;                                                                    \
  } while (0)
-
-static int callable_lua(lua_State *L)
-{
-    RET_BOOLEAN(lauxh_iscallable);
-}
-
-static int file_lua(lua_State *L)
-{
-    RET_BOOLEAN(lauxh_isfile);
-}
 
 static int pint64_lua(lua_State *L)
 {
@@ -130,6 +120,33 @@ static int finite_lua(lua_State *L)
     RET_BOOLEAN(lauxh_isfinite);
 }
 
+static int num_lua(lua_State *L)
+{
+    if (lua_isnoneornil(L, 2)) {
+        if (lua_isnoneornil(L, 3)) {
+            RET_BOOLEAN(lauxh_isnum);
+        }
+        lua_Number max = lauxh_checknum(L, 3);
+        RET_BOOLEAN(lauxh_isnum_le, max);
+    } else if (lua_isnoneornil(L, 3)) {
+        lua_Number min = lauxh_checknum(L, 2);
+        RET_BOOLEAN(lauxh_isnum_ge, min);
+    }
+    lua_Number min = lauxh_checknum(L, 2);
+    lua_Number max = lauxh_checknum(L, 3);
+    RET_BOOLEAN(lauxh_isnum_in_range, min, max);
+}
+
+static int callable_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_iscallable);
+}
+
+static int file_lua(lua_State *L)
+{
+    RET_BOOLEAN(lauxh_isfile);
+}
+
 static int thread_lua(lua_State *L)
 {
     RET_BOOLEAN(lauxh_isthread);
@@ -160,11 +177,6 @@ static int str_lua(lua_State *L)
     RET_BOOLEAN(lauxh_isstr);
 }
 
-static int num_lua(lua_State *L)
-{
-    RET_BOOLEAN(lauxh_isnum);
-}
-
 static int pointer_lua(lua_State *L)
 {
     RET_BOOLEAN(lauxh_ispointer);
@@ -188,13 +200,15 @@ LUALIB_API int luaopen_lauxhlib_is(lua_State *L)
         {"none",     none_lua    },
         {"bool",     bool_lua    },
         {"pointer",  pointer_lua },
-        {"num",      num_lua     },
         {"str",      str_lua     },
         {"table",    table_lua   },
         {"func",     func_lua    },
         {"cfunc",    cfunc_lua   },
         {"userdata", userdata_lua},
         {"thread",   thread_lua  },
+        {"file",     file_lua    },
+        {"callable", callable_lua},
+        {"num",      num_lua     },
         {"unsigned", unsigned_lua},
         {"finite",   finite_lua  },
         {"int",      int_lua     },
@@ -212,8 +226,6 @@ LUALIB_API int luaopen_lauxhlib_is(lua_State *L)
         {"pint16",   pint16_lua  },
         {"pint32",   pint32_lua  },
         {"pint64",   pint64_lua  },
-        {"file",     file_lua    },
-        {"callable", callable_lua},
         {NULL,       NULL        }
     };
 

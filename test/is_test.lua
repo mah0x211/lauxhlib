@@ -95,31 +95,6 @@ function testcase.is_pointer()
     -- TODO
 end
 
-function testcase.is_num()
-    -- test that return true
-    assert.is_true(is.num(-INT))
-    assert.is_true(is.num(-FLOAT))
-    assert.is_true(is.num(ZERO))
-    assert.is_true(is.num(INT))
-    assert.is_true(is.num(FLOAT))
-    assert.is_true(is.num(INF))
-    assert.is_true(is.num(NAN))
-
-    -- test that return false
-    for _, v in ipairs({
-        true,
-        false,
-        FILE,
-        STR,
-        TBL,
-        FUNC,
-        CFUNC,
-        THREAD,
-    }) do
-        assert.is_false(is.num(v))
-    end
-end
-
 function testcase.is_str()
     -- test that return true
     assert.is_true(is.str(STR))
@@ -267,6 +242,103 @@ function testcase.is_thread()
         CFUNC,
     }) do
         assert.is_false(is.thread(v))
+    end
+end
+
+function testcase.is_file()
+    -- test that return true
+    assert.is_true(is.file(FILE))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        -FLOAT,
+        -INT,
+        ZERO,
+        INT,
+        FLOAT,
+        INF,
+        NAN,
+        STR,
+        TBL,
+        FUNC,
+        CFUNC,
+        THREAD,
+    }) do
+        assert.is_false(is.file(v))
+    end
+end
+
+function testcase.is_callable()
+    -- test that return true
+    assert.is_true(is.callable(FUNC))
+    assert.is_true(is.callable(CFUNC))
+    assert.is_true(is.callable(setmetatable({}, {
+        __metatable = 1,
+        __call = FUNC,
+    })))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        -FLOAT,
+        -INT,
+        ZERO,
+        INT,
+        FLOAT,
+        INF,
+        NAN,
+        STR,
+        TBL,
+        THREAD,
+        setmetatable({}, {
+            __call = INT,
+        }),
+    }) do
+        assert.is_false(is.callable(v))
+    end
+end
+
+function testcase.is_num()
+    -- test that return true
+    assert.is_true(is.num(-INT))
+    assert.is_true(is.num(-FLOAT))
+    assert.is_true(is.num(ZERO))
+    assert.is_true(is.num(INT))
+    assert.is_true(is.num(FLOAT))
+    assert.is_true(is.num(INF))
+    assert.is_true(is.num(NAN))
+
+    -- test that with the min argument
+    assert.is_true(is.num(123.456, 123.456))
+    assert.is_false(is.num(123.456, 123.457))
+    assert.is_false(is.num(NAN, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.num(123.456, nil, 123.456))
+    assert.is_false(is.num(123.456, nil, 123.455))
+    assert.is_false(is.num(NAN, nil, 123.456))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.num(123.456, 123.3, 123.5))
+    assert.is_false(is.num(123.456, 123.5, 123.5))
+    assert.is_false(is.num(123.456, 123.3, 123.4))
+    assert.is_false(is.num(NAN, 123.3, 123.5))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        FILE,
+        STR,
+        TBL,
+        FUNC,
+        CFUNC,
+        THREAD,
+    }) do
+        assert.is_false(is.num(v))
     end
 end
 
@@ -635,62 +707,6 @@ function testcase.is_pint64()
         NAN,
     }) do
         assert.is_false(is.pint64(v))
-    end
-end
-
-function testcase.is_file()
-    -- test that return true
-    assert.is_true(is.file(FILE))
-
-    -- test that return false
-    for _, v in ipairs({
-        true,
-        false,
-        -FLOAT,
-        -INT,
-        ZERO,
-        INT,
-        FLOAT,
-        INF,
-        NAN,
-        STR,
-        TBL,
-        FUNC,
-        CFUNC,
-        THREAD,
-    }) do
-        assert.is_false(is.file(v))
-    end
-end
-
-function testcase.is_callable()
-    -- test that return true
-    assert.is_true(is.callable(FUNC))
-    assert.is_true(is.callable(CFUNC))
-    assert.is_true(is.callable(setmetatable({}, {
-        __metatable = 1,
-        __call = FUNC,
-    })))
-
-    -- test that return false
-    for _, v in ipairs({
-        true,
-        false,
-        -FLOAT,
-        -INT,
-        ZERO,
-        INT,
-        FLOAT,
-        INF,
-        NAN,
-        STR,
-        TBL,
-        THREAD,
-        setmetatable({}, {
-            __call = INT,
-        }),
-    }) do
-        assert.is_false(is.callable(v))
     end
 end
 

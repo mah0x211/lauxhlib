@@ -422,6 +422,22 @@ static inline int lauxh_isnum(lua_State *L, int idx)
 }
 #define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
 
+static inline int lauxh_isnum_ge(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isnum(L, idx)) {
+        return lua_tonumber(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isnum_le(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isnum(L, idx)) {
+        return lua_tonumber(L, idx) <= n;
+    }
+    return 0;
+}
+
 static inline int lauxh_isnum_in_range(lua_State *L, int idx, lua_Number min,
                                        lua_Number max)
 {
