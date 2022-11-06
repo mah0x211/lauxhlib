@@ -350,6 +350,19 @@ function testcase.is_finite()
     assert.is_true(is.finite(INT))
     assert.is_true(is.finite(FLOAT))
 
+    -- test that with the min argument
+    assert.is_true(is.finite(123.456, 123.456))
+    assert.is_false(is.finite(123.456, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.finite(123.456, nil, 123.456))
+    assert.is_false(is.finite(123.456, nil, 123.455))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.finite(123.456, 123.3, 123.5))
+    assert.is_false(is.finite(123.456, 123.5, 123.5))
+    assert.is_false(is.finite(123.456, 123.3, 123.4))
+
     -- test that return false
     for _, v in ipairs({
         true,
