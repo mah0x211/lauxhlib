@@ -423,6 +423,19 @@ function testcase.is_int()
     assert.is_true(is.int(ZERO))
     assert.is_true(is.int(INT))
 
+    -- test that with the min argument
+    assert.is_true(is.int(123456, 123456))
+    assert.is_false(is.int(123456, 123457))
+
+    -- test that with the max argument
+    assert.is_true(is.int(123456, nil, 123456))
+    assert.is_false(is.int(123456, nil, 123455))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.int(1234, 1233, 1235))
+    assert.is_false(is.int(1234, 1235, 1235))
+    assert.is_false(is.int(1234, 1232, 1233))
+
     -- test that return false
     for _, v in ipairs({
         true,

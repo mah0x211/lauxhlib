@@ -105,60 +105,41 @@ static int uint_lua(lua_State *L)
     RET_BOOLEAN(lauxh_isuint);
 }
 
+#define is_numtypeof(L, numtype, typename)                                     \
+ do {                                                                          \
+  if (lua_isnoneornil(L, 2)) {                                                 \
+   if (lua_isnoneornil(L, 3)) {                                                \
+    RET_BOOLEAN(lauxh_is##typename);                                           \
+   }                                                                           \
+   numtype max = lauxh_check##typename(L, 3);                                  \
+   RET_BOOLEAN(lauxh_is##typename##_le, max);                                  \
+  } else if (lua_isnoneornil(L, 3)) {                                          \
+   numtype min = lauxh_check##typename(L, 2);                                  \
+   RET_BOOLEAN(lauxh_is##typename##_ge, min);                                  \
+  }                                                                            \
+  numtype min = lauxh_check##typename(L, 2);                                   \
+  numtype max = lauxh_check##typename(L, 3);                                   \
+  RET_BOOLEAN(lauxh_is##typename##_in_range, min, max);                        \
+ } while (0)
+
 static int int_lua(lua_State *L)
 {
-    RET_BOOLEAN(lauxh_isint);
+    is_numtypeof(L, lua_Integer, int);
 }
 
 static int unsigned_lua(lua_State *L)
 {
-    if (lua_isnoneornil(L, 2)) {
-        if (lua_isnoneornil(L, 3)) {
-            RET_BOOLEAN(lauxh_isunsigned);
-        }
-        lua_Number max = lauxh_checkunsigned(L, 3);
-        RET_BOOLEAN(lauxh_isunsigned_le, max);
-    } else if (lua_isnoneornil(L, 3)) {
-        lua_Number min = lauxh_checkunsigned(L, 2);
-        RET_BOOLEAN(lauxh_isunsigned_ge, min);
-    }
-    lua_Number min = lauxh_checkunsigned(L, 2);
-    lua_Number max = lauxh_checkunsigned(L, 3);
-    RET_BOOLEAN(lauxh_isunsigned_in_range, min, max);
+    is_numtypeof(L, lua_Number, unsigned);
 }
 
 static int finite_lua(lua_State *L)
 {
-    if (lua_isnoneornil(L, 2)) {
-        if (lua_isnoneornil(L, 3)) {
-            RET_BOOLEAN(lauxh_isfinite);
-        }
-        lua_Number max = lauxh_checkfinite(L, 3);
-        RET_BOOLEAN(lauxh_isfinite_le, max);
-    } else if (lua_isnoneornil(L, 3)) {
-        lua_Number min = lauxh_checkfinite(L, 2);
-        RET_BOOLEAN(lauxh_isfinite_ge, min);
-    }
-    lua_Number min = lauxh_checkfinite(L, 2);
-    lua_Number max = lauxh_checkfinite(L, 3);
-    RET_BOOLEAN(lauxh_isfinite_in_range, min, max);
+    is_numtypeof(L, lua_Number, finite);
 }
 
 static int num_lua(lua_State *L)
 {
-    if (lua_isnoneornil(L, 2)) {
-        if (lua_isnoneornil(L, 3)) {
-            RET_BOOLEAN(lauxh_isnum);
-        }
-        lua_Number max = lauxh_checknum(L, 3);
-        RET_BOOLEAN(lauxh_isnum_le, max);
-    } else if (lua_isnoneornil(L, 3)) {
-        lua_Number min = lauxh_checknum(L, 2);
-        RET_BOOLEAN(lauxh_isnum_ge, min);
-    }
-    lua_Number min = lauxh_checknum(L, 2);
-    lua_Number max = lauxh_checknum(L, 3);
-    RET_BOOLEAN(lauxh_isnum_in_range, min, max);
+    is_numtypeof(L, lua_Number, num);
 }
 
 static int callable_lua(lua_State *L)

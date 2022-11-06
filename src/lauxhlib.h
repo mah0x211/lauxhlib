@@ -527,6 +527,22 @@ static inline int lauxh_isint(lua_State *L, int idx)
 }
 #define lauxh_isinteger(L, idx) lauxh_isint((L), (idx))
 
+static inline int lauxh_isint_ge(lua_State *L, int idx, lua_Integer n)
+{
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isint_le(lua_State *L, int idx, lua_Integer n)
+{
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) <= n;
+    }
+    return 0;
+}
+
 static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
                                        int64_t max)
 {
