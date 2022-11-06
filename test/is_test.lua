@@ -495,6 +495,18 @@ function testcase.is_pint()
     -- test that return true
     assert.is_true(is.pint(INT))
 
+    -- test that with the min argument
+    assert.is_true(is.pint(2, 2))
+    assert.is_false(is.pint(2, 3))
+
+    -- test that with the max argument
+    assert.is_true(is.pint(2, nil, 2))
+    assert.is_false(is.pint(2, nil, 1))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.pint(2, 1, 3))
+    assert.is_false(is.pint(2, 1, 1))
+
     -- test that return false
     for _, v in ipairs({
         true,
