@@ -386,6 +386,19 @@ function testcase.is_unsigned()
     assert.is_true(is.unsigned(ZERO))
     assert.is_true(is.unsigned(INT))
 
+    -- test that with the min argument
+    assert.is_true(is.unsigned(123.456, 123.456))
+    assert.is_false(is.unsigned(123.456, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.unsigned(123.456, nil, 123.456))
+    assert.is_false(is.unsigned(123.456, nil, 123.455))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.unsigned(123.456, 123.3, 123.5))
+    assert.is_false(is.unsigned(123.456, 123.5, 123.5))
+    assert.is_false(is.unsigned(123.456, 123.3, 123.4))
+
     -- test that return false
     for _, v in ipairs({
         true,

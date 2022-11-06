@@ -112,7 +112,19 @@ static int int_lua(lua_State *L)
 
 static int unsigned_lua(lua_State *L)
 {
-    RET_BOOLEAN(lauxh_isunsigned);
+    if (lua_isnoneornil(L, 2)) {
+        if (lua_isnoneornil(L, 3)) {
+            RET_BOOLEAN(lauxh_isunsigned);
+        }
+        lua_Number max = lauxh_checkunsigned(L, 3);
+        RET_BOOLEAN(lauxh_isunsigned_le, max);
+    } else if (lua_isnoneornil(L, 3)) {
+        lua_Number min = lauxh_checkunsigned(L, 2);
+        RET_BOOLEAN(lauxh_isunsigned_ge, min);
+    }
+    lua_Number min = lauxh_checkunsigned(L, 2);
+    lua_Number max = lauxh_checkunsigned(L, 3);
+    RET_BOOLEAN(lauxh_isunsigned_in_range, min, max);
 }
 
 static int finite_lua(lua_State *L)
