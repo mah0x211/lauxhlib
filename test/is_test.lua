@@ -424,17 +424,16 @@ function testcase.is_int()
     assert.is_true(is.int(INT))
 
     -- test that with the min argument
-    assert.is_true(is.int(123456, 123456))
-    assert.is_false(is.int(123456, 123457))
+    assert.is_true(is.int(2, 2))
+    assert.is_false(is.int(2, 3))
 
     -- test that with the max argument
-    assert.is_true(is.int(123456, nil, 123456))
-    assert.is_false(is.int(123456, nil, 123455))
+    assert.is_true(is.int(2, nil, 2))
+    assert.is_false(is.int(2, nil, 1))
 
     -- test that with the min and max arguments
-    assert.is_true(is.int(1234, 1233, 1235))
-    assert.is_false(is.int(1234, 1235, 1235))
-    assert.is_false(is.int(1234, 1232, 1233))
+    assert.is_true(is.int(2, -1, 3))
+    assert.is_false(is.int(2, -1, 1))
 
     -- test that return false
     for _, v in ipairs({
@@ -459,6 +458,18 @@ function testcase.is_uint()
     -- test that return true
     assert.is_true(is.uint(ZERO))
     assert.is_true(is.uint(INT))
+
+    -- test that with the min argument
+    assert.is_true(is.uint(2, 2))
+    assert.is_false(is.uint(2, 3))
+
+    -- test that with the max argument
+    assert.is_true(is.uint(2, nil, 2))
+    assert.is_false(is.uint(2, nil, 1))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.uint(2, 1, 3))
+    assert.is_false(is.uint(2, 1, 1))
 
     -- test that return false
     for _, v in ipairs({

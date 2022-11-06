@@ -570,6 +570,22 @@ static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
     return 0;
 }
 
+static inline int lauxh_isuint_ge(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_isuint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isuint_le(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_isuint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) <= n;
+    }
+    return 0;
+}
+
 static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
                                         uint64_t max)
 {

@@ -100,11 +100,6 @@ static int pint_lua(lua_State *L)
     RET_BOOLEAN(lauxh_ispint);
 }
 
-static int uint_lua(lua_State *L)
-{
-    RET_BOOLEAN(lauxh_isuint);
-}
-
 #define is_numtypeof(L, numtype, typename)                                     \
  do {                                                                          \
   if (lua_isnoneornil(L, 2)) {                                                 \
@@ -121,6 +116,11 @@ static int uint_lua(lua_State *L)
   numtype max = lauxh_check##typename(L, 3);                                   \
   RET_BOOLEAN(lauxh_is##typename##_in_range, min, max);                        \
  } while (0)
+
+static int uint_lua(lua_State *L)
+{
+    is_numtypeof(L, uint64_t, uint);
+}
 
 static int int_lua(lua_State *L)
 {
