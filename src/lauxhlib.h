@@ -358,12 +358,6 @@ static inline int lauxh_isstr(lua_State *L, int idx)
 }
 #define lauxh_isstring(L, idx) lauxh_isstr((L), (idx))
 
-static inline int lauxh_isnum(lua_State *L, int idx)
-{
-    return lua_type(L, idx) == LUA_TNUMBER;
-}
-#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
-
 static inline int lauxh_isbool(lua_State *L, int idx)
 {
     return lua_type(L, idx) == LUA_TBOOLEAN;
@@ -402,6 +396,58 @@ static inline int lauxh_ispointer(lua_State *L, int idx)
     return lua_type(L, idx) == LUA_TLIGHTUSERDATA;
 }
 
+static inline int lauxh_isfile(lua_State *L, int idx)
+{
+    return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
+}
+
+static inline int lauxh_iscallable(lua_State *L, int idx)
+{
+    int t = LUA_TNIL;
+
+    if (lauxh_isfunc(L, idx)) {
+        return 1;
+    } else if (lua_getmetatable(L, idx)) {
+        lua_pushliteral(L, "__call");
+        lua_rawget(L, -2);
+        t = lua_type(L, -1);
+        lua_pop(L, 2);
+    }
+    return t == LUA_TFUNCTION;
+}
+
+static inline int lauxh_isnum(lua_State *L, int idx)
+{
+    return lua_type(L, idx) == LUA_TNUMBER;
+}
+#define lauxh_isnumber(L, idx) lauxh_isnum((L), idx)
+
+static inline int lauxh_isnum_ge(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isnum(L, idx)) {
+        return lua_tonumber(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isnum_le(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isnum(L, idx)) {
+        return lua_tonumber(L, idx) <= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isnum_in_range(lua_State *L, int idx, lua_Number min,
+                                       lua_Number max)
+{
+    if (lauxh_isnum(L, idx)) {
+        lua_Number v = lua_tonumber(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
 static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
 {
     if (lauxh_isnum(L, idx)) {
@@ -410,10 +456,62 @@ static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
     return 0;
 }
 
+static inline int lauxh_isfinite_ge(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isfinite(L, idx)) {
+        return lua_tonumber(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isfinite_le(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isfinite(L, idx)) {
+        return lua_tonumber(L, idx) <= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isfinite_in_range(lua_State *L, int idx, lua_Number min,
+                                          lua_Number max)
+{
+    if (lauxh_isfinite(L, idx)) {
+        lua_Number v = lua_tonumber(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
 static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
 {
     if (lauxh_isnum(L, idx)) {
         return lua_tonumber(L, idx) >= 0;
+    }
+    return 0;
+}
+
+static inline int lauxh_isunsigned_ge(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isunsigned(L, idx)) {
+        return lua_tonumber(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isunsigned_le(lua_State *L, int idx, lua_Number n)
+{
+    if (lauxh_isunsigned(L, idx)) {
+        return lua_tonumber(L, idx) <= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isunsigned_in_range(lua_State *L, int idx,
+                                            lua_Number min, lua_Number max)
+{
+    if (lauxh_isunsigned(L, idx)) {
+        lua_Number v = lua_tonumber(L, idx);
+        return v >= min && v <= max;
     }
     return 0;
 }
@@ -429,18 +527,18 @@ static inline int lauxh_isint(lua_State *L, int idx)
 }
 #define lauxh_isinteger(L, idx) lauxh_isint((L), (idx))
 
-static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
+static inline int lauxh_isint_ge(lua_State *L, int idx, lua_Integer n)
 {
     if (lauxh_isint(L, idx)) {
-        return lua_tointeger(L, idx) >= 0;
+        return lua_tointeger(L, idx) >= n;
     }
     return 0;
 }
 
-static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
+static inline int lauxh_isint_le(lua_State *L, int idx, lua_Integer n)
 {
     if (lauxh_isint(L, idx)) {
-        return lua_tointeger(L, idx) > 0;
+        return lua_tointeger(L, idx) <= n;
     }
     return 0;
 }
@@ -464,12 +562,35 @@ static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
 #define lauxh_isint64(L, idx)                                                  \
  lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
 
+static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
+{
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) >= 0;
+    }
+    return 0;
+}
+
+static inline int lauxh_isuint_ge(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_isuint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_isuint_le(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_isuint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) <= n;
+    }
+    return 0;
+}
+
 static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
                                         uint64_t max)
 {
-    lua_Integer lv = 0;
-    if (lauxh_isint(L, idx) && (lv = lua_tointeger(L, idx)) >= 0) {
-        uint64_t v = (uint64_t)lv;
+    if (lauxh_isuint(L, idx)) {
+        uint64_t v = (uint64_t)lua_tointeger(L, idx);
         return v >= min && v <= max;
     }
     return 0;
@@ -480,25 +601,44 @@ static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
 #define lauxh_isuint32(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT32_MAX)
 #define lauxh_isuint64(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT64_MAX)
 
-static inline int lauxh_isfile(lua_State *L, int idx)
+static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
 {
-    return lauxh_ismetatableof(L, idx, LUA_FILEHANDLE);
-}
-
-static inline int lauxh_iscallable(lua_State *L, int idx)
-{
-    int t = LUA_TNIL;
-
-    if (lauxh_isfunc(L, idx)) {
-        return 1;
-    } else if (lua_getmetatable(L, idx)) {
-        lua_pushliteral(L, "__call");
-        lua_rawget(L, -2);
-        t = lua_type(L, -1);
-        lua_pop(L, 2);
+    if (lauxh_isint(L, idx)) {
+        return lua_tointeger(L, idx) > 0;
     }
-    return t == LUA_TFUNCTION;
+    return 0;
 }
+
+static inline int lauxh_ispint_ge(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_ispint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) >= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_ispint_le(lua_State *L, int idx, uint64_t n)
+{
+    if (lauxh_ispint(L, idx)) {
+        return (uint64_t)lua_tointeger(L, idx) <= n;
+    }
+    return 0;
+}
+
+static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
+                                        uint64_t max)
+{
+    if (lauxh_ispint(L, idx)) {
+        uint64_t v = (uint64_t)lua_tointeger(L, idx);
+        return v >= min && v <= max;
+    }
+    return 0;
+}
+
+#define lauxh_ispint8(L, idx)  lauxh_ispint_in_range((L), (idx), 0, UINT8_MAX)
+#define lauxh_ispint16(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT16_MAX)
+#define lauxh_ispint32(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT32_MAX)
+#define lauxh_ispint64(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT64_MAX)
 
 /* check argument */
 #if defined(LAUXHLIB_USED_IN_LUA)

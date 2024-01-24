@@ -95,31 +95,6 @@ function testcase.is_pointer()
     -- TODO
 end
 
-function testcase.is_num()
-    -- test that return true
-    assert.is_true(is.num(-INT))
-    assert.is_true(is.num(-FLOAT))
-    assert.is_true(is.num(ZERO))
-    assert.is_true(is.num(INT))
-    assert.is_true(is.num(FLOAT))
-    assert.is_true(is.num(INF))
-    assert.is_true(is.num(NAN))
-
-    -- test that return false
-    for _, v in ipairs({
-        true,
-        false,
-        FILE,
-        STR,
-        TBL,
-        FUNC,
-        CFUNC,
-        THREAD,
-    }) do
-        assert.is_false(is.num(v))
-    end
-end
-
 function testcase.is_str()
     -- test that return true
     assert.is_true(is.str(STR))
@@ -270,6 +245,103 @@ function testcase.is_thread()
     end
 end
 
+function testcase.is_file()
+    -- test that return true
+    assert.is_true(is.file(FILE))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        -FLOAT,
+        -INT,
+        ZERO,
+        INT,
+        FLOAT,
+        INF,
+        NAN,
+        STR,
+        TBL,
+        FUNC,
+        CFUNC,
+        THREAD,
+    }) do
+        assert.is_false(is.file(v))
+    end
+end
+
+function testcase.is_callable()
+    -- test that return true
+    assert.is_true(is.callable(FUNC))
+    assert.is_true(is.callable(CFUNC))
+    assert.is_true(is.callable(setmetatable({}, {
+        __metatable = 1,
+        __call = FUNC,
+    })))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        -FLOAT,
+        -INT,
+        ZERO,
+        INT,
+        FLOAT,
+        INF,
+        NAN,
+        STR,
+        TBL,
+        THREAD,
+        setmetatable({}, {
+            __call = INT,
+        }),
+    }) do
+        assert.is_false(is.callable(v))
+    end
+end
+
+function testcase.is_num()
+    -- test that return true
+    assert.is_true(is.num(-INT))
+    assert.is_true(is.num(-FLOAT))
+    assert.is_true(is.num(ZERO))
+    assert.is_true(is.num(INT))
+    assert.is_true(is.num(FLOAT))
+    assert.is_true(is.num(INF))
+    assert.is_true(is.num(NAN))
+
+    -- test that with the min argument
+    assert.is_true(is.num(123.456, 123.456))
+    assert.is_false(is.num(123.456, 123.457))
+    assert.is_false(is.num(NAN, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.num(123.456, nil, 123.456))
+    assert.is_false(is.num(123.456, nil, 123.455))
+    assert.is_false(is.num(NAN, nil, 123.456))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.num(123.456, 123.3, 123.5))
+    assert.is_false(is.num(123.456, 123.5, 123.5))
+    assert.is_false(is.num(123.456, 123.3, 123.4))
+    assert.is_false(is.num(NAN, 123.3, 123.5))
+
+    -- test that return false
+    for _, v in ipairs({
+        true,
+        false,
+        FILE,
+        STR,
+        TBL,
+        FUNC,
+        CFUNC,
+        THREAD,
+    }) do
+        assert.is_false(is.num(v))
+    end
+end
+
 function testcase.is_finite()
     -- test that return true
     assert.is_true(is.finite(-FLOAT))
@@ -277,6 +349,19 @@ function testcase.is_finite()
     assert.is_true(is.finite(ZERO))
     assert.is_true(is.finite(INT))
     assert.is_true(is.finite(FLOAT))
+
+    -- test that with the min argument
+    assert.is_true(is.finite(123.456, 123.456))
+    assert.is_false(is.finite(123.456, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.finite(123.456, nil, 123.456))
+    assert.is_false(is.finite(123.456, nil, 123.455))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.finite(123.456, 123.3, 123.5))
+    assert.is_false(is.finite(123.456, 123.5, 123.5))
+    assert.is_false(is.finite(123.456, 123.3, 123.4))
 
     -- test that return false
     for _, v in ipairs({
@@ -300,6 +385,19 @@ function testcase.is_unsigned()
     -- test that return true
     assert.is_true(is.unsigned(ZERO))
     assert.is_true(is.unsigned(INT))
+
+    -- test that with the min argument
+    assert.is_true(is.unsigned(123.456, 123.456))
+    assert.is_false(is.unsigned(123.456, 123.457))
+
+    -- test that with the max argument
+    assert.is_true(is.unsigned(123.456, nil, 123.456))
+    assert.is_false(is.unsigned(123.456, nil, 123.455))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.unsigned(123.456, 123.3, 123.5))
+    assert.is_false(is.unsigned(123.456, 123.5, 123.5))
+    assert.is_false(is.unsigned(123.456, 123.3, 123.4))
 
     -- test that return false
     for _, v in ipairs({
@@ -325,6 +423,18 @@ function testcase.is_int()
     assert.is_true(is.int(ZERO))
     assert.is_true(is.int(INT))
 
+    -- test that with the min argument
+    assert.is_true(is.int(2, 2))
+    assert.is_false(is.int(2, 3))
+
+    -- test that with the max argument
+    assert.is_true(is.int(2, nil, 2))
+    assert.is_false(is.int(2, nil, 1))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.int(2, -1, 3))
+    assert.is_false(is.int(2, -1, 1))
+
     -- test that return false
     for _, v in ipairs({
         true,
@@ -349,6 +459,18 @@ function testcase.is_uint()
     assert.is_true(is.uint(ZERO))
     assert.is_true(is.uint(INT))
 
+    -- test that with the min argument
+    assert.is_true(is.uint(2, 2))
+    assert.is_false(is.uint(2, 3))
+
+    -- test that with the max argument
+    assert.is_true(is.uint(2, nil, 2))
+    assert.is_false(is.uint(2, nil, 1))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.uint(2, 1, 3))
+    assert.is_false(is.uint(2, 1, 1))
+
     -- test that return false
     for _, v in ipairs({
         true,
@@ -372,6 +494,18 @@ end
 function testcase.is_pint()
     -- test that return true
     assert.is_true(is.pint(INT))
+
+    -- test that with the min argument
+    assert.is_true(is.pint(2, 2))
+    assert.is_false(is.pint(2, 3))
+
+    -- test that with the max argument
+    assert.is_true(is.pint(2, nil, 2))
+    assert.is_false(is.pint(2, nil, 1))
+
+    -- test that with the min and max arguments
+    assert.is_true(is.pint(2, 1, 3))
+    assert.is_false(is.pint(2, 1, 1))
 
     -- test that return false
     for _, v in ipairs({
@@ -435,6 +569,27 @@ function testcase.is_uint8()
     end
 end
 
+function testcase.is_pint8()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFF,
+    }) do
+        assert.is_true(is.pint8(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x100,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint8(v))
+    end
+end
+
 function testcase.is_int16()
     -- test that return true
     for _, v in ipairs({
@@ -473,6 +628,27 @@ function testcase.is_uint16()
         NAN,
     }) do
         assert.is_false(is.uint16(v))
+    end
+end
+
+function testcase.is_pint16()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFFFF,
+    }) do
+        assert.is_true(is.pint16(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x10000,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint16(v))
     end
 end
 
@@ -517,6 +693,27 @@ function testcase.is_uint32()
     end
 end
 
+function testcase.is_pint32()
+    -- test that return true
+    for _, v in ipairs({
+        1,
+        0xFFFFFFFF,
+    }) do
+        assert.is_true(is.pint32(v))
+    end
+
+    -- test that return false
+    for _, v in ipairs({
+        -1,
+        0,
+        0x1FFFFFFFF,
+        INF,
+        NAN,
+    }) do
+        assert.is_false(is.pint32(v))
+    end
+end
+
 function testcase.is_int64()
     -- test that return true
     for _, v in ipairs({
@@ -555,59 +752,23 @@ function testcase.is_uint64()
     end
 end
 
-function testcase.is_file()
+function testcase.is_pint64()
     -- test that return true
-    assert.is_true(is.file(FILE))
-
-    -- test that return false
     for _, v in ipairs({
-        true,
-        false,
-        -FLOAT,
-        -INT,
-        ZERO,
-        INT,
-        FLOAT,
-        INF,
-        NAN,
-        STR,
-        TBL,
-        FUNC,
-        CFUNC,
-        THREAD,
+        1,
+        0x7FFFFFFFFFFFFC00,
     }) do
-        assert.is_false(is.file(v))
+        assert.is_true(is.pint64(v))
     end
-end
-
-function testcase.is_callable()
-    -- test that return true
-    assert.is_true(is.callable(FUNC))
-    assert.is_true(is.callable(CFUNC))
-    assert.is_true(is.callable(setmetatable({}, {
-        __metatable = 1,
-        __call = FUNC,
-    })))
 
     -- test that return false
     for _, v in ipairs({
-        true,
-        false,
-        -FLOAT,
-        -INT,
-        ZERO,
-        INT,
-        FLOAT,
+        -1,
+        0,
         INF,
         NAN,
-        STR,
-        TBL,
-        THREAD,
-        setmetatable({}, {
-            __call = INT,
-        }),
     }) do
-        assert.is_false(is.callable(v))
+        assert.is_false(is.pint64(v))
     end
 end
 
