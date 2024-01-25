@@ -30,10 +30,10 @@
 #include "lauxhlib.h"
 
 #define RET_BOOLEAN(fn, ...)                                                   \
- do {                                                                          \
-  lua_pushboolean(L, fn(L, 1, ##__VA_ARGS__));                                 \
-  return 1;                                                                    \
- } while (0)
+    do {                                                                       \
+        lua_pushboolean(L, fn(L, 1, ##__VA_ARGS__));                           \
+        return 1;                                                              \
+    } while (0)
 
 static int pint64_lua(lua_State *L)
 {
@@ -96,21 +96,21 @@ static int int8_lua(lua_State *L)
 }
 
 #define is_numtypeof(L, numtype, typename)                                     \
- do {                                                                          \
-  if (lua_isnoneornil(L, 2)) {                                                 \
-   if (lua_isnoneornil(L, 3)) {                                                \
-    RET_BOOLEAN(lauxh_is##typename);                                           \
-   }                                                                           \
-   numtype max = lauxh_check##typename(L, 3);                                  \
-   RET_BOOLEAN(lauxh_is##typename##_le, max);                                  \
-  } else if (lua_isnoneornil(L, 3)) {                                          \
-   numtype min = lauxh_check##typename(L, 2);                                  \
-   RET_BOOLEAN(lauxh_is##typename##_ge, min);                                  \
-  }                                                                            \
-  numtype min = lauxh_check##typename(L, 2);                                   \
-  numtype max = lauxh_check##typename(L, 3);                                   \
-  RET_BOOLEAN(lauxh_is##typename##_in_range, min, max);                        \
- } while (0)
+    do {                                                                       \
+        if (lua_isnoneornil(L, 2)) {                                           \
+            if (lua_isnoneornil(L, 3)) {                                       \
+                RET_BOOLEAN(lauxh_is##typename);                               \
+            }                                                                  \
+            numtype max = lauxh_check##typename(L, 3);                         \
+            RET_BOOLEAN(lauxh_is##typename##_le, max);                         \
+        } else if (lua_isnoneornil(L, 3)) {                                    \
+            numtype min = lauxh_check##typename(L, 2);                         \
+            RET_BOOLEAN(lauxh_is##typename##_ge, min);                         \
+        }                                                                      \
+        numtype min = lauxh_check##typename(L, 2);                             \
+        numtype max = lauxh_check##typename(L, 3);                             \
+        RET_BOOLEAN(lauxh_is##typename##_in_range, min, max);                  \
+    } while (0)
 
 static int pint_lua(lua_State *L)
 {

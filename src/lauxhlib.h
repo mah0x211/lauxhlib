@@ -554,13 +554,13 @@ static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
 }
 
 #define lauxh_isint8(L, idx)                                                   \
- lauxh_isint_in_range((L), (idx), INT8_MIN, INT8_MAX)
+    lauxh_isint_in_range((L), (idx), INT8_MIN, INT8_MAX)
 #define lauxh_isint16(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT16_MIN, INT16_MAX)
+    lauxh_isint_in_range((L), (idx), INT16_MIN, INT16_MAX)
 #define lauxh_isint32(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT32_MIN, INT32_MAX)
+    lauxh_isint_in_range((L), (idx), INT32_MIN, INT32_MAX)
 #define lauxh_isint64(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
+    lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
 
 static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
 {
@@ -644,11 +644,18 @@ static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
 #if defined(LAUXHLIB_USED_IN_LUA)
 
 static const char *LAUXH_ARGERR_NAME = NULL;
+static int LAUXH_ARGERR_INDEX        = 0;
 static int LAUXH_ARGERR_STACK        = 1;
+
+# define lauxh_push_argerror_init()                                            \
+     do {                                                                      \
+         LAUXH_ARGERR_NAME  = NULL;                                            \
+         LAUXH_ARGERR_INDEX = 0;                                               \
+         LAUXH_ARGERR_STACK = 1;                                               \
+     } while (0)
 
 static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
 {
-    (void)arg;
     //
     // NOTE: porting from lua source code
     // https://github.com/lua/lua/blob/master/lauxlib.c
@@ -659,11 +666,14 @@ static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
 
     LAUXH_ARGERR_STACK = 1;
     if (LAUXH_ARGERR_NAME) {
-        name              = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
-        LAUXH_ARGERR_NAME = NULL;
+        name = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
+    } else if (LAUXH_ARGERR_INDEX > 0) {
+        name = lua_pushfstring(L, "#%d", LAUXH_ARGERR_INDEX);
     } else {
         name = lua_pushfstring(L, "#%d", arg);
     }
+    LAUXH_ARGERR_NAME  = NULL;
+    LAUXH_ARGERR_INDEX = 0;
 
     if (!lua_getstack(L, stack, &ar)) { // no stack frame?
         return luaL_error(L, "bad argument %s (%s)", name, extra);
@@ -696,10 +706,12 @@ static inline void lauxh_checktype(lua_State *L, int arg, int t)
         extramsg = lua_pushfstring(L, "%s expected, got %s", tname, typearg);
         lauxh_push_argerror(L, arg, extramsg);
     }
+    lauxh_push_argerror_init();
 }
 
 #else
 
+# define lauxh_push_argerror_init()
 # define lauxh_push_argerror luaL_argerror
 # define lauxh_checktype     luaL_checktype
 
@@ -722,11 +734,12 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 }
 
 #define lauxh_argcheck(L, cond, idx, fmt, ...)                                 \
- do {                                                                          \
-  if (!(cond)) {                                                               \
-   lauxh_argerror((L), (idx), (fmt), ##__VA_ARGS__);                           \
-  }                                                                            \
- } while (0)
+    do {                                                                       \
+        if (!(cond)) {                                                         \
+            lauxh_argerror((L), (idx), (fmt), ##__VA_ARGS__);                  \
+        }                                                                      \
+        lauxh_push_argerror_init();                                            \
+    } while (0)
 
 /* any argument */
 
@@ -766,7 +779,7 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
     return lauxh_checklstr(L, idx, len);
 }
 #define lauxh_optlstring(L, idx, def, len)                                     \
- lauxh_optlstr((L), (idx), (def), (len))
+    lauxh_optlstr((L), (idx), (def), (len))
 
 static inline const char *lauxh_checkstr(lua_State *L, int idx)
 {
@@ -786,9 +799,23 @@ static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 
 /* number/integer argument */
 
+#define CHECK_NUMTYPE(L, idx, tname, isnumfn)                                  \
+    do {                                                                       \
+        if (!isnumfn((L), (idx))) {                                            \
+            int t = lua_type((L), (idx));                                      \
+            if (t != LUA_TNUMBER) {                                            \
+                lauxh_argerror((L), (idx), tname " expected, got %s",          \
+                               lua_typename((L), t));                          \
+            }                                                                  \
+            lauxh_argerror((L), (idx),                                         \
+                           tname " expected, got an out of range value");      \
+        }                                                                      \
+        lauxh_push_argerror_init();                                            \
+    } while (0)
+
 static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 {
-    lauxh_checktype(L, idx, LUA_TNUMBER);
+    CHECK_NUMTYPE(L, idx, "number", lauxh_isnum);
     return lua_tonumber(L, idx);
 }
 #define lauxh_checknumber(L, idx) lauxh_checknum((L), (idx))
@@ -804,8 +831,7 @@ static inline lua_Number lauxh_optnum(lua_State *L, int idx, lua_Number def)
 
 static inline lua_Integer lauxh_checkint(lua_State *L, int idx)
 {
-    lauxh_argcheck(L, lauxh_isint(L, idx), idx, "integer expected, got %s",
-                   luaL_typename(L, idx));
+    CHECK_NUMTYPE(L, idx, "integer", lauxh_isint);
     return lua_tointeger(L, idx);
 }
 #define lauxh_checkinteger(L, idx) lauxh_checkint((L), (idx))
@@ -819,21 +845,9 @@ static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 }
 #define lauxh_optinteger(L, idx, def) lauxh_optint((L), (idx), (def))
 
-#define CHECK_NUMRANGE(L, idx, isnum, tname)                                   \
- do {                                                                          \
-  if (!isnum((L), (idx))) {                                                    \
-   int t = lua_type((L), (idx));                                               \
-   if (t != LUA_TNUMBER) {                                                     \
-    lauxh_argerror((L), (idx), tname " expected, got %s",                      \
-                   lua_typename((L), t));                                      \
-   }                                                                           \
-   lauxh_argerror((L), (idx), tname " expected, got an out of range value");   \
-  }                                                                            \
- } while (0)
-
 static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isfinite, "finite number");
+    CHECK_NUMTYPE(L, idx, "finite number", lauxh_isfinite);
     return lua_tonumber(L, idx);
 }
 
@@ -847,7 +861,7 @@ static inline lua_Number lauxh_optfinite(lua_State *L, int idx, lua_Number def)
 
 static inline lua_Number lauxh_checkunsigned(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isunsigned, "unsigned number");
+    CHECK_NUMTYPE(L, idx, "unsigned number", lauxh_isunsigned);
     return lua_tonumber(L, idx);
 }
 
@@ -862,7 +876,7 @@ static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
 
 static inline lua_Integer lauxh_checkuint(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isuint, "unsigned integer");
+    CHECK_NUMTYPE(L, idx, "unsigned integer", lauxh_isuint);
     return lua_tointeger(L, idx);
 }
 #define lauxh_checkuinteger(L, idx) lauxh_checkuint((L), (idx))
@@ -878,7 +892,7 @@ static inline lua_Integer lauxh_optuint(lua_State *L, int idx, lua_Integer def)
 
 static inline lua_Integer lauxh_checkpint(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_ispint, "positive integer");
+    CHECK_NUMTYPE(L, idx, "positive integer", lauxh_ispint);
     return lua_tointeger(L, idx);
 }
 #define lauxh_checkpinteger(L, idx) lauxh_checkpint((L), (idx))
@@ -894,7 +908,7 @@ static inline lua_Integer lauxh_optpint(lua_State *L, int idx, lua_Integer def)
 
 static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isint8, "int8_t");
+    CHECK_NUMTYPE(L, idx, "int8_t", lauxh_isint8);
     return (int8_t)lua_tointeger(L, idx);
 }
 
@@ -908,7 +922,7 @@ static inline int8_t lauxh_optint8(lua_State *L, int idx, int8_t def)
 
 static inline uint8_t lauxh_checkuint8(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isuint8, "uint8_t");
+    CHECK_NUMTYPE(L, idx, "uint8_t", lauxh_isuint8);
     return (uint8_t)lua_tointeger(L, idx);
 }
 
@@ -922,7 +936,7 @@ static inline uint8_t lauxh_optuint8(lua_State *L, int idx, uint8_t def)
 
 static inline int16_t lauxh_checkint16(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isint16, "int16_t");
+    CHECK_NUMTYPE(L, idx, "int16_t", lauxh_isint16);
     return (int16_t)lua_tointeger(L, idx);
 }
 
@@ -936,7 +950,7 @@ static inline int16_t lauxh_optint16(lua_State *L, int idx, int16_t def)
 
 static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isuint16, "uint16_t");
+    CHECK_NUMTYPE(L, idx, "uint16_t", lauxh_isuint16);
     return (uint16_t)lua_tointeger(L, idx);
 }
 
@@ -950,7 +964,7 @@ static inline uint16_t lauxh_optuint16(lua_State *L, int idx, uint16_t def)
 
 static inline int32_t lauxh_checkint32(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isint32, "int32_t");
+    CHECK_NUMTYPE(L, idx, "int32_t", lauxh_isint32);
     return (int32_t)lua_tointeger(L, idx);
 }
 
@@ -964,7 +978,7 @@ static inline int32_t lauxh_optint32(lua_State *L, int idx, int32_t def)
 
 static inline uint32_t lauxh_checkuint32(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isuint32, "uint32_t");
+    CHECK_NUMTYPE(L, idx, "uint32_t", lauxh_isuint32);
     return (uint32_t)lua_tointeger(L, idx);
 }
 
@@ -978,7 +992,7 @@ static inline uint32_t lauxh_optuint32(lua_State *L, int idx, uint32_t def)
 
 static inline int64_t lauxh_checkint64(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isint64, "int64_t");
+    CHECK_NUMTYPE(L, idx, "int64_t", lauxh_isint64);
     return (int64_t)lua_tointeger(L, idx);
 }
 
@@ -992,7 +1006,7 @@ static inline int64_t lauxh_optint64(lua_State *L, int idx, int64_t def)
 
 static inline uint64_t lauxh_checkuint64(lua_State *L, int idx)
 {
-    CHECK_NUMRANGE(L, idx, lauxh_isuint64, "uint64_t");
+    CHECK_NUMTYPE(L, idx, "uint64_t", lauxh_isuint64);
     return (uint64_t)lua_tointeger(L, idx);
 }
 
@@ -1003,6 +1017,202 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
     }
     return lauxh_checkuint64(L, idx);
 }
+
+#undef CHECK_NUMTYPE
+
+#define CHECK_NUMTYPE_GLE(L, idx, tname, cmpname, isnumfn, n, nfmt)            \
+    do {                                                                       \
+        if (!isnumfn((L), (idx), (n))) {                                       \
+            int t = lua_type((L), (idx));                                      \
+            lua_pushfstring((L),                                               \
+                            tname " " cmpname " than or equal to " nfmt        \
+                                  " expected, ",                               \
+                            (n));                                              \
+            if (t != LUA_TNUMBER) {                                            \
+                lua_pushfstring((L), "got %s", lua_typename((L), t));          \
+            } else {                                                           \
+                lua_pushliteral((L), "got an out of range value");             \
+            }                                                                  \
+            lua_concat((L), 2);                                                \
+            lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
+        }                                                                      \
+        lauxh_push_argerror_init();                                            \
+    } while (0)
+
+static inline lua_Number lauxh_checknum_ge(lua_State *L, int idx, lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "number", "greater", lauxh_isnum_ge, n, "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_checknum_le(lua_State *L, int idx, lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "number", "less", lauxh_isnum_le, n, "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_optnum_ge(lua_State *L, int idx, lua_Number n,
+                                         lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_ge(L, idx, n);
+}
+
+static inline lua_Number lauxh_optnum_le(lua_State *L, int idx, lua_Number n,
+                                         lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_le(L, idx, n);
+}
+
+static inline lua_Integer lauxh_checkint_ge(lua_State *L, int idx,
+                                            lua_Integer n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "integer", "greater", lauxh_isint_ge, n, "%d");
+    return lua_tointeger(L, idx);
+}
+
+static inline lua_Integer lauxh_checkint_le(lua_State *L, int idx,
+                                            lua_Integer n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "integer", "less", lauxh_isint_le, n, "%d");
+    return lua_tointeger(L, idx);
+}
+
+static inline lua_Integer lauxh_optint_ge(lua_State *L, int idx, lua_Integer n,
+                                          lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_ge(L, idx, n);
+}
+
+static inline lua_Integer lauxh_optint_le(lua_State *L, int idx, lua_Integer n,
+                                          lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_le(L, idx, n);
+}
+
+static inline lua_Number lauxh_checkfinite_ge(lua_State *L, int idx,
+                                              lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "finite number", "greater", lauxh_isfinite_ge, n,
+                      "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_checkfinite_le(lua_State *L, int idx,
+                                              lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "finite number", "less", lauxh_isfinite_le, n,
+                      "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_optfinite_ge(lua_State *L, int idx, lua_Number n,
+                                            lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_ge(L, idx, n);
+}
+
+static inline lua_Number lauxh_optfinite_le(lua_State *L, int idx, lua_Number n,
+                                            lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_le(L, idx, n);
+}
+
+#undef CHECK_NUMTYPE_GLE
+
+#define CHECK_NUMTYPE_RANGE(L, idx, tname, isnumfn, min, max, mfmt)            \
+    do {                                                                       \
+        if (!isnumfn((L), (idx), (min), (max))) {                              \
+            int t = lua_type((L), (idx));                                      \
+            lua_pushfstring((L),                                               \
+                            tname " from " mfmt " to " mfmt " expected, ",     \
+                            (min), (max));                                     \
+            if (t != LUA_TNUMBER) {                                            \
+                lua_pushfstring((L), "got %s", lua_typename((L), t));          \
+            } else {                                                           \
+                lua_pushliteral((L), "got an out of range value");             \
+            }                                                                  \
+            lua_concat((L), 2);                                                \
+            lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
+        }                                                                      \
+        lauxh_push_argerror_init();                                            \
+    } while (0)
+
+static inline lua_Number lauxh_checknum_in_range(lua_State *L, int idx,
+                                                 lua_Number min, lua_Number max)
+{
+    CHECK_NUMTYPE_RANGE(L, idx, "number", lauxh_isnum_in_range, min, max, "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_optnum_in_range(lua_State *L, int idx,
+                                               lua_Number min, lua_Number max,
+                                               lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_in_range(L, idx, min, max);
+}
+
+static inline lua_Integer lauxh_checkint_in_range(lua_State *L, int idx,
+                                                  lua_Integer min,
+                                                  lua_Integer max)
+{
+    CHECK_NUMTYPE_RANGE(L, idx, "integer", lauxh_isint_in_range, min, max,
+                        "%d");
+    return lua_tointeger(L, idx);
+}
+
+static inline lua_Integer lauxh_optint_in_range(lua_State *L, int idx,
+                                                lua_Integer min,
+                                                lua_Integer max,
+                                                lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_in_range(L, idx, min, max);
+}
+
+static inline lua_Number lauxh_checkfinite_in_range(lua_State *L, int idx,
+                                                    lua_Number min,
+                                                    lua_Number max)
+{
+    CHECK_NUMTYPE_RANGE(L, idx, "finite number", lauxh_isfinite_in_range, min,
+                        max, "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_optfinite_in_range(lua_State *L, int idx,
+                                                  lua_Number min,
+                                                  lua_Number max,
+                                                  lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_in_range(L, idx, min, max);
+}
+
+#undef CHECK_NUMTYPE_RANGE
 
 /* treat integer arguments as bit flags  */
 
@@ -1017,8 +1227,6 @@ static inline uint64_t lauxh_optflags(lua_State *L, int idx)
 
     return flg;
 }
-
-#undef CHECK_NUMRANGE
 
 /* boolean argument */
 

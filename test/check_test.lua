@@ -134,6 +134,27 @@ function testcase.check_num()
     assert.match(err, '(number expected, ')
     err = assert.throws(check.num, nil)
     assert.match(err, '(number expected, ')
+
+    -- test that check number with min
+    assert.equal(check.num(1, 0), 1)
+
+    -- test that check number with max
+    assert.equal(check.num(1, nil, 2), 1)
+
+    -- test that check number with min and max
+    assert.equal(check.num(1, 0, 2), 1)
+
+    -- test that throws an error if value is less than min
+    err = assert.throws(check.num, 1, 2.1)
+    assert.match(err, '(number greater than or equal to 2.1 expected,')
+
+    -- test that throws an error if value is greater than max
+    err = assert.throws(check.num, 1, nil, 0.1)
+    assert.match(err, '(number less than or equal to 0.1 expected,')
+
+    -- test that throws an error if value is not from min to max
+    err = assert.throws(check.num, 4, -2.1, 3.2)
+    assert.match(err, '(number from -2.1 to 3.2 expected,')
 end
 
 function testcase.check_str()
@@ -315,6 +336,27 @@ function testcase.check_finite()
         local err = assert.throws(check.finite, v)
         assert.match(err, '(finite number expected, ')
     end
+
+    -- test that check finite-number with min
+    assert.equal(check.finite(1, 0), 1)
+
+    -- test that check finite-number with max
+    assert.equal(check.finite(1, nil, 2), 1)
+
+    -- test that check finite-number with min and max
+    assert.equal(check.finite(1, 0, 2), 1)
+
+    -- test that throws an error if value is less than min
+    local err = assert.throws(check.finite, 1, 2.1)
+    assert.match(err, '(finite number greater than or equal to 2.1 expected,')
+
+    -- test that throws an error if value is greater than max
+    err = assert.throws(check.finite, 1, nil, 0.1)
+    assert.match(err, '(finite number less than or equal to 0.1 expected,')
+
+    -- test that throws an error if value is not from min to max
+    err = assert.throws(check.finite, 4, -2.1, 3.2)
+    assert.match(err, '(finite number from -2.1 to 3.2 expected,')
 end
 
 function testcase.check_unsigned()
@@ -374,6 +416,27 @@ function testcase.check_int()
         local err = assert.throws(check.int, v)
         assert.match(err, '(integer expected, ')
     end
+
+    -- test that check integer with min
+    assert.equal(check.int(1, 0), 1)
+
+    -- test that check integer with max
+    assert.equal(check.int(1, nil, 2), 1)
+
+    -- test that check integer with min and max
+    assert.equal(check.int(1, 0, 2), 1)
+
+    -- test that throws an error if value is less than min
+    local err = assert.throws(check.int, 1, 2)
+    assert.match(err, '(integer greater than or equal to 2 expected,')
+
+    -- test that throws an error if value is greater than max
+    err = assert.throws(check.int, 1, nil, 0)
+    assert.match(err, '(integer less than or equal to 0 expected,')
+
+    -- test that throws an error if value is not from min to max
+    err = assert.throws(check.int, 4, -2, 3)
+    assert.match(err, '(integer from -2 to 3 expected,')
 end
 
 function testcase.check_uint()
@@ -711,6 +774,10 @@ function testcase.check_with_argname()
     -- test that call with argument name
     err = assert.throws(check.none, true, 'hello')
     assert.match(err, "bad argument 'hello' .+[(]nil expected, ", false)
+
+    -- test that call with argument name as positive integer
+    err = assert.throws(check.none, true, 125)
+    assert.match(err, "bad argument #125 .+[(]nil expected, ", false)
 end
 
 function testcase.check_with_stacklv()
