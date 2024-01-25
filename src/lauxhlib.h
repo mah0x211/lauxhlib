@@ -1102,6 +1102,26 @@ static inline lua_Number lauxh_checkfinite_le(lua_State *L, int idx,
     return lua_tonumber(L, idx);
 }
 
+static inline lua_Number lauxh_optfinite_ge(lua_State *L, int idx, lua_Number n,
+                                            lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_ge(L, idx, n);
+}
+
+static inline lua_Number lauxh_optfinite_le(lua_State *L, int idx, lua_Number n,
+                                            lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_le(L, idx, n);
+}
+
+#undef CHECK_NUMTYPE_GLE
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
