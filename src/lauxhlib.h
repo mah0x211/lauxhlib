@@ -1145,6 +1145,16 @@ static inline lua_Number lauxh_checknum_in_range(lua_State *L, int idx,
     return lua_tonumber(L, idx);
 }
 
+static inline lua_Number lauxh_optnum_in_range(lua_State *L, int idx,
+                                               lua_Number min, lua_Number max,
+                                               lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_in_range(L, idx, min, max);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
