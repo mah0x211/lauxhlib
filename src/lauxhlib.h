@@ -1036,6 +1036,24 @@ static inline lua_Number lauxh_checknum_le(lua_State *L, int idx, lua_Number n)
     return lua_tonumber(L, idx);
 }
 
+static inline lua_Number lauxh_optnum_ge(lua_State *L, int idx, lua_Number n,
+                                         lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_ge(L, idx, n);
+}
+
+static inline lua_Number lauxh_optnum_le(lua_State *L, int idx, lua_Number n,
+                                         lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checknum_le(L, idx, n);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
