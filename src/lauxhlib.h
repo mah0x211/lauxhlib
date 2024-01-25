@@ -1184,6 +1184,19 @@ static inline lua_Number lauxh_checkfinite_in_range(lua_State *L, int idx,
     return lua_tonumber(L, idx);
 }
 
+static inline lua_Number lauxh_optfinite_in_range(lua_State *L, int idx,
+                                                  lua_Number min,
+                                                  lua_Number max,
+                                                  lua_Number def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkfinite_in_range(L, idx, min, max);
+}
+
+#undef CHECK_NUMTYPE_RANGE
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
