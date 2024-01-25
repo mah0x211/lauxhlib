@@ -554,13 +554,13 @@ static inline int lauxh_isint_in_range(lua_State *L, int idx, int64_t min,
 }
 
 #define lauxh_isint8(L, idx)                                                   \
- lauxh_isint_in_range((L), (idx), INT8_MIN, INT8_MAX)
+    lauxh_isint_in_range((L), (idx), INT8_MIN, INT8_MAX)
 #define lauxh_isint16(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT16_MIN, INT16_MAX)
+    lauxh_isint_in_range((L), (idx), INT16_MIN, INT16_MAX)
 #define lauxh_isint32(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT32_MIN, INT32_MAX)
+    lauxh_isint_in_range((L), (idx), INT32_MIN, INT32_MAX)
 #define lauxh_isint64(L, idx)                                                  \
- lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
+    lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
 
 static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
 {
@@ -722,11 +722,11 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 }
 
 #define lauxh_argcheck(L, cond, idx, fmt, ...)                                 \
- do {                                                                          \
-  if (!(cond)) {                                                               \
-   lauxh_argerror((L), (idx), (fmt), ##__VA_ARGS__);                           \
-  }                                                                            \
- } while (0)
+    do {                                                                       \
+        if (!(cond)) {                                                         \
+            lauxh_argerror((L), (idx), (fmt), ##__VA_ARGS__);                  \
+        }                                                                      \
+    } while (0)
 
 /* any argument */
 
@@ -766,7 +766,7 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
     return lauxh_checklstr(L, idx, len);
 }
 #define lauxh_optlstring(L, idx, def, len)                                     \
- lauxh_optlstr((L), (idx), (def), (len))
+    lauxh_optlstr((L), (idx), (def), (len))
 
 static inline const char *lauxh_checkstr(lua_State *L, int idx)
 {
@@ -820,16 +820,17 @@ static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 #define lauxh_optinteger(L, idx, def) lauxh_optint((L), (idx), (def))
 
 #define CHECK_NUMRANGE(L, idx, isnum, tname)                                   \
- do {                                                                          \
-  if (!isnum((L), (idx))) {                                                    \
-   int t = lua_type((L), (idx));                                               \
-   if (t != LUA_TNUMBER) {                                                     \
-    lauxh_argerror((L), (idx), tname " expected, got %s",                      \
-                   lua_typename((L), t));                                      \
-   }                                                                           \
-   lauxh_argerror((L), (idx), tname " expected, got an out of range value");   \
-  }                                                                            \
- } while (0)
+    do {                                                                       \
+        if (!isnum((L), (idx))) {                                              \
+            int t = lua_type((L), (idx));                                      \
+            if (t != LUA_TNUMBER) {                                            \
+                lauxh_argerror((L), (idx), tname " expected, got %s",          \
+                               lua_typename((L), t));                          \
+            }                                                                  \
+            lauxh_argerror((L), (idx),                                         \
+                           tname " expected, got an out of range value");      \
+        }                                                                      \
+    } while (0)
 
 static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
 {

@@ -24,20 +24,20 @@
 #include "lauxhlib.h"
 
 #define CHECKARGS()                                                            \
- do {                                                                          \
-  const char *name   = lauxh_optstr(L, 2, NULL);                               \
-  int stack          = lauxh_optuint(L, 3, 1);                                 \
-  LAUXH_ARGERR_NAME  = name;                                                   \
-  LAUXH_ARGERR_STACK = stack;                                                  \
- } while (0)
+    do {                                                                       \
+        const char *name   = lauxh_optstr(L, 2, NULL);                         \
+        int stack          = lauxh_optuint(L, 3, 1);                           \
+        LAUXH_ARGERR_NAME  = name;                                             \
+        LAUXH_ARGERR_STACK = stack;                                            \
+    } while (0)
 
 #define CHECK(checkfn)                                                         \
- do {                                                                          \
-  CHECKARGS();                                                                 \
-  checkfn(L, 1);                                                               \
-  lua_settop(L, 1);                                                            \
-  return 1;                                                                    \
- } while (0)
+    do {                                                                       \
+        CHECKARGS();                                                           \
+        checkfn(L, 1);                                                         \
+        lua_settop(L, 1);                                                      \
+        return 1;                                                              \
+    } while (0)
 
 static int none_lua(lua_State *L)
 {

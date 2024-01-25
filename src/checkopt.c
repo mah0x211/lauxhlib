@@ -24,40 +24,40 @@
 #include "lauxhlib.h"
 
 #define CHECKARGS()                                                            \
- do {                                                                          \
-  const char *name   = lauxh_optstr(L, 3, NULL);                               \
-  int stack          = lauxh_optuint(L, 4, 1);                                 \
-  LAUXH_ARGERR_NAME  = name;                                                   \
-  LAUXH_ARGERR_STACK = stack;                                                  \
- } while (0)
+    do {                                                                       \
+        const char *name   = lauxh_optstr(L, 3, NULL);                         \
+        int stack          = lauxh_optuint(L, 4, 1);                           \
+        LAUXH_ARGERR_NAME  = name;                                             \
+        LAUXH_ARGERR_STACK = stack;                                            \
+    } while (0)
 
 #define CHECKOPT(checkfn)                                                      \
- do {                                                                          \
-  int top = lua_gettop(L);                                                     \
-  if (top == 0 || (top == 1 && lauxh_isnil(L, 1))) {                           \
-   /* return nil if no argument */                                             \
-   lua_pushnil(L);                                                             \
-   return 1;                                                                   \
-  } else if (top == 1) {                                                       \
-   /* check value if default value is not specified */                         \
-   checkfn(L, 1);                                                              \
-   lua_settop(L, 1);                                                           \
-   return 1;                                                                   \
-  } else if (!lauxh_isnil(L, 2)) {                                             \
-   /* check default value */                                                   \
-   checkfn(L, 2);                                                              \
-  }                                                                            \
+    do {                                                                       \
+        int top = lua_gettop(L);                                               \
+        if (top == 0 || (top == 1 && lauxh_isnil(L, 1))) {                     \
+            /* return nil if no argument */                                    \
+            lua_pushnil(L);                                                    \
+            return 1;                                                          \
+        } else if (top == 1) {                                                 \
+            /* check value if default value is not specified */                \
+            checkfn(L, 1);                                                     \
+            lua_settop(L, 1);                                                  \
+            return 1;                                                          \
+        } else if (!lauxh_isnil(L, 2)) {                                       \
+            /* check default value */                                          \
+            checkfn(L, 2);                                                     \
+        }                                                                      \
                                                                                \
-  CHECKARGS();                                                                 \
-  if (lauxh_isnil(L, 1)) {                                                     \
-   /* use second argument as default value */                                  \
-   lua_settop(L, 2);                                                           \
-  } else {                                                                     \
-   checkfn(L, 1);                                                              \
-   lua_settop(L, 1);                                                           \
-  }                                                                            \
-  return 1;                                                                    \
- } while (0)
+        CHECKARGS();                                                           \
+        if (lauxh_isnil(L, 1)) {                                               \
+            /* use second argument as default value */                         \
+            lua_settop(L, 2);                                                  \
+        } else {                                                               \
+            checkfn(L, 1);                                                     \
+            lua_settop(L, 1);                                                  \
+        }                                                                      \
+        return 1;                                                              \
+    } while (0)
 
 static int callable_lua(lua_State *L)
 {
