@@ -1054,6 +1054,20 @@ static inline lua_Number lauxh_optnum_le(lua_State *L, int idx, lua_Number n,
     return lauxh_checknum_le(L, idx, n);
 }
 
+static inline lua_Integer lauxh_checkint_ge(lua_State *L, int idx,
+                                            lua_Integer n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "integer", "greater", lauxh_isint_ge, n, "%d");
+    return lua_tointeger(L, idx);
+}
+
+static inline lua_Integer lauxh_checkint_le(lua_State *L, int idx,
+                                            lua_Integer n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "integer", "less", lauxh_isint_le, n, "%d");
+    return lua_tointeger(L, idx);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
