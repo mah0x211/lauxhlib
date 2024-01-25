@@ -23,17 +23,17 @@
 #define LAUXHLIB_USED_IN_LUA
 #include "lauxhlib.h"
 
-#define CHECKARGS()                                                            \
+#define CHECK_OPTS(name_idx, stacklv_idx)                                      \
     do {                                                                       \
-        const char *name   = lauxh_optstr(L, 2, NULL);                         \
-        int stack          = lauxh_optuint(L, 3, 1);                           \
+        const char *name   = lauxh_optstr(L, name_idx, NULL);                  \
+        int stack          = lauxh_optuint(L, stacklv_idx, 1);                 \
         LAUXH_ARGERR_NAME  = name;                                             \
         LAUXH_ARGERR_STACK = stack;                                            \
     } while (0)
 
-#define CHECK(checkfn)                                                         \
+#define CHECK_VALUE(checkfn)                                                   \
     do {                                                                       \
-        CHECKARGS();                                                           \
+        CHECK_OPTS(2, 3);                                                      \
         checkfn(L, 1);                                                         \
         lua_settop(L, 1);                                                      \
         return 1;                                                              \
@@ -41,7 +41,7 @@
 
 static int none_lua(lua_State *L)
 {
-    CHECKARGS();
+    CHECK_OPTS(2, 3);
     if (!lua_isnoneornil(L, 1)) {
         lauxh_checktype(L, 1, LUA_TNIL);
     }
@@ -60,125 +60,156 @@ static int flags_lua(lua_State *L)
 
 static int callable_lua(lua_State *L)
 {
-    CHECK(lauxh_checkcallable);
+    CHECK_VALUE(lauxh_checkcallable);
 }
 
 static int file_lua(lua_State *L)
 {
-    CHECK(lauxh_checkfile);
+    CHECK_VALUE(lauxh_checkfile);
 }
 
 static int uint64_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint64);
+    CHECK_VALUE(lauxh_checkuint64);
 }
 
 static int uint32_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint32);
+    CHECK_VALUE(lauxh_checkuint32);
 }
 
 static int uint16_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint16);
+    CHECK_VALUE(lauxh_checkuint16);
 }
 
 static int uint8_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint8);
+    CHECK_VALUE(lauxh_checkuint8);
 }
 
 static int int64_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint64);
+    CHECK_VALUE(lauxh_checkint64);
 }
 
 static int int32_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint32);
+    CHECK_VALUE(lauxh_checkint32);
 }
 
 static int int16_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint16);
+    CHECK_VALUE(lauxh_checkint16);
 }
 
 static int int8_lua(lua_State *L)
 {
-    CHECK(lauxh_checkint8);
+    CHECK_VALUE(lauxh_checkint8);
 }
 
 static int pint_lua(lua_State *L)
 {
-    CHECK(lauxh_checkpint);
+    CHECK_VALUE(lauxh_checkpint);
 }
 
 static int uint_lua(lua_State *L)
 {
-    CHECK(lauxh_checkuint);
-}
-
-static int int_lua(lua_State *L)
-{
-    CHECK(lauxh_checkint);
+    CHECK_VALUE(lauxh_checkuint);
 }
 
 static int unsigned_lua(lua_State *L)
 {
-    CHECK(lauxh_checkunsigned);
+    CHECK_VALUE(lauxh_checkunsigned);
 }
+
+#define check_numtypeof(L, typename, numtype)                                  \
+    do {                                                                       \
+        CHECK_OPTS(4, 5);                                                      \
+        if (lua_isnoneornil(L, 2)) {                                           \
+            /* with min argument */                                            \
+            if (lua_isnoneornil(L, 3)) {                                       \
+                /* wit min and max argument */                                 \
+                lauxh_check##typename(L, 1);                                   \
+                lua_settop(L, 1);                                              \
+                return 1;                                                      \
+            }                                                                  \
+            numtype max = lauxh_check##typename(L, 3);                         \
+            lauxh_check##typename##_le(L, 1, max);                             \
+            lua_settop(L, 1);                                                  \
+            return 1;                                                          \
+        } else if (lua_isnoneornil(L, 3)) {                                    \
+            numtype min = lauxh_check##typename(L, 2);                         \
+            lauxh_check##typename##_ge(L, 1, min);                             \
+            lua_settop(L, 1);                                                  \
+            return 1;                                                          \
+        }                                                                      \
+        numtype min = lauxh_check##typename(L, 2);                             \
+        numtype max = lauxh_check##typename(L, 3);                             \
+        lauxh_check##typename##_in_range(L, 1, min, max);                      \
+        lua_settop(L, 1);                                                      \
+        return 1;                                                              \
+    } while (0)
 
 static int finite_lua(lua_State *L)
 {
-    CHECK(lauxh_checkfinite);
+    check_numtypeof(L, finite, lua_Number);
 }
 
-static int thread_lua(lua_State *L)
+static int int_lua(lua_State *L)
 {
-    CHECK(lauxh_checkthread);
-}
-
-static int userdata_lua(lua_State *L)
-{
-    CHECK(lauxh_checkuserdata);
-}
-
-static int cfunc_lua(lua_State *L)
-{
-    CHECK(lauxh_checkcfunc);
-}
-
-static int func_lua(lua_State *L)
-{
-    CHECK(lauxh_checkfunc);
-}
-
-static int table_lua(lua_State *L)
-{
-    CHECK(lauxh_checktable);
-}
-
-static int str_lua(lua_State *L)
-{
-    CHECK(lauxh_checkstr);
+    check_numtypeof(L, int, lua_Integer);
 }
 
 static int num_lua(lua_State *L)
 {
-    CHECK(lauxh_checknum);
+    check_numtypeof(L, num, lua_Number);
+}
+
+#undef check_numtypeof
+
+static int thread_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checkthread);
+}
+
+static int userdata_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checkuserdata);
+}
+
+static int cfunc_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checkcfunc);
+}
+
+static int func_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checkfunc);
+}
+
+static int table_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checktable);
+}
+
+static int str_lua(lua_State *L)
+{
+    CHECK_VALUE(lauxh_checkstr);
 }
 
 static int pointer_lua(lua_State *L)
 {
-    CHECK(lauxh_checkpointer);
+    CHECK_VALUE(lauxh_checkpointer);
 }
 
 static int bool_lua(lua_State *L)
 {
-    CHECK(lauxh_checkbool);
+    CHECK_VALUE(lauxh_checkbool);
 }
 
-#undef CHECK
+#undef CHECK_VALUE
+#undef CHECK_ERROPTS
 
 LUALIB_API int luaopen_lauxhlib_check(lua_State *L)
 {
