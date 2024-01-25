@@ -1164,6 +1164,17 @@ static inline lua_Integer lauxh_checkint_in_range(lua_State *L, int idx,
     return lua_tointeger(L, idx);
 }
 
+static inline lua_Integer lauxh_optint_in_range(lua_State *L, int idx,
+                                                lua_Integer min,
+                                                lua_Integer max,
+                                                lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_in_range(L, idx, min, max);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
