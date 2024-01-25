@@ -644,7 +644,15 @@ static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
 #if defined(LAUXHLIB_USED_IN_LUA)
 
 static const char *LAUXH_ARGERR_NAME = NULL;
+static int LAUXH_ARGERR_INDEX        = 0;
 static int LAUXH_ARGERR_STACK        = 1;
+
+# define lauxh_push_argerror_init()                                            \
+     do {                                                                      \
+         LAUXH_ARGERR_NAME  = NULL;                                            \
+         LAUXH_ARGERR_INDEX = 0;                                               \
+         LAUXH_ARGERR_STACK = 1;                                               \
+     } while (0)
 
 static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
 {
@@ -658,11 +666,14 @@ static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
 
     LAUXH_ARGERR_STACK = 1;
     if (LAUXH_ARGERR_NAME) {
-        name              = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
-        LAUXH_ARGERR_NAME = NULL;
+        name = lua_pushfstring(L, "'%s'", LAUXH_ARGERR_NAME);
+    } else if (LAUXH_ARGERR_INDEX > 0) {
+        name = lua_pushfstring(L, "#%d", LAUXH_ARGERR_INDEX);
     } else {
         name = lua_pushfstring(L, "#%d", arg);
     }
+    LAUXH_ARGERR_NAME  = NULL;
+    LAUXH_ARGERR_INDEX = 0;
 
     if (!lua_getstack(L, stack, &ar)) { // no stack frame?
         return luaL_error(L, "bad argument %s (%s)", name, extra);
@@ -695,10 +706,12 @@ static inline void lauxh_checktype(lua_State *L, int arg, int t)
         extramsg = lua_pushfstring(L, "%s expected, got %s", tname, typearg);
         lauxh_push_argerror(L, arg, extramsg);
     }
+    lauxh_push_argerror_init();
 }
 
 #else
 
+# define lauxh_push_argerror_init()
 # define lauxh_push_argerror luaL_argerror
 # define lauxh_checktype     luaL_checktype
 
@@ -725,6 +738,7 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
         if (!(cond)) {                                                         \
             lauxh_argerror((L), (idx), (fmt), ##__VA_ARGS__);                  \
         }                                                                      \
+        lauxh_push_argerror_init();                                            \
     } while (0)
 
 /* any argument */
@@ -796,6 +810,7 @@ static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
             lauxh_argerror((L), (idx),                                         \
                            tname " expected, got an out of range value");      \
         }                                                                      \
+        lauxh_push_argerror_init();                                            \
     } while (0)
 
 static inline lua_Number lauxh_checknum(lua_State *L, int idx)
@@ -1021,6 +1036,7 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
             lua_concat((L), 2);                                                \
             lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
         }                                                                      \
+        lauxh_push_argerror_init();                                            \
     } while (0)
 
 static inline lua_Number lauxh_checknum_ge(lua_State *L, int idx, lua_Number n)
@@ -1136,6 +1152,7 @@ static inline lua_Number lauxh_optfinite_le(lua_State *L, int idx, lua_Number n,
             lua_concat((L), 2);                                                \
             lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
         }                                                                      \
+        lauxh_push_argerror_init();                                            \
     } while (0)
 
 static inline lua_Number lauxh_checknum_in_range(lua_State *L, int idx,

@@ -774,6 +774,10 @@ function testcase.check_with_argname()
     -- test that call with argument name
     err = assert.throws(check.none, true, 'hello')
     assert.match(err, "bad argument 'hello' .+[(]nil expected, ", false)
+
+    -- test that call with argument name as positive integer
+    err = assert.throws(check.none, true, 125)
+    assert.match(err, "bad argument #125 .+[(]nil expected, ", false)
 end
 
 function testcase.check_with_stacklv()
