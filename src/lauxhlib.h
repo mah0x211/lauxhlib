@@ -1566,13 +1566,13 @@ static inline lua_CFunction lauxh_checkcfunc(lua_State *L, int idx)
 }
 #define lauxh_checkcfunction(L, idx) lauxh_checkcfunc((L), (idx))
 
-static inline int lauxh_optcfunc(lua_State *L, int idx, int def)
+static inline lua_CFunction lauxh_optcfunc(lua_State *L, int idx,
+                                           lua_CFunction def)
 {
     if (lauxh_isnil(L, idx)) {
         return def;
     }
-    lauxh_checkcfunc(L, idx);
-    return idx;
+    return lauxh_checkcfunc(L, idx);
 }
 
 /* lightuserdata argument */
