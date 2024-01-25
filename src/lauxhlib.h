@@ -95,7 +95,7 @@ static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 
 static inline int lauxh_isref(int ref)
 {
-    return ref >= 0;
+    return ref != LUA_NOREF && ref != LUA_REFNIL;
 }
 
 static inline int lauxh_ref(lua_State *L)
