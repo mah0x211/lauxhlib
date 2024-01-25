@@ -648,7 +648,6 @@ static int LAUXH_ARGERR_STACK        = 1;
 
 static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
 {
-    (void)arg;
     //
     // NOTE: porting from lua source code
     // https://github.com/lua/lua/blob/master/lauxlib.c
@@ -1121,6 +1120,30 @@ static inline lua_Number lauxh_optfinite_le(lua_State *L, int idx, lua_Number n,
 }
 
 #undef CHECK_NUMTYPE_GLE
+
+#define CHECK_NUMTYPE_RANGE(L, idx, tname, isnumfn, min, max, mfmt)            \
+    do {                                                                       \
+        if (!isnumfn((L), (idx), (min), (max))) {                              \
+            int t = lua_type((L), (idx));                                      \
+            lua_pushfstring((L),                                               \
+                            tname " from " mfmt " to " mfmt " expected, ",     \
+                            (min), (max));                                     \
+            if (t != LUA_TNUMBER) {                                            \
+                lua_pushfstring((L), "got %s", lua_typename((L), t));          \
+            } else {                                                           \
+                lua_pushliteral((L), "got an out of range value");             \
+            }                                                                  \
+            lua_concat((L), 2);                                                \
+            lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
+        }                                                                      \
+    } while (0)
+
+static inline lua_Number lauxh_checknum_in_range(lua_State *L, int idx,
+                                                 lua_Number min, lua_Number max)
+{
+    CHECK_NUMTYPE_RANGE(L, idx, "number", lauxh_isnum_in_range, min, max, "%f");
+    return lua_tonumber(L, idx);
+}
 
 /* treat integer arguments as bit flags  */
 
