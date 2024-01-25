@@ -1006,6 +1006,36 @@ static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
 
 #undef CHECK_NUMTYPE
 
+#define CHECK_NUMTYPE_GLE(L, idx, tname, cmpname, isnumfn, n, nfmt)            \
+    do {                                                                       \
+        if (!isnumfn((L), (idx), (n))) {                                       \
+            int t = lua_type((L), (idx));                                      \
+            lua_pushfstring((L),                                               \
+                            tname " " cmpname " than or equal to " nfmt        \
+                                  " expected, ",                               \
+                            (n));                                              \
+            if (t != LUA_TNUMBER) {                                            \
+                lua_pushfstring((L), "got %s", lua_typename((L), t));          \
+            } else {                                                           \
+                lua_pushliteral((L), "got an out of range value");             \
+            }                                                                  \
+            lua_concat((L), 2);                                                \
+            lauxh_push_argerror((L), (idx), lua_tostring((L), -1));            \
+        }                                                                      \
+    } while (0)
+
+static inline lua_Number lauxh_checknum_ge(lua_State *L, int idx, lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "number", "greater", lauxh_isnum_ge, n, "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_checknum_le(lua_State *L, int idx, lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "number", "less", lauxh_isnum_le, n, "%f");
+    return lua_tonumber(L, idx);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
