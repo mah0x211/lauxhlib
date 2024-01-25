@@ -1086,6 +1086,22 @@ static inline lua_Integer lauxh_optint_le(lua_State *L, int idx, lua_Integer n,
     return lauxh_checkint_le(L, idx, n);
 }
 
+static inline lua_Number lauxh_checkfinite_ge(lua_State *L, int idx,
+                                              lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "finite number", "greater", lauxh_isfinite_ge, n,
+                      "%f");
+    return lua_tonumber(L, idx);
+}
+
+static inline lua_Number lauxh_checkfinite_le(lua_State *L, int idx,
+                                              lua_Number n)
+{
+    CHECK_NUMTYPE_GLE(L, idx, "finite number", "less", lauxh_isfinite_le, n,
+                      "%f");
+    return lua_tonumber(L, idx);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
