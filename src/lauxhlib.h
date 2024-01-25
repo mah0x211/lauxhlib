@@ -1068,6 +1068,24 @@ static inline lua_Integer lauxh_checkint_le(lua_State *L, int idx,
     return lua_tointeger(L, idx);
 }
 
+static inline lua_Integer lauxh_optint_ge(lua_State *L, int idx, lua_Integer n,
+                                          lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_ge(L, idx, n);
+}
+
+static inline lua_Integer lauxh_optint_le(lua_State *L, int idx, lua_Integer n,
+                                          lua_Integer def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkint_le(L, idx, n);
+}
+
 /* treat integer arguments as bit flags  */
 
 static inline uint64_t lauxh_optflags(lua_State *L, int idx)
