@@ -568,41 +568,32 @@ static inline int lauxh_isuint_in_range(lua_State *L, int idx, uintmax_t min,
 #define lauxh_isuint32(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT32_MAX)
 #define lauxh_isuint64(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT64_MAX)
 
-static inline lua_Integer lauxh_ispint(lua_State *L, int idx)
+static inline int lauxh_ispint(lua_State *L, int idx)
 {
-    if (lauxh_isint(L, idx)) {
-        return lua_tointeger(L, idx) > 0;
-    }
-    return 0;
+    return lauxh_isint(L, idx) && lua_tointeger(L, idx) > 0;
 }
 
-static inline int lauxh_ispint_ge(lua_State *L, int idx, uint64_t n)
+static inline int lauxh_ispint_ge(lua_State *L, int idx, uintmax_t n)
 {
-    if (lauxh_ispint(L, idx)) {
-        return (uint64_t)lua_tointeger(L, idx) >= n;
-    }
-    return 0;
+    return lauxh_ispint(L, idx) && (uintmax_t)lua_tointeger(L, idx) >= n;
 }
 
-static inline int lauxh_ispint_le(lua_State *L, int idx, uint64_t n)
+static inline int lauxh_ispint_le(lua_State *L, int idx, uintmax_t n)
 {
-    if (lauxh_ispint(L, idx)) {
-        return (uint64_t)lua_tointeger(L, idx) <= n;
-    }
-    return 0;
+    return lauxh_ispint(L, idx) && (uintmax_t)lua_tointeger(L, idx) <= n;
 }
 
-static inline int lauxh_ispint_in_range(lua_State *L, int idx, uint64_t min,
-                                        uint64_t max)
+static inline int lauxh_ispint_in_range(lua_State *L, int idx, uintmax_t min,
+                                        uintmax_t max)
 {
     if (lauxh_ispint(L, idx)) {
-        uint64_t v = (uint64_t)lua_tointeger(L, idx);
+        uintmax_t v = (uintmax_t)lua_tointeger(L, idx);
         return v >= min && v <= max;
     }
     return 0;
 }
 
-#define lauxh_ispint8(L, idx)  lauxh_ispint_in_range((L), (idx), 0, UINT8_MAX)
+#define lauxh_ispint8(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT8_MAX)
 #define lauxh_ispint16(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT16_MAX)
 #define lauxh_ispint32(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT32_MAX)
 #define lauxh_ispint64(L, idx) lauxh_ispint_in_range((L), (idx), 0, UINT64_MAX)
