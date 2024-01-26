@@ -538,41 +538,32 @@ static inline int lauxh_isint_in_range(lua_State *L, int idx, lua_Integer min,
 #define lauxh_isint64(L, idx)                                                  \
     lauxh_isint_in_range((L), (idx), INT64_MIN, INT64_MAX)
 
-static inline lua_Integer lauxh_isuint(lua_State *L, int idx)
+static inline int lauxh_isuint(lua_State *L, int idx)
 {
-    if (lauxh_isint(L, idx)) {
-        return lua_tointeger(L, idx) >= 0;
-    }
-    return 0;
+    return lauxh_isint(L, idx) && lua_tointeger(L, idx) >= 0;
 }
 
-static inline int lauxh_isuint_ge(lua_State *L, int idx, uint64_t n)
+static inline int lauxh_isuint_ge(lua_State *L, int idx, uintmax_t n)
 {
-    if (lauxh_isuint(L, idx)) {
-        return (uint64_t)lua_tointeger(L, idx) >= n;
-    }
-    return 0;
+    return lauxh_isuint(L, idx) && (uintmax_t)lua_tointeger(L, idx) >= n;
 }
 
-static inline int lauxh_isuint_le(lua_State *L, int idx, uint64_t n)
+static inline int lauxh_isuint_le(lua_State *L, int idx, uintmax_t n)
 {
-    if (lauxh_isuint(L, idx)) {
-        return (uint64_t)lua_tointeger(L, idx) <= n;
-    }
-    return 0;
+    return lauxh_isuint(L, idx) && (uintmax_t)lua_tointeger(L, idx) <= n;
 }
 
-static inline int lauxh_isuint_in_range(lua_State *L, int idx, uint64_t min,
-                                        uint64_t max)
+static inline int lauxh_isuint_in_range(lua_State *L, int idx, uintmax_t min,
+                                        uintmax_t max)
 {
     if (lauxh_isuint(L, idx)) {
-        uint64_t v = (uint64_t)lua_tointeger(L, idx);
+        uintmax_t v = (uintmax_t)lua_tointeger(L, idx);
         return v >= min && v <= max;
     }
     return 0;
 }
 
-#define lauxh_isuint8(L, idx)  lauxh_isuint_in_range((L), (idx), 0, UINT8_MAX)
+#define lauxh_isuint8(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT8_MAX)
 #define lauxh_isuint16(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT16_MAX)
 #define lauxh_isuint32(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT32_MAX)
 #define lauxh_isuint64(L, idx) lauxh_isuint_in_range((L), (idx), 0, UINT64_MAX)
