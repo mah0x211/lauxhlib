@@ -475,26 +475,17 @@ static inline int lauxh_isfinite_in_range(lua_State *L, int idx, lua_Number min,
 
 static inline lua_Number lauxh_isunsigned(lua_State *L, int idx)
 {
-    if (lauxh_isnum(L, idx)) {
-        return lua_tonumber(L, idx) >= 0;
-    }
-    return 0;
+    return lauxh_isnum(L, idx) && lua_tonumber(L, idx) >= 0;
 }
 
 static inline int lauxh_isunsigned_ge(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isunsigned(L, idx)) {
-        return lua_tonumber(L, idx) >= n;
-    }
-    return 0;
+    return lauxh_isunsigned(L, idx) && lua_tonumber(L, idx) >= n;
 }
 
 static inline int lauxh_isunsigned_le(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isunsigned(L, idx)) {
-        return lua_tonumber(L, idx) <= n;
-    }
-    return 0;
+    return lauxh_isunsigned(L, idx) && lua_tonumber(L, idx) <= n;
 }
 
 static inline int lauxh_isunsigned_in_range(lua_State *L, int idx,
