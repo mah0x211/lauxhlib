@@ -40,7 +40,6 @@
 #include <string.h>
 #include <unistd.h>
 
-/* stringify */
 
 static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 {
@@ -91,7 +90,6 @@ static inline const char *lauxh_tolstr(lua_State *L, int idx, size_t *len)
 #define lauxh_tolstring(L, idx, len) lauxh_tolstr((L), (idx), (len))
 #define lauxh_tostring(L, idx)       lauxh_tolstr((L), (idx), NULL)
 
-/* reference */
 
 static inline int lauxh_isref(int ref)
 {
@@ -739,7 +737,12 @@ static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
     lauxh_checktype(L, idx, LUA_TSTRING);
     return lua_tolstring(L, idx, len);
 }
+
 #define lauxh_checklstring(L, idx, len) lauxh_checklstr((L), (idx), (len))
+
+#define lauxh_checkstr(L, idx) lauxh_checklstr((L), (idx), NULL)
+
+#define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
 
 static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
                                         size_t *len)
@@ -752,15 +755,10 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
     }
     return lauxh_checklstr(L, idx, len);
 }
+
 #define lauxh_optlstring(L, idx, def, len)                                     \
     lauxh_optlstr((L), (idx), (def), (len))
 
-static inline const char *lauxh_checkstr(lua_State *L, int idx)
-{
-    lauxh_checktype(L, idx, LUA_TSTRING);
-    return lua_tostring(L, idx);
-}
-#define lauxh_checkstring(L, idx) lauxh_checkstr((L), (idx))
 
 static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
 {
