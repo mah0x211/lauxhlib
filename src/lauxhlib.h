@@ -716,7 +716,23 @@ static inline int lauxh_optcallable(lua_State *L, int idx, int def)
     return idx;
 }
 
-/* string argument */
+static inline int lauxh_checkbool(lua_State *L, int idx)
+{
+    lauxh_checktype(L, idx, LUA_TBOOLEAN);
+    return lua_toboolean(L, idx);
+}
+
+#define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
+
+static inline int lauxh_optbool(lua_State *L, int idx, int def)
+{
+    if (lauxh_isnil(L, idx)) {
+        return def;
+    }
+    return lauxh_checkbool(L, idx);
+}
+
+#define lauxh_optboolean(L, idx, def) lauxh_optbool((L), (idx), (def))
 
 static inline const char *lauxh_checklstr(lua_State *L, int idx, size_t *len)
 {
@@ -1185,24 +1201,6 @@ static inline uint64_t lauxh_optflags(lua_State *L, int idx)
 
     return flg;
 }
-
-/* boolean argument */
-
-static inline int lauxh_checkbool(lua_State *L, int idx)
-{
-    lauxh_checktype(L, idx, LUA_TBOOLEAN);
-    return lua_toboolean(L, idx);
-}
-#define lauxh_checkboolean(L, idx) lauxh_checkbool((L), (idx))
-
-static inline int lauxh_optbool(lua_State *L, int idx, int def)
-{
-    if (lauxh_isnil(L, idx)) {
-        return def;
-    }
-    return lauxh_checkbool(L, idx);
-}
-#define lauxh_optboolean(L, idx, def) lauxh_optbool((L), (idx), (def))
 
 /* table argument */
 
