@@ -403,17 +403,17 @@ static inline int lauxh_isfile(lua_State *L, int idx)
 
 static inline int lauxh_iscallable(lua_State *L, int idx)
 {
-    int t = LUA_TNIL;
-
     if (lauxh_isfunc(L, idx)) {
         return 1;
     } else if (lua_getmetatable(L, idx)) {
+        int isfunc = 0;
         lua_pushliteral(L, "__call");
         lua_rawget(L, -2);
-        t = lua_type(L, -1);
+        isfunc = lauxh_isfunc(L, -1);
         lua_pop(L, 2);
+        return isfunc;
     }
-    return t == LUA_TFUNCTION;
+    return 0;
 }
 
 static inline int lauxh_isnum(lua_State *L, int idx)
