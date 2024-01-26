@@ -759,14 +759,8 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
 #define lauxh_optlstring(L, idx, def, len)                                     \
     lauxh_optlstr((L), (idx), (def), (len))
 
+#define lauxh_optstr(L, idx, def) lauxh_optlstr((L), (idx), (def), NULL)
 
-static inline const char *lauxh_optstr(lua_State *L, int idx, const char *def)
-{
-    if (lauxh_isnil(L, idx)) {
-        return def;
-    }
-    return lauxh_checkstr(L, idx);
-}
 #define lauxh_optstring(L, idx, def) lauxh_optstr((L), (idx), (def))
 
 /* number/integer argument */
