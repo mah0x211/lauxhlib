@@ -448,28 +448,19 @@ static inline int lauxh_isnum_in_range(lua_State *L, int idx, lua_Number min,
     return 0;
 }
 
-static inline lua_Number lauxh_isfinite(lua_State *L, int idx)
+static inline int lauxh_isfinite(lua_State *L, int idx)
 {
-    if (lauxh_isnum(L, idx)) {
-        return isfinite(lua_tonumber(L, idx));
-    }
-    return 0;
+    return lauxh_isnum(L, idx) && isfinite(lua_tonumber(L, idx));
 }
 
 static inline int lauxh_isfinite_ge(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isfinite(L, idx)) {
-        return lua_tonumber(L, idx) >= n;
-    }
-    return 0;
+    return lauxh_isfinite(L, idx) && lua_tonumber(L, idx) >= n;
 }
 
 static inline int lauxh_isfinite_le(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isfinite(L, idx)) {
-        return lua_tonumber(L, idx) <= n;
-    }
-    return 0;
+    return lauxh_isfinite(L, idx) && lua_tonumber(L, idx) <= n;
 }
 
 static inline int lauxh_isfinite_in_range(lua_State *L, int idx, lua_Number min,
