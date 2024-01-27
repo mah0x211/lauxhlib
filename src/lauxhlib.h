@@ -1295,120 +1295,72 @@ static inline void lauxh_checktableat(lua_State *L, int idx, int row)
     lauxh_checktable(L, -1);
 }
 
+#define CHECK_VALUE_OF_IDX_IN_TABLE(tblidx, idx, vtype, checkfn, ...)          \
+    do {                                                                       \
+        vtype v;                                                               \
+        lua_rawgeti(L, (tblidx), (idx));                                       \
+        v = checkfn(L, -1, ##__VA_ARGS__);                                     \
+        lua_pop(L, 1);                                                         \
+        return v;                                                              \
+    } while (0)
+
 static inline const char *lauxh_checklstringat(lua_State *L, int idx, int row,
                                                size_t *len)
 {
-    const char *v = NULL;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_checklstr(L, -1, len);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, const char *, lauxh_checklstr, len);
 }
 
 static inline const char *lauxh_optlstringat(lua_State *L, int idx, int row,
                                              const char *def, size_t *len)
 {
-    const char *v = NULL;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_optlstr(L, -1, def, len);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, const char *, lauxh_optlstr, def,
+                                len);
 }
 
 static inline const char *lauxh_checkstringat(lua_State *L, int idx, int row)
 {
-    const char *v = NULL;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_checkstr(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, const char *, lauxh_checkstr);
 }
 
 static inline const char *lauxh_optstringat(lua_State *L, int idx, int row,
                                             const char *def)
 {
-    const char *v = NULL;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_optstr(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, const char *, lauxh_optstr, def);
 }
 
 static inline lua_Number lauxh_checknumberat(lua_State *L, int idx, int row)
 {
-    lua_Number v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_checknum(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, lua_Number, lauxh_checknum);
 }
 
 static inline lua_Number lauxh_optnumberat(lua_State *L, int idx, int row,
                                            lua_Number def)
 {
-    lua_Number v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_optnum(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, lua_Number, lauxh_optnum, def);
 }
 
 static inline lua_Integer lauxh_checkintegerat(lua_State *L, int idx, int row)
 {
-    lua_Integer v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_checkint(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, lua_Integer, lauxh_checkint);
 }
 
 static inline lua_Integer lauxh_optintegerat(lua_State *L, int idx, int row,
                                              lua_Integer def)
 {
-    lua_Integer v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_optint(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, lua_Integer, lauxh_optint, def);
 }
 
 static inline int lauxh_checkbooleanat(lua_State *L, int idx, int row)
 {
-    int v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_checkbool(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, int, lauxh_checkbool);
 }
 
 static inline int lauxh_optbooleanat(lua_State *L, int idx, int row, int def)
 {
-    int v = 0;
-
-    lua_rawgeti(L, idx, row);
-    v = lauxh_optbool(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_IDX_IN_TABLE(idx, row, int, lauxh_optbool, def);
 }
+
+#undef CHECK_VALUE_OF_IDX_IN_TABLE
 
 /* thread argument */
 
