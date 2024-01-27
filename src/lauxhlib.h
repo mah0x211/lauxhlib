@@ -1217,137 +1217,77 @@ static inline void lauxh_checktableof(lua_State *L, int idx, const char *k)
     lauxh_checktable(L, -1);
 }
 
+#define CHECK_VALUE_OF_KEY_IN_TABLE(tblidx, key, vtype, checkfn, ...)          \
+    do {                                                                       \
+        vtype v;                                                               \
+        lua_pushstring(L, (key));                                              \
+        lua_rawget(L, (tblidx));                                               \
+        v = checkfn(L, -1, ##__VA_ARGS__);                                     \
+        lua_pop(L, 1);                                                         \
+        return v;                                                              \
+    } while (0)
+
 static inline const char *lauxh_checklstringof(lua_State *L, int idx,
                                                const char *k, size_t *len)
 {
-    const char *v = NULL;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_checklstr(L, -1, len);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, const char *, lauxh_checklstr, len);
 }
 
 static inline const char *lauxh_optlstringof(lua_State *L, int idx,
                                              const char *k, const char *def,
                                              size_t *len)
 {
-    const char *v = NULL;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_optlstr(L, -1, def, len);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, const char *, lauxh_optlstr, def, len);
 }
 
 static inline const char *lauxh_checkstringof(lua_State *L, int idx,
                                               const char *k)
 {
-    const char *v = NULL;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_checkstr(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, const char *, lauxh_checkstr);
 }
 
 static inline const char *lauxh_optstringof(lua_State *L, int idx,
                                             const char *k, const char *def)
 {
-    const char *v = NULL;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_optstr(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, const char *, lauxh_optstr, def);
 }
 
 static inline lua_Number lauxh_checknumberof(lua_State *L, int idx,
                                              const char *k)
 {
-    lua_Number v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_checknum(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, lua_Number, lauxh_checknum);
 }
 
 static inline lua_Number lauxh_optnumberof(lua_State *L, int idx, const char *k,
                                            lua_Number def)
 {
-    lua_Number v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_optnum(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, lua_Number, lauxh_optnum, def);
 }
 
 static inline lua_Integer lauxh_checkintegerof(lua_State *L, int idx,
                                                const char *k)
 {
-    lua_Integer v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_checkint(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, lua_Integer, lauxh_checkint);
 }
 
 static inline lua_Integer lauxh_optintegerof(lua_State *L, int idx,
                                              const char *k, lua_Integer def)
 {
-    lua_Integer v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_optint(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, lua_Integer, lauxh_optint, def);
 }
 
 static inline int lauxh_checkbooleanof(lua_State *L, int idx, const char *k)
 {
-    int v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_checkbool(L, -1);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, int, lauxh_checkbool);
 }
 
 static inline int lauxh_optbooleanof(lua_State *L, int idx, const char *k,
                                      int def)
 {
-    int v = 0;
-
-    lua_pushstring(L, k);
-    lua_rawget(L, idx);
-    v = lauxh_optbool(L, -1, def);
-    lua_pop(L, 1);
-
-    return v;
+    CHECK_VALUE_OF_KEY_IN_TABLE(idx, k, int, lauxh_optbool, def);
 }
 
-// table as array
+#undef CHECK_VALUE_OF_KEY_IN_TABLE
 
 static inline void lauxh_checktableat(lua_State *L, int idx, int row)
 {
