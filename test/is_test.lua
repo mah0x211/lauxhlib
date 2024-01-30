@@ -362,6 +362,7 @@ function testcase.is_finite()
     assert.is_true(is.finite(123.456, 123.3, 123.5))
     assert.is_false(is.finite(123.456, 123.5, 123.5))
     assert.is_false(is.finite(123.456, 123.3, 123.4))
+    assert.is_false(is.finite(NAN, 123.3, 123.4))
 
     -- test that return false
     for _, v in ipairs({
@@ -398,6 +399,7 @@ function testcase.is_unsigned()
     assert.is_true(is.unsigned(123.456, 123.3, 123.5))
     assert.is_false(is.unsigned(123.456, 123.5, 123.5))
     assert.is_false(is.unsigned(123.456, 123.3, 123.4))
+    assert.is_false(is.unsigned(NAN, 123.3, 123.4))
 
     -- test that return false
     for _, v in ipairs({

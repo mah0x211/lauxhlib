@@ -1012,10 +1012,7 @@ static inline int lauxh_isnum(lua_State *L, int idx)
  */
 static inline int lauxh_isnum_ge(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isnum(L, idx)) {
-        return lua_tonumber(L, idx) >= n;
-    }
-    return 0;
+    return lauxh_isnum(L, idx) && lua_tonumber(L, idx) >= n;
 }
 
 /**
@@ -1029,10 +1026,7 @@ static inline int lauxh_isnum_ge(lua_State *L, int idx, lua_Number n)
  */
 static inline int lauxh_isnum_le(lua_State *L, int idx, lua_Number n)
 {
-    if (lauxh_isnum(L, idx)) {
-        return lua_tonumber(L, idx) <= n;
-    }
-    return 0;
+    return lauxh_isnum(L, idx) && lua_tonumber(L, idx) <= n;
 }
 
 /**
