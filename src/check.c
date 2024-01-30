@@ -134,23 +134,26 @@ static int unsigned_lua(lua_State *L)
     do {                                                                       \
         CHECK_ERROPTS(4, 5);                                                   \
         if (lua_isnoneornil(L, 2)) {                                           \
-            /* with min argument */                                            \
+            /* without min argument */                                         \
             if (lua_isnoneornil(L, 3)) {                                       \
-                /* wit min and max argument */                                 \
+                /* without min and max argument */                             \
                 lauxh_check##typename(L, 1);                                   \
                 lua_settop(L, 1);                                              \
                 return 1;                                                      \
             }                                                                  \
+            /* with max argument */                                            \
             numtype max = lauxh_check##typename(L, 3);                         \
             lauxh_check##typename##_le(L, 1, max);                             \
             lua_settop(L, 1);                                                  \
             return 1;                                                          \
         } else if (lua_isnoneornil(L, 3)) {                                    \
+            /* with min argument */                                            \
             numtype min = lauxh_check##typename(L, 2);                         \
             lauxh_check##typename##_ge(L, 1, min);                             \
             lua_settop(L, 1);                                                  \
             return 1;                                                          \
         }                                                                      \
+        /* with min and max argument */                                        \
         numtype min = lauxh_check##typename(L, 2);                             \
         numtype max = lauxh_check##typename(L, 3);                             \
         lauxh_check##typename##_in_range(L, 1, min, max);                      \
