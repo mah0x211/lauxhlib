@@ -1048,6 +1048,13 @@ static inline int lauxh_isnum_le(lua_State *L, int idx, lua_Number n)
 static inline int lauxh_isnum_in_range(lua_State *L, int idx, lua_Number min,
                                        lua_Number max)
 {
+    if (!isfinite(min) || !isfinite(max) || min > max) {
+        luaL_error(L,
+                   "min and max must be finite numbers, and min %f must be "
+                   "less than or equal to max %f",
+                   min, max);
+    }
+
     if (lauxh_isnum(L, idx)) {
         lua_Number v = lua_tonumber(L, idx);
         return v >= min && v <= max;
@@ -1110,6 +1117,12 @@ static inline int lauxh_isfinite_le(lua_State *L, int idx, lua_Number n)
 static inline int lauxh_isfinite_in_range(lua_State *L, int idx, lua_Number min,
                                           lua_Number max)
 {
+    if (!isfinite(min) || !isfinite(max) || min > max) {
+        luaL_error(L,
+                   "min and max must be finite numbers, and min %f must be "
+                   "less than or equal to max %f",
+                   min, max);
+    }
     if (lauxh_isfinite(L, idx)) {
         lua_Number v = lua_tonumber(L, idx);
         return v >= min && v <= max;
@@ -1173,6 +1186,12 @@ static inline int lauxh_isunsigned_le(lua_State *L, int idx, lua_Number n)
 static inline int lauxh_isunsigned_in_range(lua_State *L, int idx,
                                             lua_Number min, lua_Number max)
 {
+    if (!isfinite(min) || !isfinite(max) || min > max) {
+        luaL_error(L,
+                   "min and max must be finite numbers, and min %f must be "
+                   "less than or equal to max %f",
+                   min, max);
+    }
     if (lauxh_isunsigned(L, idx)) {
         lua_Number v = lua_tonumber(L, idx);
         return v >= min && v <= max;
@@ -1248,6 +1267,9 @@ static inline int lauxh_isint_le(lua_State *L, int idx, lua_Integer n)
 static inline int lauxh_isint_in_range(lua_State *L, int idx, lua_Integer min,
                                        lua_Integer max)
 {
+    if (min > max) {
+        luaL_error(L, "min %d must be less than or equal to max %d", min, max);
+    }
     if (lauxh_isint(L, idx)) {
         lua_Integer v = lua_tointeger(L, idx);
         return v >= min && v <= max;
@@ -1351,6 +1373,9 @@ static inline int lauxh_isuint_le(lua_State *L, int idx, uintmax_t n)
 static inline int lauxh_isuint_in_range(lua_State *L, int idx, uintmax_t min,
                                         uintmax_t max)
 {
+    if (min > max) {
+        luaL_error(L, "min %d must be less than or equal to max %d", min, max);
+    }
     if (lauxh_isuint(L, idx)) {
         uintmax_t v = (uintmax_t)lua_tointeger(L, idx);
         return v >= min && v <= max;
@@ -1448,6 +1473,9 @@ static inline int lauxh_ispint_le(lua_State *L, int idx, uintmax_t n)
 static inline int lauxh_ispint_in_range(lua_State *L, int idx, uintmax_t min,
                                         uintmax_t max)
 {
+    if (min > max) {
+        luaL_error(L, "min %d must be less than or equal to max %d", min, max);
+    }
     if (lauxh_ispint(L, idx)) {
         uintmax_t v = (uintmax_t)lua_tointeger(L, idx);
         return v >= min && v <= max;
@@ -2857,6 +2885,12 @@ static inline lua_Number lauxh_optnum_in_range(lua_State *L, int idx,
                                                lua_Number min, lua_Number max,
                                                lua_Number def)
 {
+    if (!isfinite(min) || !isfinite(max) || min > max) {
+        luaL_error(L,
+                   "min and max must be finite numbers, and min %f must be "
+                   "less than or equal to max %f",
+                   min, max);
+    }
     if (lauxh_isnil(L, idx)) {
         return def;
     }
@@ -2900,6 +2934,9 @@ static inline lua_Integer lauxh_optint_in_range(lua_State *L, int idx,
                                                 lua_Integer max,
                                                 lua_Integer def)
 {
+    if (min > max) {
+        luaL_error(L, "min %d must be less than or equal to max %d", min, max);
+    }
     if (lauxh_isnil(L, idx)) {
         return def;
     }
@@ -2944,6 +2981,12 @@ static inline lua_Number lauxh_optfinite_in_range(lua_State *L, int idx,
                                                   lua_Number max,
                                                   lua_Number def)
 {
+    if (!isfinite(min) || !isfinite(max) || min > max) {
+        luaL_error(L,
+                   "min and max must be finite numbers, and min %f must be "
+                   "less than or equal to max %f",
+                   min, max);
+    }
     if (lauxh_isnil(L, idx)) {
         return def;
     }
