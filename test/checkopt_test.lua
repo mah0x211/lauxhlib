@@ -94,9 +94,16 @@ function testcase.checkopt_num()
         FLOAT,
         INF,
         NAN,
+        123,
     }) do
         assert.equal(v, checkopt.num(v))
-        assert.equal(v, checkopt.num(nil, v))
+        local optv = checkopt.num(nil, v)
+        if v ~= v then
+            -- NaN
+            assert.is_true(optv ~= v)
+        else
+            assert.equal(v, optv)
+        end
     end
     assert.equal(123, checkopt.num(123, 456))
     assert.is_nil(checkopt.num(nil))
@@ -121,6 +128,48 @@ function testcase.checkopt_num()
         err = assert.throws(checkopt.num, nil, v)
         assert.match(err, '#2 .+[(]number expected, ', false)
     end
+end
+
+function testcase.checkopt_num_with_min()
+    -- test that check with min constraint
+    assert.equal(checkopt.num(2, 3, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.num(nil, 3, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.num, 1, nil, 2)
+    assert.match(err, 'number greater than or equal to 2.* expected', false)
+end
+
+function testcase.checkopt_num_with_max()
+    -- test that check with max constraint
+    assert.equal(checkopt.num(2, 3, nil, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.num(nil, 3, nil, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.num, 3, nil, nil, 2)
+    assert.match(err, 'number less than or equal to 2.* expected', false)
+end
+
+function testcase.checkopt_num_with_min_max()
+    -- test that check with min and max constraints
+    assert.equal(checkopt.num(2, nil, 2, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.num(nil, 3, 2, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.num, 3, nil, 2, 2)
+    assert.match(err, 'number from 2.* to 2.* expected', false)
+
+    -- test that throws an error if min is greater than max
+    err = assert.throws(checkopt.num, 3, nil, 3, 2)
+    assert.match(err,
+                 'min and max must be finite numbers, and min .+ must be less than or equal to max',
+                 false)
 end
 
 function testcase.checkopt_str()
@@ -393,6 +442,48 @@ function testcase.checkopt_finite()
     end
 end
 
+function testcase.checkopt_finite_with_min()
+    -- test that check with min constraint
+    assert.equal(checkopt.finite(2, 3, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.finite(nil, 3, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.finite, 1, nil, 2)
+    assert.match(err, 'number greater than or equal to 2.* expected', false)
+end
+
+function testcase.checkopt_finite_with_max()
+    -- test that check with max constraint
+    assert.equal(checkopt.finite(2, 3, nil, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.finite(nil, 3, nil, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.finite, 3, nil, nil, 2)
+    assert.match(err, 'number less than or equal to 2.* expected', false)
+end
+
+function testcase.checkopt_finite_with_min_max()
+    -- test that check number with min and max constraints
+    assert.equal(checkopt.finite(2, nil, 2, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.finite(nil, 3, 2, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.num, 3, nil, 2, 2)
+    assert.match(err, 'number from 2.* to 2.* expected', false)
+
+    -- test that throws an error if min is greater than max
+    err = assert.throws(checkopt.finite, 3, nil, 3, 2)
+    assert.match(err,
+                 'min and max must be finite numbers, and min .+ must be less than or equal to max',
+                 false)
+end
+
 function testcase.checkopt_unsigned()
     -- test that return argument
     for _, v in ipairs({
@@ -468,6 +559,46 @@ function testcase.checkopt_int()
         err = assert.throws(checkopt.int, nil, v)
         assert.match(err, '#2 .+[(]integer expected, ', false)
     end
+end
+
+function testcase.checkopt_int_with_min()
+    -- test that check with min constraint
+    assert.equal(checkopt.int(2, 3, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.int(nil, 3, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.int, 1, nil, 2)
+    assert.match(err, 'integer greater than or equal to 2 expected', false)
+end
+
+function testcase.checkopt_int_with_max()
+    -- test that check with max constraint
+    assert.equal(checkopt.int(2, 3, nil, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.int(nil, 3, nil, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.int, 3, nil, nil, 2)
+    assert.match(err, 'integer less than or equal to 2 expected', false)
+end
+
+function testcase.checkopt_int_with_min_max()
+    -- test that check number with min and max constraints
+    assert.equal(checkopt.int(2, nil, 2, 2), 2)
+
+    -- test that default value does not check range constraints
+    assert.equal(checkopt.int(nil, 3, 2, 2), 3)
+
+    -- test that throws an error if value is out of range
+    local err = assert.throws(checkopt.num, 3, nil, 2, 2)
+    assert.match(err, 'number from 2.* to 2.* expected', false)
+
+    -- test that throws an error if min is greater than max
+    err = assert.throws(checkopt.int, 3, nil, 3, 2)
+    assert.match(err, 'min 3 must be less than or equal to max 2')
 end
 
 function testcase.checkopt_uint()
@@ -892,13 +1023,13 @@ function testcase.check_with_argname()
     assert.match(err, "bad argument #1 .+[(]integer expected, ", false)
 
     -- test that call with argument name
-    err = assert.throws(checkopt.int, true, nil, 'hello')
+    err = assert.throws(checkopt.int, true, nil, nil, nil, 'hello')
     assert.match(err, "bad argument 'hello' .+[(]integer expected, ", false)
 end
 
 function testcase.check_with_stacklv()
     local child_caller = function(lv)
-        checkopt.int(true, nil, nil, lv)
+        checkopt.int(true, nil, nil, nil, nil, lv)
     end
     local base_caller = function(lv)
         child_caller(lv)
