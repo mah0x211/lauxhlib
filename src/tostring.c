@@ -23,7 +23,7 @@
 #define LAUXHLIB_USED_IN_LUA
 #include "lauxhlib.h"
 
-static int tostr_lua(lua_State *L)
+static int tostring_lua(lua_State *L)
 {
     if (lua_gettop(L) > 0) {
         lua_settop(L, 1);
@@ -32,8 +32,8 @@ static int tostr_lua(lua_State *L)
     return 1;
 }
 
-LUALIB_API int luaopen_lauxhlib_tostr(lua_State *L)
+LUALIB_API int luaopen_lauxhlib_tostring(lua_State *L)
 {
-    lua_pushcfunction(L, tostr_lua);
+    lua_pushcfunction(L, tostring_lua);
     return 1;
 }

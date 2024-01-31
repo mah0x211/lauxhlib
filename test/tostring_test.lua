@@ -24,7 +24,7 @@ local testcase = setmetatable({}, {
     end,
 })
 
-local tostr = require('lauxhlib.tostr')
+local tostr = require('lauxhlib.tostring')
 
 local FILE = assert(io.tmpfile())
 local STR = 'str'
@@ -108,6 +108,16 @@ function testcase.tostr()
     end
     assert.equal(tostr(nil), 'nil')
     assert.equal(tostr(), '')
+
+    -- test that throw error if __tostring metamethod return non-string value
+    local err = assert.throws(function()
+        tostr(setmetatable({}, {
+            __tostring = function()
+                return {}
+            end,
+        }))
+    end)
+    assert.match(err, 'must return a string')
 end
 
 -- run test cases
