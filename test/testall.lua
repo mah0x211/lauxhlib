@@ -9,7 +9,7 @@ for _, pathname in ipairs({
     'test/file_test.lua',
     'test/is_test.lua',
     'test/ref_test.lua',
-    'test/tostr_test.lua',
+    'test/tostring_test.lua',
 }) do
     print(string.rep('-', 70))
     print(pathname)
