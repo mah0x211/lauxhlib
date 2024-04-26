@@ -53,6 +53,10 @@ static int tofile_lua(lua_State *L)
     return lua_gettop(L) - top;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_file(lua_State *L)
 {
     struct luaL_Reg method[] = {
@@ -68,3 +72,7 @@ LUALIB_API int luaopen_lauxhlib_file(lua_State *L)
 
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif

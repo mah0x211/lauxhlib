@@ -38,8 +38,13 @@
 #include <string.h>
 #include <unistd.h>
 // lua
-#include <lauxlib.h>
-#include <lualib.h>
+// if compiler is not a C++ compiler
+#ifdef __cplusplus
+# include <lua.hpp>
+#else
+# include <lauxlib.h>
+# include <lualib.h>
+#endif
 
 /**
  * NOTE: for string conversions.

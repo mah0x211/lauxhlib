@@ -201,6 +201,10 @@ static int none_lua(lua_State *L)
 
 #undef RET_BOOLEAN
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_is(lua_State *L)
 {
     struct luaL_Reg funcs[] = {
@@ -243,3 +247,7 @@ LUALIB_API int luaopen_lauxhlib_is(lua_State *L)
 
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif

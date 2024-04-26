@@ -95,9 +95,17 @@ static void create_mt(lua_State *L)
     lua_pop(L, 1);
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_ref(lua_State *L)
 {
     create_mt(L);
     lua_pushcfunction(L, ref_lua);
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif
