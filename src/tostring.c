@@ -32,8 +32,16 @@ static int tostring_lua(lua_State *L)
     return 1;
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_tostring(lua_State *L)
 {
     lua_pushcfunction(L, tostring_lua);
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif

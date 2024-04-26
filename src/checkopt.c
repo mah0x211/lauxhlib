@@ -300,6 +300,10 @@ static int num_lua(lua_State *L)
 #undef CHECK_OPT_VAL_EX
 #undef CHECK_ERROPTS
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_checkopt(lua_State *L)
 {
     struct luaL_Reg method[] = {
@@ -337,3 +341,7 @@ LUALIB_API int luaopen_lauxhlib_checkopt(lua_State *L)
 
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif

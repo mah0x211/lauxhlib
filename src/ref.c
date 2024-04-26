@@ -27,7 +27,7 @@
 
 static int get_lua(lua_State *L)
 {
-    int *ref = lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
+    int *ref = (int *)lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
     lua_settop(L, 1);
     lauxh_pushref(L, *ref);
     return 1;
@@ -35,7 +35,7 @@ static int get_lua(lua_State *L)
 
 static int unref_lua(lua_State *L)
 {
-    int *ref = lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
+    int *ref = (int *)lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
     if (lauxh_isref(*ref)) {
         *ref = lauxh_unref(L, *ref);
         lua_pushboolean(L, 1);
@@ -47,14 +47,14 @@ static int unref_lua(lua_State *L)
 
 static int tostring_lua(lua_State *L)
 {
-    int *ref = lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
+    int *ref = (int *)lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
     lua_pushfstring(L, LAUXHLIB_REF_MT ": %d", *ref);
     return 1;
 }
 
 static int gc_lua(lua_State *L)
 {
-    int *ref = lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
+    int *ref = (int *)lauxh_checkudata(L, 1, LAUXHLIB_REF_MT);
     lauxh_unref(L, *ref);
     return 0;
 }
@@ -95,9 +95,17 @@ static void create_mt(lua_State *L)
     lua_pop(L, 1);
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 LUALIB_API int luaopen_lauxhlib_ref(lua_State *L)
 {
     create_mt(L);
     lua_pushcfunction(L, ref_lua);
     return 1;
 }
+
+#ifdef __cplusplus
+}
+#endif
