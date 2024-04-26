@@ -32,13 +32,14 @@
 
 #include <errno.h>
 #include <fcntl.h>
-#include <lauxlib.h>
-#include <lualib.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+// lua
+#include <lauxlib.h>
+#include <lualib.h>
 
 /**
  * NOTE: for string conversions.
@@ -1552,7 +1553,7 @@ static inline int lauxh_push_argerror(lua_State *L, int arg, const char *extra)
     // NOTE: porting from lua source code
     // https://github.com/lua/lua/blob/master/lauxlib.c
     //
-    lua_Debug ar     = {0};
+    lua_Debug ar     = {};
     int stack        = LAUXH_ARGERR_STACK;
     const char *name = NULL;
 
@@ -1671,7 +1672,8 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
 static inline FILE **lauxh_checkfilep(lua_State *L, int idx)
 {
 #if LUA_VERSION_NUM >= 502
-    luaL_Stream *stream = luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    luaL_Stream *stream =
+        (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
     return &stream->f;
 
 #else
