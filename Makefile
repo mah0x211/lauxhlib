@@ -26,5 +26,5 @@ install: $(SOBJ)
 	$(INSTALL) $(SOBJ) $(INST_LIBDIR)
 	$(INSTALL) src/lauxhlib.h $(CONFDIR)
 	rm -f $(LUA_INCDIR)/lauxhlib.h
-	ln -s $(CONFDIR)/lauxhlib.h $(LUA_INCDIR)
+	-[ -w $(LUA_INCDIR) ] && ln -s $(CONFDIR)/lauxhlib.h $(LUA_INCDIR)
 	rm -f $(SOBJ) $(GCDAS)
