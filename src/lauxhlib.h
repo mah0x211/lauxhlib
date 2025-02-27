@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2016 Masatoshi Teruya
+ *  Copyright (C) 2016-present Masatoshi Fukunaga
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to
@@ -1676,13 +1676,15 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
  */
 static inline FILE **lauxh_checkfilep(lua_State *L, int idx)
 {
+    lauxh_argcheck(L, lauxh_isfile(L, idx), idx,
+                   LUA_FILEHANDLE " expected, got %s", luaL_typename(L, idx));
+
 #if LUA_VERSION_NUM >= 502
-    luaL_Stream *stream =
-        (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    luaL_Stream *stream = (luaL_Stream *)lua_touserdata(L, idx);
     return &stream->f;
 
 #else
-    return (FILE **)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    return (FILE **)lua_touserdata(L, idx);
 #endif
 }
 
