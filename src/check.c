@@ -25,17 +25,21 @@
 
 #define CHECK_ERROPTS(name_idx, stacklv_idx)                                   \
     do {                                                                       \
+        typeof(LAUXH_ARGERR_NAME) name = LAUXH_ARGERR_NAME;                    \
+        typeof(LAUXH_ARGERR_INDEX) idx = LAUXH_ARGERR_INDEX;                   \
         switch (lua_type(L, (name_idx))) {                                     \
         case LUA_TNONE:                                                        \
         case LUA_TNIL:                                                         \
             break;                                                             \
         case LUA_TSTRING:                                                      \
-            LAUXH_ARGERR_NAME = lauxh_checkstring(L, (name_idx));              \
+            name = lauxh_checkstring(L, (name_idx));                           \
             break;                                                             \
         default:                                                               \
-            LAUXH_ARGERR_INDEX = lauxh_checkpint(L, (name_idx));               \
+            idx = lauxh_checkpint(L, (name_idx));                              \
         }                                                                      \
         LAUXH_ARGERR_STACK = lauxh_optuint(L, (stacklv_idx), 1);               \
+        LAUXH_ARGERR_NAME  = name;                                             \
+        LAUXH_ARGERR_INDEX = idx;                                              \
     } while (0)
 
 #define CHECK_VALUE(checkfn)                                                   \
