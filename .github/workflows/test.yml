@@ -1,4 +1,4 @@
-name: build
+name: test
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
       - 'LICENSE'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -16,7 +16,6 @@ jobs:
           - "5.2"
           - "5.3"
           - "5.4"
-          - "luajit-2.0.5"
           - "luajit-openresty"
     steps:
     -
@@ -26,7 +25,7 @@ jobs:
         submodules: 'true'
     -
       name: Setup Lua ${{ matrix.lua-version }}
-      uses: leafo/gh-actions-lua@v8
+      uses: leafo/gh-actions-lua@v9
       with:
         luaVersion: ${{ matrix.lua-version }}
     -
@@ -51,7 +50,8 @@ jobs:
         sh ./covergen.sh
     -
       name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v4
       with:
+        token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage/lcov.info
         flags: unittests

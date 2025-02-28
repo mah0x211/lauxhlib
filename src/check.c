@@ -25,17 +25,21 @@
 
 #define CHECK_ERROPTS(name_idx, stacklv_idx)                                   \
     do {                                                                       \
+        typeof(LAUXH_ARGERR_NAME) name = LAUXH_ARGERR_NAME;                    \
+        typeof(LAUXH_ARGERR_INDEX) idx = LAUXH_ARGERR_INDEX;                   \
         switch (lua_type(L, (name_idx))) {                                     \
         case LUA_TNONE:                                                        \
         case LUA_TNIL:                                                         \
             break;                                                             \
         case LUA_TSTRING:                                                      \
-            LAUXH_ARGERR_NAME = lauxh_checkstring(L, (name_idx));              \
+            name = lauxh_checkstring(L, (name_idx));                           \
             break;                                                             \
         default:                                                               \
-            LAUXH_ARGERR_INDEX = lauxh_checkpint(L, (name_idx));               \
+            idx = lauxh_checkpint(L, (name_idx));                              \
         }                                                                      \
         LAUXH_ARGERR_STACK = lauxh_optuint(L, (stacklv_idx), 1);               \
+        LAUXH_ARGERR_NAME  = name;                                             \
+        LAUXH_ARGERR_INDEX = idx;                                              \
     } while (0)
 
 #define CHECK_VALUE(checkfn)                                                   \
@@ -48,8 +52,8 @@
 
 static int none_lua(lua_State *L)
 {
-    CHECK_ERROPTS(2, 3);
     if (!lua_isnoneornil(L, 1)) {
+        CHECK_ERROPTS(2, 3);
         lauxh_checktype(L, 1, LUA_TNIL);
     }
     lua_settop(L, 0);
@@ -132,23 +136,25 @@ static int unsigned_lua(lua_State *L)
 
 #define check_numtypeof(L, typename, numtype)                                  \
     do {                                                                       \
-        CHECK_ERROPTS(4, 5);                                                   \
         if (lua_isnoneornil(L, 2)) {                                           \
             /* without min argument */                                         \
             if (lua_isnoneornil(L, 3)) {                                       \
                 /* without min and max argument */                             \
+                CHECK_ERROPTS(4, 5);                                           \
                 lauxh_check##typename(L, 1);                                   \
                 lua_settop(L, 1);                                              \
                 return 1;                                                      \
             }                                                                  \
             /* with max argument */                                            \
             numtype max = lauxh_check##typename(L, 3);                         \
+            CHECK_ERROPTS(4, 5);                                               \
             lauxh_check##typename##_le(L, 1, max);                             \
             lua_settop(L, 1);                                                  \
             return 1;                                                          \
         } else if (lua_isnoneornil(L, 3)) {                                    \
             /* with min argument */                                            \
             numtype min = lauxh_check##typename(L, 2);                         \
+            CHECK_ERROPTS(4, 5);                                               \
             lauxh_check##typename##_ge(L, 1, min);                             \
             lua_settop(L, 1);                                                  \
             return 1;                                                          \
@@ -156,6 +162,7 @@ static int unsigned_lua(lua_State *L)
         /* with min and max argument */                                        \
         numtype min = lauxh_check##typename(L, 2);                             \
         numtype max = lauxh_check##typename(L, 3);                             \
+        CHECK_ERROPTS(4, 5);                                                   \
         lauxh_check##typename##_in_range(L, 1, min, max);                      \
         lua_settop(L, 1);                                                      \
         return 1;                                                              \

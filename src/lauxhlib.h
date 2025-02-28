@@ -1,5 +1,5 @@
 /**
- *  Copyright (C) 2016 Masatoshi Teruya
+ *  Copyright (C) 2016-present Masatoshi Fukunaga
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to
@@ -1676,13 +1676,15 @@ static inline int lauxh_argerror(lua_State *L, int idx, const char *fmt, ...)
  */
 static inline FILE **lauxh_checkfilep(lua_State *L, int idx)
 {
+    lauxh_argcheck(L, lauxh_isfile(L, idx), idx,
+                   LUA_FILEHANDLE " expected, got %s", luaL_typename(L, idx));
+
 #if LUA_VERSION_NUM >= 502
-    luaL_Stream *stream =
-        (luaL_Stream *)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    luaL_Stream *stream = (luaL_Stream *)lua_touserdata(L, idx);
     return &stream->f;
 
 #else
-    return (FILE **)luaL_checkudata(L, idx, LUA_FILEHANDLE);
+    return (FILE **)lua_touserdata(L, idx);
 #endif
 }
 
@@ -1712,6 +1714,7 @@ static inline FILE *lauxh_checkfile(lua_State *L, int idx)
 static inline FILE *lauxh_optfile(lua_State *L, int idx, FILE *def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkfile(L, idx);
@@ -1743,6 +1746,7 @@ static inline void lauxh_checkcallable(lua_State *L, int idx)
 static inline int lauxh_optcallable(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     lauxh_checkcallable(L, idx);
@@ -1779,6 +1783,7 @@ static inline void lauxh_checkfunc(lua_State *L, int idx)
 static inline int lauxh_optfunc(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     lauxh_checkfunc(L, idx);
@@ -1819,6 +1824,7 @@ static inline lua_CFunction lauxh_optcfunc(lua_State *L, int idx,
                                            lua_CFunction def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkcfunc(L, idx);
@@ -1850,6 +1856,7 @@ static inline lua_State *lauxh_checkthread(lua_State *L, int idx)
 static inline lua_State *lauxh_optthread(lua_State *L, int idx, lua_State *def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkthread(L, idx);
@@ -1883,6 +1890,7 @@ static inline const void *lauxh_optpointer(lua_State *L, int idx,
                                            const void *def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkpointer(L, idx);
@@ -1915,6 +1923,7 @@ static inline void *lauxh_checkuserdata(lua_State *L, int idx)
 static inline void *lauxh_optuserdata(lua_State *L, int idx, void *def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuserdata(L, idx);
@@ -1950,6 +1959,7 @@ static inline void *lauxh_optudata(lua_State *L, int idx, const char *tname,
                                    void *def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
 
@@ -1988,6 +1998,7 @@ static inline int lauxh_checkbool(lua_State *L, int idx)
 static inline int lauxh_optbool(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkbool(L, idx);
@@ -2043,6 +2054,7 @@ static inline const char *lauxh_optlstr(lua_State *L, int idx, const char *def,
                                         size_t *len)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         if (len && def) {
             *len = strlen(def);
         }
@@ -2115,6 +2127,7 @@ static inline lua_Number lauxh_checknum(lua_State *L, int idx)
 static inline lua_Number lauxh_optnum(lua_State *L, int idx, lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checknum(L, idx);
@@ -2157,6 +2170,7 @@ static inline lua_Integer lauxh_checkint(lua_State *L, int idx)
 static inline lua_Integer lauxh_optint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint(L, idx);
@@ -2194,6 +2208,7 @@ static inline lua_Number lauxh_checkfinite(lua_State *L, int idx)
 static inline lua_Number lauxh_optfinite(lua_State *L, int idx, lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkfinite(L, idx);
@@ -2228,6 +2243,7 @@ static inline lua_Number lauxh_optunsigned(lua_State *L, int idx,
                                            lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkunsigned(L, idx);
@@ -2266,6 +2282,7 @@ static inline lua_Integer lauxh_checkuint(lua_State *L, int idx)
 static inline lua_Integer lauxh_optuint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuint(L, idx);
@@ -2309,6 +2326,7 @@ static inline lua_Integer lauxh_checkpint(lua_State *L, int idx)
 static inline lua_Integer lauxh_optpint(lua_State *L, int idx, lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkpint(L, idx);
@@ -2347,6 +2365,7 @@ static inline int8_t lauxh_checkint8(lua_State *L, int idx)
 static inline int8_t lauxh_optint8(lua_State *L, int idx, int8_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint8(L, idx);
@@ -2380,6 +2399,7 @@ static inline uint8_t lauxh_checkuint8(lua_State *L, int idx)
 static inline uint8_t lauxh_optuint8(lua_State *L, int idx, uint8_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuint8(L, idx);
@@ -2413,6 +2433,7 @@ static inline int16_t lauxh_checkint16(lua_State *L, int idx)
 static inline int16_t lauxh_optint16(lua_State *L, int idx, int16_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint16(L, idx);
@@ -2446,6 +2467,7 @@ static inline uint16_t lauxh_checkuint16(lua_State *L, int idx)
 static inline uint16_t lauxh_optuint16(lua_State *L, int idx, uint16_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuint16(L, idx);
@@ -2479,6 +2501,7 @@ static inline int32_t lauxh_checkint32(lua_State *L, int idx)
 static inline int32_t lauxh_optint32(lua_State *L, int idx, int32_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint32(L, idx);
@@ -2512,6 +2535,7 @@ static inline uint32_t lauxh_checkuint32(lua_State *L, int idx)
 static inline uint32_t lauxh_optuint32(lua_State *L, int idx, uint32_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuint32(L, idx);
@@ -2545,6 +2569,7 @@ static inline int64_t lauxh_checkint64(lua_State *L, int idx)
 static inline int64_t lauxh_optint64(lua_State *L, int idx, int64_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint64(L, idx);
@@ -2578,6 +2603,7 @@ static inline uint64_t lauxh_checkuint64(lua_State *L, int idx)
 static inline uint64_t lauxh_optuint64(lua_State *L, int idx, uint64_t def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkuint64(L, idx);
@@ -2652,6 +2678,7 @@ static inline lua_Number lauxh_optnum_ge(lua_State *L, int idx, lua_Number n,
                                          lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checknum_ge(L, idx, n);
@@ -2673,6 +2700,7 @@ static inline lua_Number lauxh_optnum_le(lua_State *L, int idx, lua_Number n,
                                          lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checknum_le(L, idx, n);
@@ -2728,6 +2756,7 @@ static inline lua_Integer lauxh_optint_ge(lua_State *L, int idx, lua_Integer n,
                                           lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint_ge(L, idx, n);
@@ -2749,6 +2778,7 @@ static inline lua_Integer lauxh_optint_le(lua_State *L, int idx, lua_Integer n,
                                           lua_Integer def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint_le(L, idx, n);
@@ -2806,6 +2836,7 @@ static inline lua_Number lauxh_optfinite_ge(lua_State *L, int idx, lua_Number n,
                                             lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkfinite_ge(L, idx, n);
@@ -2827,6 +2858,7 @@ static inline lua_Number lauxh_optfinite_le(lua_State *L, int idx, lua_Number n,
                                             lua_Number def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkfinite_le(L, idx, n);
@@ -2893,6 +2925,7 @@ static inline lua_Number lauxh_optnum_in_range(lua_State *L, int idx,
                    min, max);
     }
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checknum_in_range(L, idx, min, max);
@@ -2939,6 +2972,7 @@ static inline lua_Integer lauxh_optint_in_range(lua_State *L, int idx,
         luaL_error(L, "min %d must be less than or equal to max %d", min, max);
     }
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkint_in_range(L, idx, min, max);
@@ -2989,6 +3023,7 @@ static inline lua_Number lauxh_optfinite_in_range(lua_State *L, int idx,
                    min, max);
     }
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     return lauxh_checkfinite_in_range(L, idx, min, max);
@@ -3035,6 +3070,7 @@ static inline void lauxh_checktable(lua_State *L, int idx)
 static inline int lauxh_opttable(lua_State *L, int idx, int def)
 {
     if (lauxh_isnil(L, idx)) {
+        lauxh_push_argerror_init();
         return def;
     }
     lauxh_checktable(L, idx);

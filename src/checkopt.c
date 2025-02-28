@@ -25,17 +25,21 @@
 
 #define CHECK_ERROPTS(name_idx, stacklv_idx)                                   \
     do {                                                                       \
+        typeof(LAUXH_ARGERR_NAME) name = LAUXH_ARGERR_NAME;                    \
+        typeof(LAUXH_ARGERR_INDEX) idx = LAUXH_ARGERR_INDEX;                   \
         switch (lua_type(L, name_idx)) {                                       \
         case LUA_TNONE:                                                        \
         case LUA_TNIL:                                                         \
             break;                                                             \
         case LUA_TSTRING:                                                      \
-            LAUXH_ARGERR_NAME = lauxh_checkstring(L, name_idx);                \
+            name = lauxh_checkstring(L, name_idx);                             \
             break;                                                             \
         default:                                                               \
-            LAUXH_ARGERR_INDEX = lauxh_checkpint(L, name_idx);                 \
+            idx = lauxh_checkpint(L, name_idx);                                \
         }                                                                      \
         LAUXH_ARGERR_STACK = lauxh_optuint(L, stacklv_idx, 1);                 \
+        LAUXH_ARGERR_NAME  = name;                                             \
+        LAUXH_ARGERR_INDEX = idx;                                              \
     } while (0)
 
 static int file_lua(lua_State *L)
@@ -43,11 +47,11 @@ static int file_lua(lua_State *L)
     FILE *optfp = NULL;
     FILE *fp    = NULL;
 
-    CHECK_ERROPTS(3, 4);
-    if (lua_gettop(L) > 1) {
+    if (!lua_isnoneornil(L, 2)) {
         optfp = lauxh_checkfile(L, 2);
     }
 
+    CHECK_ERROPTS(3, 4);
     fp = lauxh_optfile(L, 1, optfp);
     if (!fp) {
         lua_pushnil(L);
@@ -61,15 +65,16 @@ static int file_lua(lua_State *L)
 
 #define CHECK_OPT_IDXVAL(checkdeffn, checkoptfn)                               \
     do {                                                                       \
-        CHECK_ERROPTS(3, 4);                                                   \
         if (lua_isnoneornil(L, 2)) {                                           \
             /* without default value */                                        \
+            CHECK_ERROPTS(3, 4);                                               \
             lua_settop(L, 1);                                                  \
             checkoptfn(L, 1, 0);                                               \
             return 1;                                                          \
         }                                                                      \
         /* with default value */                                               \
         checkdeffn(L, 2);                                                      \
+        CHECK_ERROPTS(3, 4);                                                   \
         lua_settop(L, checkoptfn(L, 1, 2));                                    \
         return 1;                                                              \
     } while (0)
@@ -94,16 +99,21 @@ static int func_lua(lua_State *L)
 #define CHECK_OPT_VAL_EX(name_idx, stacklv_idx, defval, checkdeffn,            \
                          checkoptfn)                                           \
     do {                                                                       \
-        CHECK_ERROPTS((name_idx), (stacklv_idx));                              \
         if (lua_isnoneornil(L, 2)) {                                           \
             /* without default value */                                        \
-            lua_settop(L, 1);                                                  \
+            CHECK_ERROPTS((name_idx), (stacklv_idx));                          \
             checkoptfn(L, 1, (defval));                                        \
+            lua_settop(L, 1);                                                  \
             return 1;                                                          \
         }                                                                      \
         /* with default value */                                               \
         defval = checkdeffn(L, 2);                                             \
-        if (lua_isnoneornil(L, 1) || checkoptfn(L, 1, (defval)) == (defval)) { \
+        if (lua_isnoneornil(L, 1)) {                                           \
+            /* just return default value */                                    \
+            lua_settop(L, 2);                                                  \
+        }                                                                      \
+        CHECK_ERROPTS((name_idx), (stacklv_idx));                              \
+        if (checkoptfn(L, 1, (defval)) == (defval)) {                          \
             /* with no-value or same value of default value */                 \
             lua_settop(L, 2);                                                  \
         } else {                                                               \
@@ -221,15 +231,16 @@ static int unsigned_lua(lua_State *L)
 
 #define CHECK_OPT_RANGEVAL_GLE(defval, checkdeffn, checkoptfn, n)              \
     do {                                                                       \
-        CHECK_ERROPTS(5, 6);                                                   \
         if (lua_isnoneornil(L, 2)) {                                           \
             /* without default value */                                        \
-            lua_settop(L, 1);                                                  \
+            CHECK_ERROPTS(5, 6);                                               \
             checkoptfn(L, 1, (n), (defval));                                   \
+            lua_settop(L, 1);                                                  \
             return 1;                                                          \
         }                                                                      \
         /* with default value */                                               \
         defval = checkdeffn(L, 2);                                             \
+        CHECK_ERROPTS(5, 6);                                                   \
         if (checkoptfn(L, 1, (n), (defval)) == (defval)) {                     \
             /* with no-value or same value of default value */                 \
             lua_settop(L, 2);                                                  \
@@ -256,18 +267,19 @@ static int unsigned_lua(lua_State *L)
             typeof(def) max = checkdeffn(L, 4);                                \
             CHECK_OPT_RANGEVAL_GLE(def, checkdeffn, checkoptfn##_le, max);     \
         }                                                                      \
-        CHECK_ERROPTS(5, 6);                                                   \
         /* with min and max argument */                                        \
         typeof(def) min = checkdeffn(L, 3);                                    \
         typeof(def) max = checkdeffn(L, 4);                                    \
         if (lua_isnoneornil(L, 2)) {                                           \
             /* without default value */                                        \
-            lua_settop(L, 1);                                                  \
+            CHECK_ERROPTS(5, 6);                                               \
             checkoptfn##_in_range(L, 1, min, max, (def));                      \
+            lua_settop(L, 1);                                                  \
             return 1;                                                          \
         }                                                                      \
         /* with default value */                                               \
         def = checkdeffn(L, 2);                                                \
+        CHECK_ERROPTS(5, 6);                                                   \
         if (checkoptfn##_in_range(L, 1, min, max, (def)) == (def)) {           \
             /* with no-value or same value of default value */                 \
             lua_settop(L, 2);                                                  \
