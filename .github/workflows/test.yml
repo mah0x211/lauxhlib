@@ -9,37 +9,37 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/mah0x211/lua-ci:latest
     strategy:
       matrix:
         lua-version:
-          - "5.1"
-          - "5.2"
-          - "5.3"
-          - "5.4"
-          - "luajit-openresty"
+          - "5.1.:latest"
+          - "5.2.:latest"
+          - "5.3.:latest"
+          - "5.4.:latest"
+          - "lj-v2.1:latest"
     steps:
+    -
+      name: Switch Lua Version
+      run: |
+        lenv -g use ${{ matrix.lua-version }}
+        lua -v || true
     -
       name: Checkout
       uses: actions/checkout@v2
       with:
         submodules: 'true'
     -
-      name: Setup Lua ${{ matrix.lua-version }}
-      uses: leafo/gh-actions-lua@v9
-      with:
-        luaVersion: ${{ matrix.lua-version }}
-    -
-      name: Setup Luarocks
-      uses: leafo/gh-actions-luarocks@v4
+      name: Install
+      run: |
+        LAUXHLIB_COVERAGE=1 luarocks make
     -
       name: Install Tools
       run: |
-        sudo apt install lcov -y
+        apt-get update
+        apt-get install lcov -y
         luarocks install assert
-    -
-      name: Install
-      run: |
-        luarocks make LAUXHLIB_COVERAGE=1
     -
       name: Test
       run: |
@@ -47,7 +47,7 @@ jobs:
     -
       name: Generate coverage reports
       run: |
-        sh ./covergen.sh
+        sh ./covgen.sh
     -
       name: Upload coverage to Codecov
       uses: codecov/codecov-action@v4
